@@ -1,0 +1,433 @@
+{
+  "common": {
+    "appName": "বেনউইল স্কুল",
+    "loading": "লোড হচ্ছে...",
+    "comingSoon": "শীঘ্রই আসছে",
+    "comingSoonDescription": "এই অংশটি এখনও তৈরি হয়নি। এটি পরবর্তী ধাপে যুক্ত হবে।",
+    "welcomeBack": "স্বাগতম",
+    "logout": "লগ আউট",
+    "language": "ভাষা",
+    "accessRestrictedTitle": "প্রবেশাধিকার সীমিত",
+    "accessRestrictedDescription": "এই পাতাটি দেখার অনুমতি আপনার নেই।",
+    "backToDashboard": "ড্যাশবোর্ডে ফিরে যান",
+    "somethingWentWrong": "কিছু একটা ভুল হয়েছে",
+    "somethingWentWrongDescription": "একটি অপ্রত্যাশিত সমস্যা হয়েছে। আবার চেষ্টা করুন।",
+    "tryAgain": "আবার চেষ্টা করুন",
+    "pageNotFound": "পাতাটি পাওয়া যায়নি",
+    "pageNotFoundDescription": "আপনি যে পাতাটি খুঁজছেন তা নেই।"
+  },
+  "roles": {
+    "SUPER_ADMIN": "সুপার অ্যাডমিন",
+    "SCHOOL_ADMIN": "স্কুল অ্যাডমিন",
+    "PRINCIPAL": "প্রধান শিক্ষক",
+    "TEACHER": "শিক্ষক",
+    "ACCOUNTANT": "হিসাবরক্ষক",
+    "LIBRARIAN": "গ্রন্থাগারিক",
+    "HR": "এইচআর",
+    "STUDENT": "শিক্ষার্থী",
+    "GUARDIAN": "অভিভাবক"
+  },
+  "nav": {
+    "dashboard": "ড্যাশবোর্ড",
+    "students": "শিক্ষার্থী",
+    "teachersStaff": "শিক্ষক ও কর্মচারী",
+    "academic": "একাডেমিক",
+    "attendance": "উপস্থিতি",
+    "examsResults": "পরীক্ষা ও ফলাফল",
+    "fees": "ফি",
+    "homework": "বাড়ির কাজ",
+    "notices": "নোটিশ",
+    "library": "লাইব্রেরি",
+    "transport": "পরিবহন",
+    "reports": "রিপোর্ট",
+    "settings": "সেটিংস"
+  },
+  "auth": {
+    "loginTitle": "লগ ইন",
+    "loginSubtitle": "চালিয়ে যেতে আপনার ইমেইল ও পাসওয়ার্ড দিন।",
+    "email": "ইমেইল",
+    "password": "পাসওয়ার্ড",
+    "loginButton": "লগ ইন",
+    "loggingIn": "লগ ইন হচ্ছে...",
+    "invalidCredentials": "ইমেইল অথবা পাসওয়ার্ড সঠিক নয়।",
+    "errors": {
+      "invalidEmail": "সঠিক ইমেইল ঠিকানা দিন।",
+      "passwordRequired": "পাসওয়ার্ড আবশ্যক।",
+      "invalidForm": "সঠিক ইমেইল ও পাসওয়ার্ড দিন।"
+    }
+  },
+  "dashboard": {
+    "admin": {
+      "students": "শিক্ষার্থী",
+      "teachers": "শিক্ষক",
+      "staff": "কর্মচারী",
+      "todaysAttendance": "আজকের উপস্থিতি",
+      "todaysFeeCollection": "আজকের ফি সংগ্রহ",
+      "pendingFees": "বকেয়া ফি",
+      "upcomingExams": "আসন্ন পরীক্ষা",
+      "recentNotices": "সাম্প্রতিক নোটিশ",
+      "quickActions": "দ্রুত কাজ",
+      "addStudent": "শিক্ষার্থী যোগ করুন",
+      "takeAttendance": "উপস্থিতি নিন",
+      "createExam": "পরীক্ষা তৈরি করুন",
+      "enterMarks": "নম্বর দিন",
+      "collectFee": "ফি সংগ্রহ করুন",
+      "createNotice": "নোটিশ তৈরি করুন"
+    },
+    "teacher": {
+      "todaysClasses": "আজকের ক্লাস",
+      "takeAttendance": "উপস্থিতি নিন",
+      "myStudents": "আমার শিক্ষার্থী",
+      "homework": "বাড়ির কাজ",
+      "upcomingExams": "আসন্ন পরীক্ষা",
+      "pendingMarks": "বাকি নম্বর"
+    },
+    "student": {
+      "todaysRoutine": "আজকের রুটিন",
+      "attendance": "উপস্থিতি",
+      "homework": "বাড়ির কাজ",
+      "upcomingExam": "আসন্ন পরীক্ষা",
+      "latestResult": "সর্বশেষ ফলাফল",
+      "notices": "নোটিশ"
+    },
+    "guardian": {
+      "myChildren": "আমার সন্তান",
+      "attendance": "উপস্থিতি",
+      "fees": "ফি",
+      "results": "ফলাফল",
+      "homework": "বাড়ির কাজ",
+      "routine": "রুটিন",
+      "notices": "নোটিশ"
+    },
+    "generic": {
+      "title": "ড্যাশবোর্ড",
+      "description": "আপনার মডিউলগুলো তৈরি হওয়ার সাথে সাথে এখানে দেখা যাবে।"
+    }
+  },
+  "students": {
+    "title": "শিক্ষার্থী",
+    "addStudent": "+ শিক্ষার্থী যোগ করুন",
+    "searchLabel": "খুঁজুন",
+    "searchPlaceholder": "নাম, ভর্তি নম্বর, শিক্ষার্থী আইডি বা অভিভাবকের ফোন নম্বর দিয়ে খুঁজুন",
+    "filters": {
+      "class": "শ্রেণি",
+      "section": "শাখা",
+      "status": "অবস্থা",
+      "allClasses": "সব শ্রেণি",
+      "allSections": "সব শাখা",
+      "allStatuses": "সব অবস্থা"
+    },
+    "table": {
+      "student": "শিক্ষার্থী",
+      "admissionNo": "ভর্তি নম্বর",
+      "class": "শ্রেণি",
+      "section": "শাখা",
+      "roll": "রোল",
+      "guardian": "অভিভাবক",
+      "phone": "ফোন",
+      "status": "অবস্থা",
+      "actions": "কার্যক্রম",
+      "view": "দেখুন",
+      "edit": "সম্পাদনা"
+    },
+    "empty": {
+      "title": "কোনো শিক্ষার্থী নেই",
+      "description": "শুরু করতে প্রথম শিক্ষার্থী যোগ করুন।",
+      "noResultsTitle": "কোনো মিল পাওয়া যায়নি",
+      "noResultsDescription": "ভিন্ন কিছু অনুসন্ধান করুন অথবা ফিল্টার পরিবর্তন করুন।"
+    },
+    "pagination": {
+      "previous": "পূর্ববর্তী",
+      "next": "পরবর্তী",
+      "pageInfo": "পৃষ্ঠা {page} এর {totalPages}"
+    },
+    "status": {
+      "ACTIVE": "সক্রিয়",
+      "INACTIVE": "নিষ্ক্রিয়",
+      "GRADUATED": "উত্তীর্ণ",
+      "WITHDRAWN": "প্রত্যাহৃত"
+    },
+    "gender": {
+      "MALE": "ছেলে",
+      "FEMALE": "মেয়ে",
+      "OTHER": "অন্যান্য"
+    },
+    "bloodGroup": {
+      "A_POSITIVE": "A+",
+      "A_NEGATIVE": "A-",
+      "B_POSITIVE": "B+",
+      "B_NEGATIVE": "B-",
+      "AB_POSITIVE": "AB+",
+      "AB_NEGATIVE": "AB-",
+      "O_POSITIVE": "O+",
+      "O_NEGATIVE": "O-"
+    },
+    "relation": {
+      "FATHER": "বাবা",
+      "MOTHER": "মা",
+      "GUARDIAN": "অভিভাবক",
+      "OTHER": "অন্যান্য"
+    },
+    "documentType": {
+      "BIRTH_CERTIFICATE": "জন্ম নিবন্ধন সনদ",
+      "STUDENT_PHOTO": "শিক্ষার্থীর ছবি",
+      "PREVIOUS_SCHOOL_CERTIFICATE": "পূর্ববর্তী বিদ্যালয়ের সনদ",
+      "OTHER": "অন্যান্য"
+    },
+    "new": {
+      "title": "শিক্ষার্থী যোগ করুন"
+    },
+    "edit": {
+      "title": "শিক্ষার্থী সম্পাদনা"
+    },
+    "steps": {
+      "basic": "মৌলিক তথ্য",
+      "guardian": "অভিভাবকের তথ্য",
+      "academic": "একাডেমিক তথ্য",
+      "documents": "নথিপত্র"
+    },
+    "fields": {
+      "name": "নাম",
+      "nameBn": "নাম (বাংলা)",
+      "dateOfBirth": "জন্ম তারিখ",
+      "gender": "লিঙ্গ",
+      "bloodGroup": "রক্তের গ্রুপ",
+      "religion": "ধর্ম",
+      "nationality": "জাতীয়তা",
+      "birthCertificateNumber": "জন্ম নিবন্ধন নম্বর",
+      "admissionNumber": "ভর্তি নম্বর",
+      "admissionDate": "ভর্তির তারিখ",
+      "status": "অবস্থা",
+      "academicYear": "শিক্ষাবর্ষ",
+      "class": "শ্রেণি",
+      "section": "শাখা",
+      "roll": "রোল নম্বর",
+      "guardianName": "অভিভাবকের নাম",
+      "guardianNameBn": "অভিভাবকের নাম (বাংলা)",
+      "phone": "ফোন",
+      "email": "ইমেইল",
+      "occupation": "পেশা",
+      "address": "ঠিকানা",
+      "relation": "সম্পর্ক",
+      "isPrimary": "প্রধান অভিভাবক",
+      "documentTitle": "নথির নাম",
+      "documentType": "নথির ধরন",
+      "uploadedDate": "আপলোডের তারিখ",
+      "file": "ফাইল"
+    },
+    "fileNotConfigured": "ফাইল সংযুক্ত করতে ক্লাউড স্টোরেজ প্রয়োজন, যা এখনও কনফিগার করা হয়নি। আপনি এখনও নথির নাম ও ধরন সংরক্ষণ করতে পারবেন।",
+    "actions": {
+      "next": "পরবর্তী",
+      "back": "পেছনে",
+      "save": "শিক্ষার্থী সংরক্ষণ করুন",
+      "saving": "সংরক্ষণ হচ্ছে...",
+      "saveChanges": "পরিবর্তন সংরক্ষণ করুন",
+      "addGuardian": "+ অভিভাবক যোগ করুন",
+      "remove": "সরান",
+      "addDocument": "+ নথি যোগ করুন",
+      "adding": "যোগ হচ্ছে..."
+    },
+    "success": {
+      "created": "শিক্ষার্থী সফলভাবে তৈরি হয়েছে।",
+      "updated": "শিক্ষার্থীর তথ্য সফলভাবে হালনাগাদ হয়েছে।",
+      "documentAdded": "নথি যোগ করা হয়েছে।"
+    },
+    "errors": {
+      "nameRequired": "নাম আবশ্যক।",
+      "invalidDate": "সঠিক তারিখ দিন।",
+      "admissionNumberRequired": "ভর্তি নম্বর আবশ্যক।",
+      "phoneRequired": "ফোন নম্বর আবশ্যক।",
+      "invalidEmail": "সঠিক ইমেইল ঠিকানা দিন।",
+      "academicYearRequired": "শিক্ষাবর্ষ নির্বাচন করুন।",
+      "classRequired": "শ্রেণি নির্বাচন করুন।",
+      "sectionRequired": "শাখা নির্বাচন করুন।",
+      "rollRequired": "সঠিক রোল নম্বর দিন।",
+      "guardiansRequired": "অন্তত একজন অভিভাবক যোগ করুন।",
+      "documentTitleRequired": "নথির নাম আবশ্যক।",
+      "invalidForm": "চিহ্নিত ঘরগুলো ঠিক করুন।",
+      "invalidAcademicSelection": "নির্বাচিত শিক্ষাবর্ষ, শ্রেণি বা শাখা সঠিক নয়।",
+      "duplicateAdmissionNumber": "এই ভর্তি নম্বরটি অন্য একজন শিক্ষার্থীর জন্য ব্যবহৃত হয়েছে।",
+      "duplicateRoll": "নির্বাচিত শ্রেণি ও শাখায় এই রোল নম্বরটি ইতিমধ্যে ব্যবহৃত হয়েছে।",
+      "saveFailed": "শিক্ষার্থীর তথ্য সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।",
+      "notFound": "শিক্ষার্থী পাওয়া যায়নি।"
+    },
+    "profile": {
+      "overview": "সারসংক্ষেপ",
+      "academic": "একাডেমিক",
+      "attendance": "উপস্থিতি",
+      "results": "ফলাফল",
+      "fees": "ফি",
+      "homework": "বাড়ির কাজ",
+      "documents": "নথিপত্র",
+      "basicInformation": "মৌলিক তথ্য",
+      "guardianInformation": "অভিভাবকের তথ্য",
+      "contactInformation": "যোগাযোগের তথ্য",
+      "admissionInformation": "ভর্তির তথ্য",
+      "primaryGuardian": "প্রধান",
+      "noGuardians": "কোনো অভিভাবক যোগ করা হয়নি।",
+      "noDocuments": "এখনও কোনো নথি যোগ করা হয়নি।",
+      "editStudent": "শিক্ষার্থী সম্পাদনা",
+      "comingSoonTabDescription": "এই ট্যাবটি এখনও তৈরি হয়নি। এটি পরবর্তী ধাপে যুক্ত হবে।",
+      "studentIdLabel": "শিক্ষার্থী আইডি",
+      "admissionNoLabel": "ভর্তি নম্বর"
+    },
+    "notFoundTitle": "শিক্ষার্থী পাওয়া যায়নি",
+    "notFoundDescription": "এই শিক্ষার্থীকে সরিয়ে ফেলা হতে পারে, অথবা লিংকটি ভুল।"
+  },
+  "attendance": {
+    "title": "উপস্থিতি",
+    "viewHistory": "ইতিহাস দেখুন",
+    "attendancePercentage": "উপস্থিতির হার",
+    "recentAttendance": "সাম্প্রতিক উপস্থিতি",
+    "searchPlaceholder": "নাম বা রোল দিয়ে খুঁজুন",
+    "alreadySubmitted": "এই তারিখের উপস্থিতি ইতিমধ্যে জমা দেওয়া হয়েছে। সর্বশেষ হালনাগাদ: {time}",
+    "fields": {
+      "class": "শ্রেণি",
+      "section": "শাখা",
+      "date": "তারিখ",
+      "status": "অবস্থা"
+    },
+    "filters": {
+      "allClasses": "সব শ্রেণি",
+      "allSections": "সব শাখা"
+    },
+    "status": {
+      "PRESENT": "উপস্থিত",
+      "ABSENT": "অনুপস্থিত",
+      "LATE": "দেরি",
+      "LEAVE": "ছুটি"
+    },
+    "actions": {
+      "markAllPresent": "সবাইকে উপস্থিত চিহ্নিত করুন",
+      "save": "উপস্থিতি সংরক্ষণ করুন",
+      "saving": "সংরক্ষণ হচ্ছে..."
+    },
+    "success": {
+      "saved": "উপস্থিতি সফলভাবে সংরক্ষণ হয়েছে।"
+    },
+    "table": {
+      "actions": "কার্যক্রম",
+      "view": "দেখুন"
+    },
+    "empty": {
+      "noStudents": "এই শ্রেণি ও শাখায় কোনো সক্রিয় শিক্ষার্থী নেই।",
+      "noAcademicSetup": "এখনও কোনো শ্রেণি তৈরি করা হয়নি।",
+      "selectClassSection": "উপস্থিতি নিতে একটি শ্রেণি ও শাখা নির্বাচন করুন।",
+      "noRecords": "এখনও কোনো উপস্থিতি রেকর্ড করা হয়নি।",
+      "noAssignments": "আপনার এখনও কোনো শ্রেণি বরাদ্দ নেই। আপনার স্কুল অ্যাডমিনের সাথে যোগাযোগ করুন।"
+    },
+    "history": {
+      "title": "উপস্থিতির ইতিহাস",
+      "backToAttendance": "উপস্থিতিতে ফিরে যান",
+      "empty": "নির্বাচিত সময়ে কোনো উপস্থিতির ইতিহাস নেই।"
+    },
+    "errors": {
+      "invalidForm": "চিহ্নিত ঘরগুলো ঠিক করুন।",
+      "invalidSelection": "নির্বাচিত শ্রেণি, শাখা বা শিক্ষাবর্ষ সঠিক নয়।",
+      "invalidStudents": "এক বা একাধিক শিক্ষার্থী এই শ্রেণি ও শাখার নয়।",
+      "saveFailed": "উপস্থিতি সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।",
+      "classRequired": "শ্রেণি নির্বাচন করুন।",
+      "sectionRequired": "শাখা নির্বাচন করুন।",
+      "academicYearRequired": "শিক্ষাবর্ষ নির্বাচন করুন।",
+      "invalidDate": "সঠিক তারিখ দিন।",
+      "futureDate": "ভবিষ্যতের তারিখে উপস্থিতি নেওয়া যাবে না।",
+      "noStudents": "অন্তত একজন শিক্ষার্থী যোগ করুন।",
+      "notAssigned": "আপনি এই শ্রেণি ও শাখার জন্য নির্ধারিত নন।"
+    }
+  },
+  "academics": {
+    "title": "একাডেমিক ব্যবস্থাপনা",
+    "fields": {
+      "name": "নাম",
+      "nameBn": "নাম (বাংলা)",
+      "code": "কোড",
+      "order": "ক্রম",
+      "status": "অবস্থা",
+      "class": "শ্রেণি",
+      "section": "শাখা",
+      "subject": "বিষয়",
+      "teacher": "শিক্ষক",
+      "sections": "শাখাসমূহ",
+      "students": "শিক্ষার্থী"
+    },
+    "status": {
+      "active": "সক্রিয়",
+      "inactive": "নিষ্ক্রিয়"
+    },
+    "actions": {
+      "title": "কার্যক্রম",
+      "edit": "সম্পাদনা",
+      "save": "সংরক্ষণ করুন",
+      "saving": "সংরক্ষণ হচ্ছে...",
+      "remove": "সরান",
+      "activate": "সক্রিয় করুন"
+    },
+    "success": {
+      "saved": "সফলভাবে সংরক্ষিত হয়েছে।",
+      "activated": "শিক্ষাবর্ষ সক্রিয় করা হয়েছে।"
+    },
+    "years": {
+      "title": "শিক্ষাবর্ষ",
+      "description": "স্কুল বছর এবং কোনটি সক্রিয় তা পরিচালনা করুন।",
+      "addTitle": "শিক্ষাবর্ষ যোগ করুন",
+      "editTitle": "শিক্ষাবর্ষ সম্পাদনা"
+    },
+    "classes": {
+      "title": "শ্রেণি",
+      "description": "শ্রেণি পরিচালনা করুন, যেমন শ্রেণি ১ থেকে শ্রেণি ১০।",
+      "addTitle": "শ্রেণি যোগ করুন",
+      "editTitle": "শ্রেণি সম্পাদনা"
+    },
+    "sections": {
+      "title": "শাখা",
+      "addTitle": "শাখা যোগ করুন",
+      "editTitle": "শাখা সম্পাদনা"
+    },
+    "subjects": {
+      "title": "বিষয়",
+      "description": "স্কুলের বিষয়সমূহ পরিচালনা করুন।",
+      "addTitle": "বিষয় যোগ করুন",
+      "editTitle": "বিষয় সম্পাদনা"
+    },
+    "assignments": {
+      "title": "শিক্ষক নিয়োগ",
+      "description": "একটি শ্রেণি, শাখা ও বিষয়ে শিক্ষক নিয়োগ করুন।",
+      "addTitle": "শিক্ষক নিয়োগ করুন",
+      "empty": "এখনও কোনো শিক্ষক নিয়োগ করা হয়নি।",
+      "noSubjectsForClass": "এই শ্রেণিতে এখনও কোনো বিষয় যুক্ত করা হয়নি। প্রথমে শ্রেণি পাতা থেকে একটি যোগ করুন।"
+    },
+    "classDetail": {
+      "backToClasses": "শ্রেণিতে ফিরে যান",
+      "students": "শিক্ষার্থী",
+      "noSections": "এখনও কোনো শাখা নেই।",
+      "noSubjects": "এখনও কোনো বিষয় যুক্ত করা হয়নি।",
+      "allSubjectsAssigned": "সব বিষয় ইতিমধ্যে এই শ্রেণিতে যুক্ত করা হয়েছে।",
+      "noSubjectsExist": "এখনও কোনো বিষয় তৈরি করা হয়নি। প্রথমে বিষয় পাতা থেকে একটি যোগ করুন।",
+      "selectSubject": "একটি বিষয় নির্বাচন করুন",
+      "selectSection": "একটি শাখা নির্বাচন করুন",
+      "addSubject": "যোগ করুন",
+      "manageAssignments": "নিয়োগ পরিচালনা করুন",
+      "noAssignments": "এই শ্রেণির জন্য এখনও কোনো শিক্ষক নিয়োগ নেই।"
+    },
+    "errors": {
+      "nameRequired": "নাম আবশ্যক।",
+      "orderRequired": "সঠিক ক্রম নম্বর দিন।",
+      "codeRequired": "কোড আবশ্যক।",
+      "classRequired": "শ্রেণি নির্বাচন করুন।",
+      "sectionRequired": "শাখা নির্বাচন করুন।",
+      "subjectRequired": "বিষয় নির্বাচন করুন।",
+      "teacherRequired": "শিক্ষক নির্বাচন করুন।",
+      "invalidForm": "চিহ্নিত ঘরগুলো ঠিক করুন।",
+      "notFound": "রেকর্ড পাওয়া যায়নি।",
+      "saveFailed": "সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।",
+      "duplicateAcademicYear": "এই নামে একটি শিক্ষাবর্ষ ইতিমধ্যে বিদ্যমান।",
+      "duplicateClass": "এই নামে একটি শ্রেণি ইতিমধ্যে বিদ্যমান।",
+      "duplicateSection": "এই শ্রেণিতে এই নামে একটি শাখা ইতিমধ্যে বিদ্যমান।",
+      "duplicateSubject": "এই নামে একটি বিষয় ইতিমধ্যে বিদ্যমান।",
+      "duplicateSubjectCode": "এই কোডে একটি বিষয় ইতিমধ্যে বিদ্যমান।",
+      "duplicateClassSubject": "এই বিষয়টি ইতিমধ্যে এই শ্রেণিতে যুক্ত করা হয়েছে।",
+      "duplicateAssignment": "এই শিক্ষক ইতিমধ্যে এই শ্রেণি, শাখা ও বিষয়ে নিয়োগপ্রাপ্ত।",
+      "subjectNotInClass": "এই বিষয়টি এখনও এই শ্রেণিতে যুক্ত করা হয়নি। প্রথমে শ্রেণি পাতা থেকে যুক্ত করুন।"
+    }
+  }
+}

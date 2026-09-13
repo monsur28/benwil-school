@@ -1,0 +1,355 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// A school using the system. Every school-owned record carries a schoolId
+// so the app can host more than one school without a rewrite later.
+model School {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users              User[]
+  academicYears      AcademicYear[]
+  classes            Class[]
+  students           Student[]
+  guardians          Guardian[]
+  attendances        Attendance[]
+  subjects           Subject[]
+  teacherAssignments TeacherAssignment[]
+
+  @@map("schools")
+}
+
+enum Role {
+  SUPER_ADMIN
+  SCHOOL_ADMIN
+  PRINCIPAL
+  TEACHER
+  ACCOUNTANT
+  LIBRARIAN
+  HR
+  STUDENT
+  GUARDIAN
+}
+
+// The single login identity for every person in the system. Later phases
+// (Student, Teacher, Guardian, ...) will each link back to a User by id
+// rather than duplicating name/contact/auth fields.
+model User {
+  id           String   @id @default(cuid())
+  schoolId     String
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  school             School              @relation(fields: [schoolId], references: [id])
+  attendancesMarked  Attendance[]        @relation("AttendanceMarkedBy")
+  teacherAssignments TeacherAssignment[] @relation("TeacherAssignments")
+
+  @@index([schoolId])
+  @@map("users")
+}
+
+// A school year the student roster is organized by (e.g. "2026"). Kept to
+// the minimum needed to assign a student to a class/section/roll; the full
+// Academic Management module (creating/editing these) is a later phase.
+model AcademicYear {
+  id       String  @id @default(cuid())
+  schoolId String
+  name     String
+  isActive Boolean @default(true)
+
+  school      School       @relation(fields: [schoolId], references: [id])
+  students    Student[]
+  attendances Attendance[]
+
+  @@unique([schoolId, name])
+  @@index([schoolId])
+  @@map("academic_years")
+}
+
+// Class 1-10. `order` is only for sorting in dropdowns/lists.
+model Class {
+  id       String  @id @default(cuid())
+  schoolId String
+  name     String
+  order    Int
+  isActive Boolean @default(true)
+
+  school             School              @relation(fields: [schoolId], references: [id])
+  sections           Section[]
+  students           Student[]
+  attendances        Attendance[]
+  classSubjects      ClassSubject[]
+  teacherAssignments TeacherAssignment[]
+
+  @@unique([schoolId, name])
+  @@index([schoolId])
+  @@map("classes")
+}
+
+model Section {
+  id       String  @id @default(cuid())
+  classId  String
+  name     String
+  isActive Boolean @default(true)
+
+  class              Class               @relation(fields: [classId], references: [id])
+  students           Student[]
+  attendances        Attendance[]
+  teacherAssignments TeacherAssignment[]
+
+  @@unique([classId, name])
+  @@index([classId])
+  @@map("sections")
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum BloodGroup {
+  A_POSITIVE
+  A_NEGATIVE
+  B_POSITIVE
+  B_NEGATIVE
+  AB_POSITIVE
+  AB_NEGATIVE
+  O_POSITIVE
+  O_NEGATIVE
+}
+
+enum StudentStatus {
+  ACTIVE
+  INACTIVE
+  GRADUATED
+  WITHDRAWN
+}
+
+// No `userId` here yet: Phase 2 is school-office administration only, not a
+// student portal. Add the login link when a later phase actually builds one,
+// rather than carrying an unused column now.
+model Student {
+  id                     String        @id @default(cuid())
+  schoolId               String
+  studentUid             String        @unique
+  admissionNumber        String
+  name                   String
+  nameBn                 String?
+  photoUrl               String?
+  dateOfBirth            DateTime
+  gender                 Gender
+  bloodGroup             BloodGroup?
+  religion               String?
+  nationality            String?       @default("Bangladeshi")
+  birthCertificateNumber String?
+  admissionDate          DateTime      @default(now())
+  status                 StudentStatus @default(ACTIVE)
+  academicYearId         String
+  classId                String
+  sectionId              String
+  roll                   Int
+  createdAt              DateTime      @default(now())
+  updatedAt              DateTime      @updatedAt
+
+  school       School            @relation(fields: [schoolId], references: [id])
+  academicYear AcademicYear      @relation(fields: [academicYearId], references: [id])
+  class        Class             @relation(fields: [classId], references: [id])
+  section      Section           @relation(fields: [sectionId], references: [id])
+  guardians    StudentGuardian[]
+  documents    StudentDocument[]
+  attendances  Attendance[]
+
+  @@unique([schoolId, admissionNumber])
+  @@unique([sectionId, academicYearId, roll])
+  @@index([schoolId])
+  @@index([classId])
+  @@index([sectionId])
+  @@map("students")
+}
+
+// A guardian can be linked to more than one student (siblings), and is
+// deduplicated by (schoolId, phone) when a new student is admitted so the
+// same parent isn't recreated for every child.
+model Guardian {
+  id         String   @id @default(cuid())
+  schoolId   String
+  name       String
+  nameBn     String?
+  phone      String
+  email      String?
+  occupation String?
+  address    String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  school   School            @relation(fields: [schoolId], references: [id])
+  students StudentGuardian[]
+
+  @@unique([schoolId, phone])
+  @@index([schoolId])
+  @@map("guardians")
+}
+
+enum GuardianRelation {
+  FATHER
+  MOTHER
+  GUARDIAN
+  OTHER
+}
+
+model StudentGuardian {
+  id         String           @id @default(cuid())
+  studentId  String
+  guardianId String
+  relation   GuardianRelation
+  isPrimary  Boolean          @default(false)
+
+  student  Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  guardian Guardian @relation(fields: [guardianId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, guardianId])
+  @@index([guardianId])
+  @@map("student_guardians")
+}
+
+enum DocumentType {
+  BIRTH_CERTIFICATE
+  STUDENT_PHOTO
+  PREVIOUS_SCHOOL_CERTIFICATE
+  OTHER
+}
+
+// fileUrl/fileName are nullable: no cloud storage provider is configured
+// yet (see lib/storage), so a document can exist as a labeled record before
+// an actual file is attached.
+model StudentDocument {
+  id         String       @id @default(cuid())
+  studentId  String
+  type       DocumentType
+  title      String
+  fileUrl    String?
+  fileName   String?
+  uploadedAt DateTime     @default(now())
+
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@map("student_documents")
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+  LEAVE
+}
+
+// classId/sectionId/academicYearId are stored on the record itself (not just
+// looked up through Student) so a student's later promotion to a new
+// class/section never rewrites history: this row always reflects where the
+// student actually was on `date`.
+model Attendance {
+  id             String           @id @default(cuid())
+  schoolId       String
+  studentId      String
+  classId        String
+  sectionId      String
+  academicYearId String
+  date           DateTime         @db.Date
+  status         AttendanceStatus
+  markedById     String
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  school       School       @relation(fields: [schoolId], references: [id])
+  student      Student      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  class        Class        @relation(fields: [classId], references: [id])
+  section      Section      @relation(fields: [sectionId], references: [id])
+  academicYear AcademicYear @relation(fields: [academicYearId], references: [id])
+  markedBy     User         @relation("AttendanceMarkedBy", fields: [markedById], references: [id])
+
+  @@unique([schoolId, studentId, date])
+  @@index([schoolId, classId, sectionId, date])
+  @@map("attendances")
+}
+
+// A subject is a reusable, school-wide entity (e.g. "Mathematics"); which
+// classes it's taught in is the separate ClassSubject relationship below,
+// so the subject record itself is never duplicated per class.
+model Subject {
+  id       String  @id @default(cuid())
+  schoolId String
+  name     String
+  nameBn   String?
+  code     String
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  school             School              @relation(fields: [schoolId], references: [id])
+  classSubjects      ClassSubject[]
+  teacherAssignments TeacherAssignment[]
+
+  @@unique([schoolId, code])
+  @@unique([schoolId, name])
+  @@index([schoolId])
+  @@map("subjects")
+}
+
+// Which subjects are taught in which class. Independent of section and
+// independent of who teaches it (that's TeacherAssignment).
+model ClassSubject {
+  id        String   @id @default(cuid())
+  classId   String
+  subjectId String
+  createdAt DateTime @default(now())
+
+  class   Class   @relation(fields: [classId], references: [id], onDelete: Cascade)
+  subject Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  @@unique([classId, subjectId])
+  @@index([subjectId])
+  @@map("class_subjects")
+}
+
+// The smallest additive model needed to connect a teacher to what they
+// teach: no separate Teacher/Employee table exists yet (that's full Teacher
+// & Staff Management, a later phase), so this links directly to User (role
+// TEACHER). A teacher can have any number of these rows — multiple classes,
+// sections, and subjects.
+model TeacherAssignment {
+  id        String @id @default(cuid())
+  schoolId  String
+  teacherId String
+  classId   String
+  sectionId String
+  subjectId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  school  School  @relation(fields: [schoolId], references: [id])
+  teacher User    @relation("TeacherAssignments", fields: [teacherId], references: [id], onDelete: Cascade)
+  class   Class   @relation(fields: [classId], references: [id])
+  section Section @relation(fields: [sectionId], references: [id])
+  subject Subject @relation(fields: [subjectId], references: [id])
+
+  @@unique([teacherId, classId, sectionId, subjectId])
+  @@index([schoolId])
+  @@index([classId, sectionId])
+  @@map("teacher_assignments")
+}

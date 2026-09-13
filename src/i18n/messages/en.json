@@ -1,0 +1,433 @@
+{
+  "common": {
+    "appName": "Benwil School",
+    "loading": "Loading...",
+    "comingSoon": "Coming soon",
+    "comingSoonDescription": "This section hasn't been built yet. It will arrive in a later phase.",
+    "welcomeBack": "Welcome back",
+    "logout": "Log out",
+    "language": "Language",
+    "accessRestrictedTitle": "Access restricted",
+    "accessRestrictedDescription": "You don't have permission to view this page.",
+    "backToDashboard": "Back to dashboard",
+    "somethingWentWrong": "Something went wrong",
+    "somethingWentWrongDescription": "An unexpected error occurred. Please try again.",
+    "tryAgain": "Try again",
+    "pageNotFound": "Page not found",
+    "pageNotFoundDescription": "The page you're looking for doesn't exist."
+  },
+  "roles": {
+    "SUPER_ADMIN": "Super Admin",
+    "SCHOOL_ADMIN": "School Admin",
+    "PRINCIPAL": "Principal",
+    "TEACHER": "Teacher",
+    "ACCOUNTANT": "Accountant",
+    "LIBRARIAN": "Librarian",
+    "HR": "HR",
+    "STUDENT": "Student",
+    "GUARDIAN": "Guardian"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "students": "Students",
+    "teachersStaff": "Teachers & Staff",
+    "academic": "Academic",
+    "attendance": "Attendance",
+    "examsResults": "Exams & Results",
+    "fees": "Fees",
+    "homework": "Homework",
+    "notices": "Notices",
+    "library": "Library",
+    "transport": "Transport",
+    "reports": "Reports",
+    "settings": "Settings"
+  },
+  "auth": {
+    "loginTitle": "Log in",
+    "loginSubtitle": "Enter your email and password to continue.",
+    "email": "Email",
+    "password": "Password",
+    "loginButton": "Log in",
+    "loggingIn": "Logging in...",
+    "invalidCredentials": "Invalid email or password.",
+    "errors": {
+      "invalidEmail": "Enter a valid email address.",
+      "passwordRequired": "Password is required.",
+      "invalidForm": "Enter a valid email and password."
+    }
+  },
+  "dashboard": {
+    "admin": {
+      "students": "Students",
+      "teachers": "Teachers",
+      "staff": "Staff",
+      "todaysAttendance": "Today's Attendance",
+      "todaysFeeCollection": "Today's Fee Collection",
+      "pendingFees": "Pending Fees",
+      "upcomingExams": "Upcoming Exams",
+      "recentNotices": "Recent Notices",
+      "quickActions": "Quick actions",
+      "addStudent": "Add Student",
+      "takeAttendance": "Take Attendance",
+      "createExam": "Create Exam",
+      "enterMarks": "Enter Marks",
+      "collectFee": "Collect Fee",
+      "createNotice": "Create Notice"
+    },
+    "teacher": {
+      "todaysClasses": "Today's Classes",
+      "takeAttendance": "Take Attendance",
+      "myStudents": "My Students",
+      "homework": "Homework",
+      "upcomingExams": "Upcoming Exams",
+      "pendingMarks": "Pending Marks"
+    },
+    "student": {
+      "todaysRoutine": "Today's Routine",
+      "attendance": "Attendance",
+      "homework": "Homework",
+      "upcomingExam": "Upcoming Exam",
+      "latestResult": "Latest Result",
+      "notices": "Notices"
+    },
+    "guardian": {
+      "myChildren": "My Children",
+      "attendance": "Attendance",
+      "fees": "Fees",
+      "results": "Results",
+      "homework": "Homework",
+      "routine": "Routine",
+      "notices": "Notices"
+    },
+    "generic": {
+      "title": "Dashboard",
+      "description": "Your modules will appear here as they're built."
+    }
+  },
+  "students": {
+    "title": "Students",
+    "addStudent": "+ Add Student",
+    "searchLabel": "Search",
+    "searchPlaceholder": "Search by name, admission no., student ID, or guardian phone",
+    "filters": {
+      "class": "Class",
+      "section": "Section",
+      "status": "Status",
+      "allClasses": "All classes",
+      "allSections": "All sections",
+      "allStatuses": "All statuses"
+    },
+    "table": {
+      "student": "Student",
+      "admissionNo": "Admission No.",
+      "class": "Class",
+      "section": "Section",
+      "roll": "Roll",
+      "guardian": "Guardian",
+      "phone": "Phone",
+      "status": "Status",
+      "actions": "Actions",
+      "view": "View",
+      "edit": "Edit"
+    },
+    "empty": {
+      "title": "No students yet",
+      "description": "Add your first student to get started.",
+      "noResultsTitle": "No matching students",
+      "noResultsDescription": "Try a different search term or filter."
+    },
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next",
+      "pageInfo": "Page {page} of {totalPages}"
+    },
+    "status": {
+      "ACTIVE": "Active",
+      "INACTIVE": "Inactive",
+      "GRADUATED": "Graduated",
+      "WITHDRAWN": "Withdrawn"
+    },
+    "gender": {
+      "MALE": "Male",
+      "FEMALE": "Female",
+      "OTHER": "Other"
+    },
+    "bloodGroup": {
+      "A_POSITIVE": "A+",
+      "A_NEGATIVE": "A-",
+      "B_POSITIVE": "B+",
+      "B_NEGATIVE": "B-",
+      "AB_POSITIVE": "AB+",
+      "AB_NEGATIVE": "AB-",
+      "O_POSITIVE": "O+",
+      "O_NEGATIVE": "O-"
+    },
+    "relation": {
+      "FATHER": "Father",
+      "MOTHER": "Mother",
+      "GUARDIAN": "Guardian",
+      "OTHER": "Other"
+    },
+    "documentType": {
+      "BIRTH_CERTIFICATE": "Birth Certificate",
+      "STUDENT_PHOTO": "Student Photo",
+      "PREVIOUS_SCHOOL_CERTIFICATE": "Previous School Certificate",
+      "OTHER": "Other"
+    },
+    "new": {
+      "title": "Add Student"
+    },
+    "edit": {
+      "title": "Edit Student"
+    },
+    "steps": {
+      "basic": "Basic Information",
+      "guardian": "Guardian Information",
+      "academic": "Academic Information",
+      "documents": "Documents"
+    },
+    "fields": {
+      "name": "Name",
+      "nameBn": "Name (Bangla)",
+      "dateOfBirth": "Date of Birth",
+      "gender": "Gender",
+      "bloodGroup": "Blood Group",
+      "religion": "Religion",
+      "nationality": "Nationality",
+      "birthCertificateNumber": "Birth Certificate Number",
+      "admissionNumber": "Admission Number",
+      "admissionDate": "Admission Date",
+      "status": "Status",
+      "academicYear": "Academic Year",
+      "class": "Class",
+      "section": "Section",
+      "roll": "Roll Number",
+      "guardianName": "Guardian Name",
+      "guardianNameBn": "Guardian Name (Bangla)",
+      "phone": "Phone",
+      "email": "Email",
+      "occupation": "Occupation",
+      "address": "Address",
+      "relation": "Relation",
+      "isPrimary": "Primary guardian",
+      "documentTitle": "Document Name",
+      "documentType": "Document Type",
+      "uploadedDate": "Uploaded Date",
+      "file": "File"
+    },
+    "fileNotConfigured": "File attachments require cloud storage, which isn't configured yet. You can still save the document's name and type.",
+    "actions": {
+      "next": "Next",
+      "back": "Back",
+      "save": "Save Student",
+      "saving": "Saving...",
+      "saveChanges": "Save Changes",
+      "addGuardian": "+ Add Guardian",
+      "remove": "Remove",
+      "addDocument": "+ Add Document",
+      "adding": "Adding..."
+    },
+    "success": {
+      "created": "Student created successfully.",
+      "updated": "Student updated successfully.",
+      "documentAdded": "Document added."
+    },
+    "errors": {
+      "nameRequired": "Name is required.",
+      "invalidDate": "Enter a valid date.",
+      "admissionNumberRequired": "Admission number is required.",
+      "phoneRequired": "Phone number is required.",
+      "invalidEmail": "Enter a valid email address.",
+      "academicYearRequired": "Select an academic year.",
+      "classRequired": "Select a class.",
+      "sectionRequired": "Select a section.",
+      "rollRequired": "Enter a valid roll number.",
+      "guardiansRequired": "Add at least one guardian.",
+      "documentTitleRequired": "Document name is required.",
+      "invalidForm": "Please fix the highlighted fields.",
+      "invalidAcademicSelection": "The selected academic year, class, or section is invalid.",
+      "duplicateAdmissionNumber": "This admission number is already used by another student.",
+      "duplicateRoll": "This roll number is already used in the selected class and section.",
+      "saveFailed": "Could not save the student. Please try again.",
+      "notFound": "Student not found."
+    },
+    "profile": {
+      "overview": "Overview",
+      "academic": "Academic",
+      "attendance": "Attendance",
+      "results": "Results",
+      "fees": "Fees",
+      "homework": "Homework",
+      "documents": "Documents",
+      "basicInformation": "Basic Information",
+      "guardianInformation": "Guardian Information",
+      "contactInformation": "Contact Information",
+      "admissionInformation": "Admission Information",
+      "primaryGuardian": "Primary",
+      "noGuardians": "No guardians added.",
+      "noDocuments": "No documents added yet.",
+      "editStudent": "Edit Student",
+      "comingSoonTabDescription": "This tab isn't built yet. It will arrive in a later phase.",
+      "studentIdLabel": "Student ID",
+      "admissionNoLabel": "Admission No."
+    },
+    "notFoundTitle": "Student not found",
+    "notFoundDescription": "This student may have been removed, or the link is incorrect."
+  },
+  "attendance": {
+    "title": "Attendance",
+    "viewHistory": "View History",
+    "attendancePercentage": "Attendance",
+    "recentAttendance": "Recent Attendance",
+    "searchPlaceholder": "Search by name or roll",
+    "alreadySubmitted": "Attendance already submitted for this date. Last updated: {time}",
+    "fields": {
+      "class": "Class",
+      "section": "Section",
+      "date": "Date",
+      "status": "Status"
+    },
+    "filters": {
+      "allClasses": "All classes",
+      "allSections": "All sections"
+    },
+    "status": {
+      "PRESENT": "Present",
+      "ABSENT": "Absent",
+      "LATE": "Late",
+      "LEAVE": "Leave"
+    },
+    "actions": {
+      "markAllPresent": "Mark All Present",
+      "save": "Save Attendance",
+      "saving": "Saving..."
+    },
+    "success": {
+      "saved": "Attendance saved successfully."
+    },
+    "table": {
+      "actions": "Actions",
+      "view": "View"
+    },
+    "empty": {
+      "noStudents": "No active students in this class and section.",
+      "noAcademicSetup": "No classes are set up yet.",
+      "selectClassSection": "Select a class and section to take attendance.",
+      "noRecords": "No attendance recorded yet.",
+      "noAssignments": "You don't have any class assignments yet. Contact your school admin."
+    },
+    "history": {
+      "title": "Attendance History",
+      "backToAttendance": "Back to Attendance",
+      "empty": "No attendance history in the selected range."
+    },
+    "errors": {
+      "invalidForm": "Please fix the highlighted fields.",
+      "invalidSelection": "The selected class, section, or academic year is invalid.",
+      "invalidStudents": "One or more students don't belong to this class and section.",
+      "saveFailed": "Could not save attendance. Please try again.",
+      "classRequired": "Select a class.",
+      "sectionRequired": "Select a section.",
+      "academicYearRequired": "Select an academic year.",
+      "invalidDate": "Enter a valid date.",
+      "futureDate": "Attendance date cannot be in the future.",
+      "noStudents": "Add at least one student.",
+      "notAssigned": "You are not assigned to this class and section."
+    }
+  },
+  "academics": {
+    "title": "Academic Management",
+    "fields": {
+      "name": "Name",
+      "nameBn": "Name (Bangla)",
+      "code": "Code",
+      "order": "Order",
+      "status": "Status",
+      "class": "Class",
+      "section": "Section",
+      "subject": "Subject",
+      "teacher": "Teacher",
+      "sections": "Sections",
+      "students": "Students"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "actions": {
+      "title": "Actions",
+      "edit": "Edit",
+      "save": "Save",
+      "saving": "Saving...",
+      "remove": "Remove",
+      "activate": "Activate"
+    },
+    "success": {
+      "saved": "Saved successfully.",
+      "activated": "Academic year activated."
+    },
+    "years": {
+      "title": "Academic Years",
+      "description": "Manage school years and which one is active.",
+      "addTitle": "Add Academic Year",
+      "editTitle": "Edit Academic Year"
+    },
+    "classes": {
+      "title": "Classes",
+      "description": "Manage classes, e.g. Class 1 to Class 10.",
+      "addTitle": "Add Class",
+      "editTitle": "Edit Class"
+    },
+    "sections": {
+      "title": "Sections",
+      "addTitle": "Add Section",
+      "editTitle": "Edit Section"
+    },
+    "subjects": {
+      "title": "Subjects",
+      "description": "Manage the school's subjects.",
+      "addTitle": "Add Subject",
+      "editTitle": "Edit Subject"
+    },
+    "assignments": {
+      "title": "Teacher Assignments",
+      "description": "Assign teachers to a class, section, and subject.",
+      "addTitle": "Assign Teacher",
+      "empty": "No teacher assignments yet.",
+      "noSubjectsForClass": "This class has no subjects assigned yet. Add one from the class page first."
+    },
+    "classDetail": {
+      "backToClasses": "Back to Classes",
+      "students": "Students",
+      "noSections": "No sections yet.",
+      "noSubjects": "No subjects assigned yet.",
+      "allSubjectsAssigned": "All subjects are already assigned to this class.",
+      "noSubjectsExist": "No subjects exist yet. Add one from the Subjects page first.",
+      "selectSubject": "Select a subject",
+      "selectSection": "Select a section",
+      "addSubject": "Add",
+      "manageAssignments": "Manage assignments",
+      "noAssignments": "No teacher assignments for this class yet."
+    },
+    "errors": {
+      "nameRequired": "Name is required.",
+      "orderRequired": "Enter a valid order number.",
+      "codeRequired": "Code is required.",
+      "classRequired": "Select a class.",
+      "sectionRequired": "Select a section.",
+      "subjectRequired": "Select a subject.",
+      "teacherRequired": "Select a teacher.",
+      "invalidForm": "Please fix the highlighted fields.",
+      "notFound": "Record not found.",
+      "saveFailed": "Could not save. Please try again.",
+      "duplicateAcademicYear": "An academic year with this name already exists.",
+      "duplicateClass": "A class with this name already exists.",
+      "duplicateSection": "A section with this name already exists in this class.",
+      "duplicateSubject": "A subject with this name already exists.",
+      "duplicateSubjectCode": "A subject with this code already exists.",
+      "duplicateClassSubject": "This subject is already assigned to this class.",
+      "duplicateAssignment": "This teacher is already assigned to this class, section, and subject.",
+      "subjectNotInClass": "This subject isn't assigned to this class yet. Add it from the class page first."
+    }
+  }
+}
