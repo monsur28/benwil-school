@@ -36,8 +36,9 @@ export default async function StudentProfilePage({
       class: true,
       section: true,
       academicYear: true,
-      guardians: { include: { guardian: true } },
+      guardians: { include: { guardian: { include: { user: true } } } },
       documents: { orderBy: { uploadedAt: "desc" } },
+      user: true,
     },
   })
 
@@ -99,7 +100,7 @@ export default async function StudentProfilePage({
         </TabsList>
 
         <TabsContent value="overview">
-          <OverviewTab student={student} />
+          <OverviewTab student={student} canManage={canManage} />
         </TabsContent>
         <TabsContent value="academic">
           <AcademicTab student={student} />

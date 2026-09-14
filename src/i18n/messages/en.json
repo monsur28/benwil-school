@@ -6,6 +6,7 @@
     "comingSoonDescription": "This section hasn't been built yet. It will arrive in a later phase.",
     "welcomeBack": "Welcome back",
     "logout": "Log out",
+    "account": "Account",
     "language": "Language",
     "accessRestrictedTitle": "Access restricted",
     "accessRestrictedDescription": "You don't have permission to view this page.",
@@ -739,6 +740,67 @@
       "duplicateClassSubject": "This subject is already assigned to this class.",
       "duplicateAssignment": "This teacher is already assigned to this class, section, and subject.",
       "subjectNotInClass": "This subject isn't assigned to this class yet. Add it from the class page first."
+    }
+  },
+  "portal": {
+    "welcome": "Welcome",
+    "nav": {
+      "dashboard": "Dashboard",
+      "profile": "My Profile",
+      "attendance": "Attendance",
+      "results": "Results",
+      "reportCard": "Report Card",
+      "myChildren": "My Children"
+    },
+    "fields": {
+      "roll": "Roll",
+      "academicYear": "Academic Year",
+      "attendancePercentage": "Attendance Percentage",
+      "email": "Email",
+      "password": "Password"
+    },
+    "cards": {
+      "attendance": "Attendance",
+      "latestResult": "Latest Result"
+    },
+    "filters": {
+      "allYears": "All Years",
+      "from": "From",
+      "to": "To"
+    },
+    "empty": {
+      "noResults": "No results available yet.",
+      "noResultsTitle": "No Results",
+      "noAttendance": "No attendance records yet.",
+      "noChildren": "No children are linked to this account yet.",
+      "noChildrenTitle": "No Children"
+    },
+    "account": {
+      "cardTitle": "Portal Accounts",
+      "studentLabel": "Student Account",
+      "notLinked": "No portal account linked",
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "actions": {
+      "createAccount": "Create Account",
+      "activateAccount": "Activate",
+      "deactivateAccount": "Deactivate"
+    },
+    "dialog": {
+      "createAccountTitle": "Create portal account for {name}"
+    },
+    "success": {
+      "accountCreated": "Portal account created"
+    },
+    "errors": {
+      "invalidForm": "Please check the form and try again.",
+      "invalidEmail": "Enter a valid email address.",
+      "passwordTooShort": "Password must be at least 8 characters.",
+      "notFound": "Record not found.",
+      "alreadyLinked": "This record is already linked to a portal account.",
+      "emailTaken": "This email is already in use.",
+      "saveFailed": "Something went wrong. Please try again."
     }
   }
 }

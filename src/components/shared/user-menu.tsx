@@ -32,7 +32,10 @@ export function UserMenu({ name, roleLabel }: { name: string; roleLabel: string 
     <DropdownMenu>
       <DropdownMenuTrigger
         render={
-          <button className="flex w-full items-center gap-2.5 rounded-lg p-1.5 text-left transition-colors hover:bg-sidebar-accent" />
+          <button
+            aria-label={t("account")}
+            className="flex w-full items-center gap-2.5 rounded-lg p-1.5 text-left transition-colors hover:bg-sidebar-accent"
+          />
         }
       >
         <Avatar size="sm">

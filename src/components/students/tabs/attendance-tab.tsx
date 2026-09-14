@@ -1,6 +1,6 @@
 import { getLocale, getTranslations } from "next-intl/server"
 import type { AttendanceStatus } from "@prisma/client"
-import { prisma } from "@/lib/db/client"
+import { getStudentAttendanceSummary } from "@/lib/attendance/get-attendance"
 import { EmptyState } from "@/components/shared/empty-state"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -17,20 +17,7 @@ const STATUS_BADGE_VARIANT: Record<AttendanceStatus, "default" | "destructive" |
 export async function AttendanceTab({ studentId }: { studentId: string }) {
   const [t, locale] = await Promise.all([getTranslations("attendance"), getLocale()])
 
-  const [grouped, recent] = await Promise.all([
-    prisma.attendance.groupBy({ by: ["status"], where: { studentId }, _count: { _all: true } }),
-    prisma.attendance.findMany({
-      where: { studentId },
-      orderBy: { date: "desc" },
-      take: 10,
-      select: { date: true, status: true },
-    }),
-  ])
-
-  const counts: Record<AttendanceStatus, number> = { PRESENT: 0, ABSENT: 0, LATE: 0, LEAVE: 0 }
-  for (const group of grouped) counts[group.status] = group._count._all
-  const total = counts.PRESENT + counts.ABSENT + counts.LATE + counts.LEAVE
-  const percentage = total > 0 ? Math.round((counts.PRESENT / total) * 100) : null
+  const { percentage, counts, total, recent } = await getStudentAttendanceSummary({ studentId })
 
   if (total === 0) {
     return <EmptyState icon={CalendarCheck} title={t("empty.noRecords")} />

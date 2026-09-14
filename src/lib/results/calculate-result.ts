@@ -181,6 +181,23 @@ export function calculateOverallResult(
   return { totalFullMarks, totalObtainedMarks, overallPercentage, gpa, overallStatus, isComplete, hasGradingScale }
 }
 
+// Used by GradeRule create/edit validation (not by grade matching) to
+// reject overlapping bands within the same GradingScale. Inputs here are
+// raw form numbers (already constrained to 2 decimal places by the Zod
+// schema), so a single Math.round(x * 100) round-trip to basis points is
+// safe - this is a different concern from findGradeForMarks, which must
+// never round at all because it is comparing values already stored exactly.
+export function rangesOverlap(
+  a: { minPercentage: number; maxPercentage: number },
+  b: { minPercentage: number; maxPercentage: number }
+): boolean {
+  const aMin = Math.round(a.minPercentage * 100)
+  const aMax = Math.round(a.maxPercentage * 100)
+  const bMin = Math.round(b.minPercentage * 100)
+  const bMax = Math.round(b.maxPercentage * 100)
+  return aMin <= bMax && bMin <= aMax
+}
+
 export function calculateStudentExamResult(
   studentId: string,
   schedules: ScheduleInput[],

@@ -169,6 +169,44 @@ async function main() {
     `Seeded ${subjects.length} subjects, linked to all classes, and topped up Class 5 (Sections A/B) + Class 8 (Section A) student rosters for exam testing.`
   )
 
+  // --- Phase 7 fixture: link the pre-existing student@benwil.test /       ---
+  // --- guardian@benwil.test seed accounts to one real student, so the    ---
+  // --- portal has a deterministic account to log into out of the box.   ---
+  const portalStudentUser = await prisma.user.findUniqueOrThrow({ where: { email: "student@benwil.test" } })
+  const portalGuardianUser = await prisma.user.findUniqueOrThrow({ where: { email: "guardian@benwil.test" } })
+  const linkedStudent = await prisma.student.findUniqueOrThrow({ where: { studentUid: "STU-0501" } })
+
+  await prisma.student.update({
+    where: { id: linkedStudent.id },
+    data: { userId: portalStudentUser.id },
+  })
+
+  const portalGuardian = await prisma.guardian.upsert({
+    where: { schoolId_phone: { schoolId: school.id, phone: "01700000000" } },
+    update: { userId: portalGuardianUser.id },
+    create: {
+      schoolId: school.id,
+      name: "Portal Test Guardian",
+      phone: "01700000000",
+      email: "guardian@benwil.test",
+      userId: portalGuardianUser.id,
+    },
+  })
+  await prisma.studentGuardian.upsert({
+    where: { studentId_guardianId: { studentId: linkedStudent.id, guardianId: portalGuardian.id } },
+    update: {},
+    create: {
+      studentId: linkedStudent.id,
+      guardianId: portalGuardian.id,
+      relation: "GUARDIAN",
+      isPrimary: true,
+    },
+  })
+
+  console.log(
+    `Linked student@benwil.test to student ${linkedStudent.name} (${linkedStudent.studentUid}), and guardian@benwil.test to "Portal Test Guardian" as that student's guardian. Password for both: ${DEV_PASSWORD}`
+  )
+
   // --- Phase 6 fixture: one default grading scale, explicitly labeled as ---
   // --- test/example data, not an official national grading standard.    ---
   const gradingScale = await prisma.gradingScale.upsert({

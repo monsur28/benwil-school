@@ -1,6 +1,7 @@
 import { getLocale, getTranslations } from "next-intl/server"
 import type { StudentWithRelations } from "@/lib/students/types"
 import { InfoRow } from "@/components/students/info-row"
+import { PortalAccountStatus } from "@/components/students/portal-account-status"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 
@@ -10,8 +11,18 @@ function formatDate(date: Date, locale: string) {
   )
 }
 
-export async function OverviewTab({ student }: { student: StudentWithRelations }) {
-  const [t, currentLocale] = await Promise.all([getTranslations("students"), getLocale()])
+export async function OverviewTab({
+  student,
+  canManage,
+}: {
+  student: StudentWithRelations
+  canManage: boolean
+}) {
+  const [t, tPortal, currentLocale] = await Promise.all([
+    getTranslations("students"),
+    getTranslations("portal"),
+    getLocale(),
+  ])
 
   const primaryGuardian = student.guardians.find((g) => g.isPrimary)?.guardian
 
@@ -58,6 +69,44 @@ export async function OverviewTab({ student }: { student: StudentWithRelations }
           ))}
         </CardContent>
       </Card>
+
+      {canManage && (
+        <Card>
+          <CardHeader>
+            <CardTitle>{tPortal("account.cardTitle")}</CardTitle>
+          </CardHeader>
+          <CardContent className="divide-y">
+            <div>
+              <p className="pb-1 pt-1.5 text-xs font-medium uppercase text-muted-foreground">
+                {tPortal("account.studentLabel")}
+              </p>
+              <PortalAccountStatus
+                kind="student"
+                targetId={student.id}
+                targetName={student.name}
+                account={student.user ? { id: student.user.id, email: student.user.email, isActive: student.user.isActive } : null}
+              />
+            </div>
+            {student.guardians.map((link) => (
+              <div key={link.id}>
+                <p className="pb-1 pt-1.5 text-xs font-medium uppercase text-muted-foreground">
+                  {link.guardian.name}
+                </p>
+                <PortalAccountStatus
+                  kind="guardian"
+                  targetId={link.guardian.id}
+                  targetName={link.guardian.name}
+                  account={
+                    link.guardian.user
+                      ? { id: link.guardian.user.id, email: link.guardian.user.email, isActive: link.guardian.user.isActive }
+                      : null
+                  }
+                />
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardHeader>

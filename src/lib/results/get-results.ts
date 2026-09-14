@@ -206,6 +206,7 @@ export type StudentExamResultSummary = {
   examTypeName: string
   academicYearName: string
   startDate: Date
+  resultStatus: "DRAFT" | "FINALIZED"
   overallPercentage: number | null
   gpa: number | null
   overallStatus: OverallStatus
@@ -217,16 +218,21 @@ export type StudentExamResultSummary = {
 // grade rules, marks) no matter how many exams the student's class has
 // been scheduled for, since the profile page must stay light per the
 // Phase 6 spec ("only load the data needed for the summary").
+//
+// `finalizedOnly` is used by the student/guardian portal, which must never
+// show a DRAFT result (Phase 7 spec) - admin/teacher callers leave it
+// unset and keep seeing every exam, draft included.
 export async function getStudentResultSummaries(params: {
   schoolId: string
   studentId: string
   classId: string
+  finalizedOnly?: boolean
 }): Promise<StudentExamResultSummary[]> {
-  const { schoolId, studentId, classId } = params
+  const { schoolId, studentId, classId, finalizedOnly = false } = params
 
   const [schedules, gradeRules] = await Promise.all([
     prisma.examSchedule.findMany({
-      where: { schoolId, classId },
+      where: { schoolId, classId, ...(finalizedOnly ? { exam: { resultStatus: "FINALIZED" } } : {}) },
       include: { subject: true, exam: { include: { academicYear: true, examType: true } } },
     }),
     getActiveGradeRules(schoolId),
@@ -265,6 +271,7 @@ export async function getStudentResultSummaries(params: {
       examTypeName: exam.examType.name,
       academicYearName: exam.academicYear.name,
       startDate: exam.startDate,
+      resultStatus: exam.resultStatus,
       overallPercentage: result.overallPercentage,
       gpa: result.gpa,
       overallStatus: result.overallStatus,

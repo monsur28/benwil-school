@@ -5,7 +5,8 @@ export type StudentWithRelations = Prisma.StudentGetPayload<{
     class: true
     section: true
     academicYear: true
-    guardians: { include: { guardian: true } }
+    guardians: { include: { guardian: { include: { user: true } } } }
     documents: true
+    user: true
   }
 }>
