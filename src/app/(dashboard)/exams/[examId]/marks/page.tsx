@@ -173,6 +173,12 @@ export default async function MarksEntryPage({
       <ExamsSubNav />
       {controls}
       <MarksEntryForm
+        // Force a fresh mount whenever the resolved schedule+section changes
+        // (switching class/section/subject in the controls above) — without
+        // this key, React preserves the component instance and its internal
+        // roster state across the prop change, showing the previous
+        // section's students until a full page reload.
+        key={`${access.schedule.id}:${access.section.id}`}
         examScheduleId={access.schedule.id}
         sectionId={access.section.id}
         fullMarks={access.schedule.fullMarks}

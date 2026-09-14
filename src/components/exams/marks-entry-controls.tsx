@@ -1,6 +1,7 @@
 "use client"
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation"
+import { useTranslations } from "next-intl"
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
 
 type Option = { id: string; name: string }
@@ -29,6 +30,7 @@ function MarksEntryControlsInner({
   selectedSectionId,
   selectedSubjectId,
 }: MarksEntryControlsProps) {
+  const t = useTranslations("exams")
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -46,6 +48,7 @@ function MarksEntryControlsInner({
   return (
     <div className="flex flex-wrap gap-2">
       <NativeSelect
+        aria-label={t("fields.class")}
         defaultValue={selectedClassId ?? ""}
         onChange={(event) => updateParam("classId", event.target.value)}
       >
@@ -56,6 +59,7 @@ function MarksEntryControlsInner({
         ))}
       </NativeSelect>
       <NativeSelect
+        aria-label={t("fields.section")}
         defaultValue={selectedSectionId ?? ""}
         onChange={(event) => updateParam("sectionId", event.target.value)}
       >
@@ -66,6 +70,7 @@ function MarksEntryControlsInner({
         ))}
       </NativeSelect>
       <NativeSelect
+        aria-label={t("fields.subject")}
         defaultValue={selectedSubjectId ?? ""}
         onChange={(event) => updateParam("subjectId", event.target.value)}
       >
