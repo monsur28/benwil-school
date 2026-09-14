@@ -37,6 +37,9 @@ yarn-error.log*
 # claude
 .claude/
 
+# git worktrees (scratch, per feature branch)
+.worktrees/
+
 # vercel
 .vercel
 
