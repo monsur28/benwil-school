@@ -24,3 +24,26 @@ export async function isTeacherAssignedToSection(
   })
   return Boolean(match)
 }
+
+// Exam marks entry is subject-specific (a teacher may only enter marks for
+// the exact subject they're assigned to teach), unlike attendance which is
+// a per-section permission regardless of subject.
+export async function isTeacherAssignedToSubjectInSection(
+  teacherId: string,
+  classId: string,
+  sectionId: string,
+  subjectId: string
+) {
+  const match = await prisma.teacherAssignment.findFirst({
+    where: { teacherId, classId, sectionId, subjectId },
+    select: { id: true },
+  })
+  return Boolean(match)
+}
+
+export async function getTeacherAssignmentTriples(teacherId: string) {
+  return prisma.teacherAssignment.findMany({
+    where: { teacherId },
+    select: { classId: true, sectionId: true, subjectId: true },
+  })
+}
