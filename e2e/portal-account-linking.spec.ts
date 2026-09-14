@@ -12,7 +12,7 @@ const PASSWORD = "PortalTest1234!"
 
 let studentId: string
 let guardianId: string
-let createdUserIds: string[] = []
+const createdUserIds: string[] = []
 
 test.describe("Account linking", () => {
   test.beforeAll(async () => {

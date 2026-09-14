@@ -6,11 +6,11 @@ import type { GuardianChild } from "@/lib/portal/identity"
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
 import { Field, FieldLabel } from "@/components/ui/field"
 
-export function ChildSwitcher({ children, selectedId }: { children: GuardianChild[]; selectedId: string }) {
+export function ChildSwitcher({ options, selectedId }: { options: GuardianChild[]; selectedId: string }) {
   const t = useTranslations("portal")
   const router = useRouter()
 
-  if (children.length <= 1) return null
+  if (options.length <= 1) return null
 
   return (
     <Field className="sm:w-64">
@@ -20,7 +20,7 @@ export function ChildSwitcher({ children, selectedId }: { children: GuardianChil
         value={selectedId}
         onChange={(event) => router.push(`/portal/guardian/children/${event.target.value}`)}
       >
-        {children.map((child) => (
+        {options.map((child) => (
           <NativeSelectOption key={child.id} value={child.id}>
             {child.name} — {child.className} {child.sectionName}
           </NativeSelectOption>

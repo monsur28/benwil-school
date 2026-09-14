@@ -30,7 +30,7 @@ export default async function GuardianChildLayout({
 
   return (
     <div className="space-y-4">
-      <ChildSwitcher children={linkedChildren} selectedId={studentId} />
+      <ChildSwitcher options={linkedChildren} selectedId={studentId} />
       <PortalNav links={links} />
       {children}
     </div>
