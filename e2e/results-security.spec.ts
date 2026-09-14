@@ -15,7 +15,6 @@ const RUN_PREFIX = `E2E ResultsSecurity ${Date.now()}`
 // how the URL is built.
 let otherSchoolId: string
 let otherExamId: string
-let otherExamTypeId: string
 let otherClassId: string
 let otherSectionId: string
 let otherStudentId: string
@@ -74,7 +73,6 @@ test.describe("Cross-tenant and cross-role result security", () => {
     otherSectionId = sectionB.id
     const subjectB = await prisma.subject.create({ data: { schoolId: schoolB.id, name: "Mathematics", code: "MATH" } })
     const examTypeB = await prisma.examType.create({ data: { schoolId: schoolB.id, name: `${RUN_PREFIX} Other Type` } })
-    otherExamTypeId = examTypeB.id
     const examB = await prisma.exam.create({
       data: {
         schoolId: schoolB.id,

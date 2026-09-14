@@ -15,7 +15,6 @@ let gradingScaleId: string
 let class5Id: string
 let class8Id: string
 let sectionAId: string
-let sectionBId: string
 let class8SectionAId: string
 let mathScheduleId: string
 let englishScheduleId: string
@@ -72,7 +71,6 @@ test.describe("Result calculation, finalization, and security", () => {
     class5Id = class5.id
     class8Id = class8.id
     sectionAId = (await prisma.section.findFirstOrThrow({ where: { classId: class5.id, name: "A" } })).id
-    sectionBId = (await prisma.section.findFirstOrThrow({ where: { classId: class5.id, name: "B" } })).id
     class8SectionAId = (await prisma.section.findFirstOrThrow({ where: { classId: class8.id, name: "A" } })).id
 
     const mathSubject = await prisma.subject.findFirstOrThrow({ where: { schoolId: school.id, code: "MATH" } })
