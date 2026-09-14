@@ -33,6 +33,14 @@ export async function saveExamMarks(input: unknown): Promise<SaveExamMarksResult
   if (!access.ok) return { error: accessErrorMessage(access, t) }
   const { schedule, section } = access
 
+  // Phase 6: once an exam's results are finalized, marks become read-only
+  // for everyone (including admins) until an explicit Reopen Results action
+  // - checked here on the write path, not just hidden in the UI, since a
+  // direct request must not be able to bypass the lock.
+  if (schedule.resultStatus === "FINALIZED") {
+    return { error: t("errors.resultsFinalized") }
+  }
+
   const studentIds = parsed.data.entries.map((entry) => entry.studentId)
   const validStudents = await prisma.student.findMany({
     where: {
@@ -92,6 +100,10 @@ export async function markAllAbsent(examScheduleId: string, sectionId: string): 
   const access = await checkScheduleAccess(user, examScheduleId, sectionId)
   if (!access.ok) return { error: accessErrorMessage(access, t) }
   const { schedule, section } = access
+
+  if (schedule.resultStatus === "FINALIZED") {
+    return { error: t("errors.resultsFinalized") }
+  }
 
   const students = await prisma.student.findMany({
     where: {

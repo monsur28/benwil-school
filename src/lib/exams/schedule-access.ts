@@ -14,6 +14,7 @@ export type ScheduleAccessSchedule = {
   fullMarks: number
   passMarks: number
   academicYearId: string
+  resultStatus: "DRAFT" | "FINALIZED"
 }
 
 export type ScheduleAccessResult =
@@ -39,7 +40,7 @@ export async function checkScheduleAccess(
       subjectId: true,
       fullMarks: true,
       passMarks: true,
-      exam: { select: { academicYearId: true } },
+      exam: { select: { academicYearId: true, resultStatus: true } },
     },
   })
   if (!schedule) {
@@ -79,6 +80,7 @@ export async function checkScheduleAccess(
       fullMarks: schedule.fullMarks,
       passMarks: schedule.passMarks,
       academicYearId: schedule.exam.academicYearId,
+      resultStatus: schedule.exam.resultStatus,
     },
     section,
   }

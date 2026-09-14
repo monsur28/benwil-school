@@ -522,7 +522,128 @@
       "hasMarksCannotDelete": "This schedule already has marks entered and cannot be removed.",
       "marksOutOfRange": "Marks must be between 0 and full marks.",
       "invalidStudent": "One or more students do not belong to this class and section.",
-      "marksAbsentMismatch": "Marks must be empty for an absent student and provided otherwise."
+      "marksAbsentMismatch": "Marks must be empty for an absent student and provided otherwise.",
+      "resultsFinalized": "This exam's results have been finalized and marks are read-only. Ask an admin to reopen results before editing."
+    }
+  },
+  "results": {
+    "title": "Results",
+    "subnav": {
+      "results": "Results",
+      "grading": "Grading"
+    },
+    "fields": {
+      "name": "Name",
+      "nameBn": "Bangla Name",
+      "status": "Status",
+      "minPercentage": "Min %",
+      "maxPercentage": "Max %",
+      "grade": "Grade",
+      "gradeBn": "Bangla Grade",
+      "gradePoint": "Grade Point",
+      "academicYear": "Academic Year",
+      "exam": "Exam",
+      "class": "Class",
+      "section": "Section",
+      "subject": "Subject",
+      "fullMarks": "Full Marks",
+      "obtainedMarks": "Obtained Marks",
+      "percentage": "Percentage",
+      "totalMarks": "Total Marks",
+      "gpa": "GPA",
+      "result": "Result",
+      "roll": "Roll",
+      "admissionNumber": "Admission No.",
+      "student": "Student"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "pass": "Pass",
+      "fail": "Fail",
+      "absent": "Absent",
+      "pending": "Pending",
+      "complete": "Complete",
+      "incomplete": "Incomplete",
+      "draft": "Draft",
+      "finalized": "Finalized",
+      "noResult": "No result available"
+    },
+    "actions": {
+      "label": "Actions",
+      "create": "Create",
+      "edit": "Edit",
+      "delete": "Delete",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "save": "Save",
+      "cancel": "Cancel",
+      "finalize": "Finalize Results",
+      "reopen": "Reopen Results",
+      "print": "Print Report Card",
+      "viewResult": "View Result",
+      "viewReportCard": "Report Card"
+    },
+    "grading": {
+      "title": "Grading",
+      "createButton": "New Grading Scale",
+      "createTitle": "Create Grading Scale",
+      "editTitle": "Edit Grading Scale",
+      "empty": "No grading scales yet. Create one to get started.",
+      "addRule": "Add Grade Rule",
+      "editRuleTitle": "Edit Grade Rule",
+      "createRuleTitle": "Add Grade Rule",
+      "noRules": "No grade rules yet. Add one to start grading results.",
+      "deleteRuleConfirm": "Delete this grade rule?",
+      "seedNotice": "Default test/example grading scale - adjust boundaries and grade points to your school's actual standard."
+    },
+    "list": {
+      "empty": "No exams found.",
+      "filterAcademicYear": "All Academic Years",
+      "filterExam": "All Exams",
+      "filterClass": "All Classes",
+      "openClass": "Open"
+    },
+    "detail": {
+      "studentList": "Students",
+      "empty": "No students found for this class and section.",
+      "noGradingScale": "No active grading scale is configured. Grades cannot be calculated until an admin sets one up.",
+      "noSubjectsScheduled": "No subjects have been scheduled for this class in this exam yet."
+    },
+    "student": {
+      "header": "Result Summary",
+      "subjectResults": "Subject Results",
+      "summary": "Summary",
+      "noResult": "No result available for this student."
+    },
+    "reportCard": {
+      "title": "Report Card",
+      "studentInfo": "Student Information",
+      "finalResult": "Final Result"
+    },
+    "success": {
+      "gradingScaleCreated": "Grading scale created",
+      "gradingScaleUpdated": "Grading scale updated",
+      "gradeRuleCreated": "Grade rule added",
+      "gradeRuleUpdated": "Grade rule updated",
+      "gradeRuleDeleted": "Grade rule deleted",
+      "finalized": "Results finalized",
+      "reopened": "Results reopened"
+    },
+    "errors": {
+      "invalidForm": "Please fix the highlighted fields.",
+      "notFound": "Record not found.",
+      "unauthorized": "You are not authorized to perform this action.",
+      "saveFailed": "Could not save. Please try again.",
+      "nameRequired": "Name is required.",
+      "duplicateGradingScale": "A grading scale with this name already exists.",
+      "gradeRequired": "Grade is required.",
+      "invalidPercentage": "Percentage must be between 0 and 100.",
+      "invalidRange": "Minimum percentage must be less than maximum percentage.",
+      "invalidGradePoint": "Grade point must be 0 or greater.",
+      "overlappingRange": "This percentage range overlaps with an existing grade rule.",
+      "alreadyFinalized": "This exam's results are already finalized.",
+      "alreadyDraft": "This exam's results are not finalized."
     }
   },
   "academics": {
