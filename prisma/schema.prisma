@@ -22,6 +22,10 @@ model School {
   attendances        Attendance[]
   subjects           Subject[]
   teacherAssignments TeacherAssignment[]
+  examTypes          ExamType[]
+  exams              Exam[]
+  examSchedules      ExamSchedule[]
+  examMarks          ExamMark[]
 
   @@map("schools")
 }
@@ -55,6 +59,7 @@ model User {
   school             School              @relation(fields: [schoolId], references: [id])
   attendancesMarked  Attendance[]        @relation("AttendanceMarkedBy")
   teacherAssignments TeacherAssignment[] @relation("TeacherAssignments")
+  examMarksEntered   ExamMark[]          @relation("ExamMarksEntered")
 
   @@index([schoolId])
   @@map("users")
@@ -72,6 +77,7 @@ model AcademicYear {
   school      School       @relation(fields: [schoolId], references: [id])
   students    Student[]
   attendances Attendance[]
+  exams       Exam[]
 
   @@unique([schoolId, name])
   @@index([schoolId])
@@ -92,6 +98,7 @@ model Class {
   attendances        Attendance[]
   classSubjects      ClassSubject[]
   teacherAssignments TeacherAssignment[]
+  examSchedules      ExamSchedule[]
 
   @@unique([schoolId, name])
   @@index([schoolId])
@@ -171,6 +178,7 @@ model Student {
   guardians    StudentGuardian[]
   documents    StudentDocument[]
   attendances  Attendance[]
+  examMarks    ExamMark[]
 
   @@unique([schoolId, admissionNumber])
   @@unique([sectionId, academicYearId, roll])
@@ -303,6 +311,7 @@ model Subject {
   school             School              @relation(fields: [schoolId], references: [id])
   classSubjects      ClassSubject[]
   teacherAssignments TeacherAssignment[]
+  examSchedules      ExamSchedule[]
 
   @@unique([schoolId, code])
   @@unique([schoolId, name])
@@ -352,4 +361,106 @@ model TeacherAssignment {
   @@index([schoolId])
   @@index([classId, sectionId])
   @@map("teacher_assignments")
+}
+
+// A school-defined category of examination (e.g. "Class Test", "Half-Yearly
+// Exam", "Final Exam"). Not an enum: schools create and name their own
+// exam types rather than being locked into a fixed list.
+model ExamType {
+  id        String   @id @default(cuid())
+  schoolId  String
+  name      String
+  nameBn    String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  school School @relation(fields: [schoolId], references: [id])
+  exams  Exam[]
+
+  @@unique([schoolId, name])
+  @@index([schoolId])
+  @@map("exam_types")
+}
+
+model Exam {
+  id             String   @id @default(cuid())
+  schoolId       String
+  academicYearId String
+  examTypeId     String
+  name           String
+  nameBn         String?
+  startDate      DateTime @db.Date
+  endDate        DateTime @db.Date
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  school       School         @relation(fields: [schoolId], references: [id])
+  academicYear AcademicYear   @relation(fields: [academicYearId], references: [id])
+  examType     ExamType       @relation(fields: [examTypeId], references: [id])
+  schedules    ExamSchedule[]
+
+  @@index([schoolId])
+  @@index([academicYearId])
+  @@index([examTypeId])
+  @@map("exams")
+}
+
+// A single subject scheduled for a class within an exam. Sections are not
+// part of this model on purpose: every section of a class sits the same
+// exam on the same date for the same subject, so scheduling is class-level.
+// Which section's marks are being entered is chosen at marks-entry time,
+// not here.
+model ExamSchedule {
+  id        String   @id @default(cuid())
+  schoolId  String
+  examId    String
+  classId   String
+  subjectId String
+  examDate  DateTime @db.Date
+  startTime String?
+  endTime   String?
+  room      String?
+  fullMarks Int
+  passMarks Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  school  School     @relation(fields: [schoolId], references: [id])
+  exam    Exam       @relation(fields: [examId], references: [id], onDelete: Cascade)
+  class   Class      @relation(fields: [classId], references: [id])
+  subject Subject    @relation(fields: [subjectId], references: [id])
+  marks   ExamMark[]
+
+  @@unique([examId, classId, subjectId])
+  @@index([schoolId])
+  @@index([classId])
+  @@map("exam_schedules")
+}
+
+// A student's result for one exam schedule. No classId/sectionId/academicYearId
+// denormalization here (unlike Attendance) — marks are never read after a
+// student's later promotion in a way that requires point-in-time class/section,
+// and Phase 5 explicitly excludes promotion/report-card logic that would need it.
+model ExamMark {
+  id             String   @id @default(cuid())
+  schoolId       String
+  examScheduleId String
+  studentId      String
+  marks          Int?
+  isAbsent       Boolean  @default(false)
+  enteredById    String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  school       School       @relation(fields: [schoolId], references: [id])
+  examSchedule ExamSchedule @relation(fields: [examScheduleId], references: [id], onDelete: Cascade)
+  student      Student      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  enteredBy    User         @relation("ExamMarksEntered", fields: [enteredById], references: [id])
+
+  @@unique([examScheduleId, studentId])
+  @@index([schoolId])
+  @@index([studentId])
+  @@map("exam_marks")
 }
