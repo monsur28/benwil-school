@@ -5,6 +5,15 @@ export default defineConfig({
   fullyParallel: false,
   retries: 0,
   reporter: "list",
+  // The real Neon Postgres database (remote, not local) plus Next dev-mode
+  // route compilation means individual assertions can take noticeably
+  // longer than Playwright's 5s default under a full-suite run, even
+  // though nothing is actually wrong - raise the defaults rather than
+  // patch timeouts on every assertion.
+  timeout: 60_000,
+  expect: {
+    timeout: 15_000,
+  },
   use: {
     baseURL: "http://localhost:3000",
     trace: "retain-on-failure",

@@ -105,6 +105,10 @@ test.describe("Admin exam management", () => {
     await page.getByRole("button", { name: "New Exam Type" }).click()
     await page.locator("#exam-type-name").fill(examTypeName)
     await page.getByRole("button", { name: "Save" }).click()
+    // Wait for the create to actually persist before navigating away -
+    // otherwise /exams' server-rendered examTypes list can be fetched
+    // before this mutation has committed.
+    await expect(page.getByText(examTypeName)).toBeVisible()
 
     const examName = `${RUN_PREFIX} Marks Flow Exam ${Date.now()}`
     await page.goto("/exams")
@@ -126,12 +130,12 @@ test.describe("Admin exam management", () => {
     await page.getByRole("button", { name: "Save" }).click()
 
     await page.getByRole("button", { name: "Enter Marks" }).click()
-    await page.waitForURL(/\/marks/)
-    // Section A is already the page's own default (only 2 sections exist -
-    // A and B - and A is selected first), so no explicit selection/navigation
-    // is needed here; selecting an already-selected native option fires no
-    // change event, which would otherwise hang a waitForURL that follows it.
-    // Confirm we really did land on Section A via one of its known students.
+    // waitForURL defaults to waitUntil:"load", which a client-side soft
+    // navigation (router.push/Link, no full reload) may never fire - wait
+    // for actual marks-entry content instead. Section A is already the
+    // page's own default (only 2 sections exist - A and B - and A is
+    // selected first), so no explicit selection is needed; confirm we
+    // landed there via one of its known students.
     await expect(page.getByText("Nusrat Jahan")).toBeVisible()
 
     const marksInputs = page.locator('input[type="number"]')
@@ -141,7 +145,9 @@ test.describe("Admin exam management", () => {
       await marksInputs.nth(i).fill(String(70 + i))
     }
     await page.getByRole("button", { name: "Save" }).click()
-    await expect(page.getByText(`${studentCount} entered • 0 absent • 0 pending`)).toBeVisible()
+    await expect(page.getByText(`${studentCount} entered • 0 absent • 0 pending`)).toBeVisible({
+      timeout: 20_000,
+    })
 
     // update one student's marks
     await marksInputs.first().fill("99")
@@ -151,16 +157,21 @@ test.describe("Admin exam management", () => {
     // switch to Section B and mark all absent
     const beforeSwitchCompletion = await page.getByText(/entered.*absent.*pending/).textContent()
     await page.getByLabel("Section").selectOption({ label: "B" })
-    await page.waitForURL(/sectionId=/)
     // The section change is a soft navigation (router.push -> server round
-    // trip re-render), so wait for the completion summary to actually change
-    // from Section A's value rather than reading input count immediately.
-    await expect(page.getByText(/entered.*absent.*pending/)).not.toHaveText(beforeSwitchCompletion ?? "")
+    // trip re-render via a fetch, not a full document load), so poll for
+    // the completion summary to actually change rather than assuming a
+    // single check will land after the transition settles.
+    await expect(async () => {
+      const current = await page.getByText(/entered.*absent.*pending/).textContent()
+      expect(current).not.toBe(beforeSwitchCompletion)
+    }).toPass({ timeout: 20_000 })
     const sectionBInputs = page.locator('input[type="number"]')
     const sectionBCount = await sectionBInputs.count()
     if (sectionBCount > 0) {
       await page.getByRole("button", { name: "Mark All Absent" }).click()
-      await expect(page.getByText(`0 entered • ${sectionBCount} absent • 0 pending`)).toBeVisible()
+      await expect(page.getByText(`0 entered • ${sectionBCount} absent • 0 pending`)).toBeVisible({
+        timeout: 20_000,
+      })
     }
 
     // student profile results tab reflects the entered marks (Nusrat Jahan
