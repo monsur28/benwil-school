@@ -334,6 +334,19 @@
       "studentIdLabel": "Student ID",
       "admissionNoLabel": "Admission No."
     },
+    "results": {
+      "subject": "Subject",
+      "fullMarks": "Full Marks",
+      "passMarks": "Pass Marks",
+      "marks": "Marks",
+      "status": "Status",
+      "present": "Present",
+      "absent": "Absent",
+      "empty": {
+        "title": "No results yet",
+        "description": "Exam results will appear here once marks are entered for this student."
+      }
+    },
     "notFoundTitle": "Student not found",
     "notFoundDescription": "This student may have been removed, or the link is incorrect."
   },

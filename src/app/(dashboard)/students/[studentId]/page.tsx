@@ -14,6 +14,7 @@ import { StudentSavedToast } from "@/components/students/student-saved-toast"
 import { OverviewTab } from "@/components/students/tabs/overview-tab"
 import { AcademicTab } from "@/components/students/tabs/academic-tab"
 import { AttendanceTab } from "@/components/students/tabs/attendance-tab"
+import { ResultsTab } from "@/components/students/tabs/results-tab"
 import { DocumentsTab } from "@/components/students/tabs/documents-tab"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
@@ -107,7 +108,7 @@ export default async function StudentProfilePage({
           <AttendanceTab studentId={student.id} />
         </TabsContent>
         <TabsContent value="results">
-          <ComingSoon />
+          <ResultsTab studentId={student.id} />
         </TabsContent>
         <TabsContent value="fees">
           <ComingSoon />
