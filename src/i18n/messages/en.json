@@ -489,7 +489,8 @@
     "marks": {
       "markAllAbsent": "Mark All Absent",
       "saveSuccess": "Marks saved",
-      "noScheduleSelected": "Select a class and subject with a scheduled exam to enter marks."
+      "noScheduleSelected": "Select a class and subject with a scheduled exam to enter marks.",
+      "nothingToSave": "Enter at least one mark or mark a student absent before saving."
     },
     "success": {
       "examTypeCreated": "Exam type created",

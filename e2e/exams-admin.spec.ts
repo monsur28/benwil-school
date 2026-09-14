@@ -1,13 +1,36 @@
+import "dotenv/config"
 import { test, expect } from "@playwright/test"
+import { PrismaPg } from "@prisma/adapter-pg"
+import { PrismaClient } from "@prisma/client"
 import { login, ACCOUNTS } from "./helpers"
+
+const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL })
+const prisma = new PrismaClient({ adapter })
+
+// A run-unique prefix so this spec's fixtures (exam types, exams, and
+// whatever schedules/marks hang off them) can be cleaned up afterwards
+// without touching any other exam data - real or from other specs.
+const RUN_PREFIX = `E2E Admin ${Date.now()}`
 
 test.describe("Admin exam management", () => {
   test.beforeEach(async ({ page }) => {
     await login(page, ACCOUNTS.admin.email, ACCOUNTS.admin.password)
   })
 
+  test.afterAll(async () => {
+    const exams = await prisma.exam.findMany({ where: { name: { startsWith: RUN_PREFIX } } })
+    const examIds = exams.map((exam) => exam.id)
+    const schedules = await prisma.examSchedule.findMany({ where: { examId: { in: examIds } } })
+    const scheduleIds = schedules.map((schedule) => schedule.id)
+    await prisma.examMark.deleteMany({ where: { examScheduleId: { in: scheduleIds } } })
+    await prisma.examSchedule.deleteMany({ where: { examId: { in: examIds } } })
+    await prisma.exam.deleteMany({ where: { id: { in: examIds } } })
+    await prisma.examType.deleteMany({ where: { name: { startsWith: RUN_PREFIX } } })
+    await prisma.$disconnect()
+  })
+
   test("create, edit, and toggle an exam type", async ({ page }) => {
-    const name = `Class Test ${Date.now()}`
+    const name = `${RUN_PREFIX} Class Test ${Date.now()}`
 
     await page.goto("/exams/types")
     await page.getByRole("button", { name: "New Exam Type" }).click()
@@ -24,14 +47,14 @@ test.describe("Admin exam management", () => {
   })
 
   test("create an exam, add a schedule, and reject duplicates and bad marks", async ({ page }) => {
-    const examTypeName = `Half Yearly ${Date.now()}`
+    const examTypeName = `${RUN_PREFIX} Half Yearly ${Date.now()}`
     await page.goto("/exams/types")
     await page.getByRole("button", { name: "New Exam Type" }).click()
     await page.locator("#exam-type-name").fill(examTypeName)
     await page.getByRole("button", { name: "Save" }).click()
     await expect(page.getByText(examTypeName)).toBeVisible()
 
-    const examName = `Half Yearly Exam ${Date.now()}`
+    const examName = `${RUN_PREFIX} Half Yearly Exam ${Date.now()}`
     await page.goto("/exams")
     await page.getByRole("button", { name: "New Exam" }).click()
     await page.locator("#exam-name").fill(examName)
@@ -77,13 +100,13 @@ test.describe("Admin exam management", () => {
   })
 
   test("enter marks, update them, mark absent, and see completion counts and student results", async ({ page }) => {
-    const examTypeName = `Marks Flow Type ${Date.now()}`
+    const examTypeName = `${RUN_PREFIX} Marks Flow Type ${Date.now()}`
     await page.goto("/exams/types")
     await page.getByRole("button", { name: "New Exam Type" }).click()
     await page.locator("#exam-type-name").fill(examTypeName)
     await page.getByRole("button", { name: "Save" }).click()
 
-    const examName = `Marks Flow Exam ${Date.now()}`
+    const examName = `${RUN_PREFIX} Marks Flow Exam ${Date.now()}`
     await page.goto("/exams")
     await page.getByRole("button", { name: "New Exam" }).click()
     await page.locator("#exam-name").fill(examName)
@@ -104,8 +127,12 @@ test.describe("Admin exam management", () => {
 
     await page.getByRole("button", { name: "Enter Marks" }).click()
     await page.waitForURL(/\/marks/)
-    await page.getByLabel("Section").selectOption({ label: "A" })
-    await page.waitForURL(/sectionId=/)
+    // Section A is already the page's own default (only 2 sections exist -
+    // A and B - and A is selected first), so no explicit selection/navigation
+    // is needed here; selecting an already-selected native option fires no
+    // change event, which would otherwise hang a waitForURL that follows it.
+    // Confirm we really did land on Section A via one of its known students.
+    await expect(page.getByText("Nusrat Jahan")).toBeVisible()
 
     const marksInputs = page.locator('input[type="number"]')
     const studentCount = await marksInputs.count()

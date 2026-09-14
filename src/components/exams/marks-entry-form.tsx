@@ -48,11 +48,24 @@ export function MarksEntryForm({ examScheduleId, sectionId, fullMarks, roster }:
   }
 
   function handleSave() {
+    // Only submit rows the teacher actually resolved (a mark entered, or
+    // explicitly checked absent) — an untouched row stays "pending" (no
+    // ExamMark row at all, per the completion overview) rather than being
+    // upserted as null/false, which would immediately count it as "entered".
+    const resolvedEntries = rows
+      .filter((row) => row.marks !== null || row.isAbsent)
+      .map((row) => ({ studentId: row.studentId, marks: row.marks, isAbsent: row.isAbsent }))
+
+    if (resolvedEntries.length === 0) {
+      toast.add({ title: t("marks.nothingToSave"), type: "info" })
+      return
+    }
+
     startTransition(async () => {
       const result = await saveExamMarks({
         examScheduleId,
         sectionId,
-        entries: rows.map((row) => ({ studentId: row.studentId, marks: row.marks, isAbsent: row.isAbsent })),
+        entries: resolvedEntries,
       })
       if ("error" in result) {
         toast.add({ title: result.error, type: "error" })
