@@ -168,6 +168,48 @@ async function main() {
   console.log(
     `Seeded ${subjects.length} subjects, linked to all classes, and topped up Class 5 (Sections A/B) + Class 8 (Section A) student rosters for exam testing.`
   )
+
+  // --- Phase 6 fixture: one default grading scale, explicitly labeled as ---
+  // --- test/example data, not an official national grading standard.    ---
+  const gradingScale = await prisma.gradingScale.upsert({
+    where: { schoolId_name: { schoolId: school.id, name: "Default Test Grading Scale" } },
+    update: {},
+    create: {
+      schoolId: school.id,
+      name: "Default Test Grading Scale",
+      nameBn: "ডিফল্ট পরীক্ষামূলক গ্রেডিং স্কেল",
+    },
+  })
+  const gradeRuleDefs = [
+    { min: "80.00", max: "100.00", grade: "A+", gradeBn: "এ প্লাস", point: "5.00" },
+    { min: "70.00", max: "79.99", grade: "A", gradeBn: "এ", point: "4.00" },
+    { min: "60.00", max: "69.99", grade: "A-", gradeBn: "এ মাইনাস", point: "3.50" },
+    { min: "50.00", max: "59.99", grade: "B", gradeBn: "বি", point: "3.00" },
+    { min: "40.00", max: "49.99", grade: "C", gradeBn: "সি", point: "2.00" },
+    { min: "33.00", max: "39.99", grade: "D", gradeBn: "ডি", point: "1.00" },
+    { min: "0.00", max: "32.99", grade: "F", gradeBn: "এফ", point: "0.00" },
+  ]
+  for (const def of gradeRuleDefs) {
+    const existing = await prisma.gradeRule.findFirst({
+      where: { gradingScaleId: gradingScale.id, minPercentage: def.min },
+    })
+    if (!existing) {
+      await prisma.gradeRule.create({
+        data: {
+          gradingScaleId: gradingScale.id,
+          minPercentage: def.min,
+          maxPercentage: def.max,
+          grade: def.grade,
+          gradeBn: def.gradeBn,
+          gradePoint: def.point,
+        },
+      })
+    }
+  }
+
+  console.log(
+    `Seeded "${gradingScale.name}" with ${gradeRuleDefs.length} grade rules - this is example/test data, not an official grading standard. Adjust boundaries and grade points to your school's actual policy.`
+  )
 }
 
 main()
