@@ -29,7 +29,7 @@ export default async function ReportCardPage({
   const { result } = context
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6 rounded-xl border bg-card p-6 print:max-w-none print:border-0 print:p-0 print:shadow-none">
+    <div className="mx-auto w-full max-w-3xl space-y-6 rounded-xl border bg-card p-6 print:max-w-none print:border-0 print:p-0 print:shadow-none">
       <div className="flex items-start justify-between print:hidden">
         <p className="text-xs text-muted-foreground">{t("reportCard.title")}</p>
         <PrintReportCardButton />

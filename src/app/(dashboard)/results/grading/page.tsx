@@ -46,7 +46,7 @@ export default async function GradingPage() {
                 </div>
                 <div className="flex items-center gap-2">
                   <GradeRuleDialog gradingScaleId={scale.id} />
-                  <GradingScaleDialog gradingScale={scale} />
+                  <GradingScaleDialog gradingScale={{ id: scale.id, name: scale.name, nameBn: scale.nameBn, isActive: scale.isActive }} />
                   <GradingScaleActiveToggle id={scale.id} isActive={scale.isActive} />
                 </div>
               </CardHeader>
