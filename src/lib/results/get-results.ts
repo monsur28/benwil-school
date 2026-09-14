@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db/client"
 import {
   calculateStudentExamResult,
   type GradeLookupRule,
+  type OverallStatus,
   type ScheduleInput,
   type StudentExamResult,
 } from "@/lib/results/calculate-result"
@@ -197,6 +198,81 @@ export async function getResultOverviewRows(params: {
   )
 
   return rows.sort((a, b) => a.examName.localeCompare(b.examName) || a.className.localeCompare(b.className))
+}
+
+export type StudentExamResultSummary = {
+  examId: string
+  examName: string
+  examTypeName: string
+  academicYearName: string
+  startDate: Date
+  overallPercentage: number | null
+  gpa: number | null
+  overallStatus: OverallStatus
+  isComplete: boolean
+}
+
+// Lean, batched summary for the student profile's Results tab - exactly
+// three queries total (schedules+exam+academicYear via include, active
+// grade rules, marks) no matter how many exams the student's class has
+// been scheduled for, since the profile page must stay light per the
+// Phase 6 spec ("only load the data needed for the summary").
+export async function getStudentResultSummaries(params: {
+  schoolId: string
+  studentId: string
+  classId: string
+}): Promise<StudentExamResultSummary[]> {
+  const { schoolId, studentId, classId } = params
+
+  const [schedules, gradeRules] = await Promise.all([
+    prisma.examSchedule.findMany({
+      where: { schoolId, classId },
+      include: { subject: true, exam: { include: { academicYear: true, examType: true } } },
+    }),
+    getActiveGradeRules(schoolId),
+  ])
+  if (schedules.length === 0) return []
+
+  const marks = await prisma.examMark.findMany({
+    where: { studentId, examScheduleId: { in: schedules.map((schedule) => schedule.id) } },
+  })
+  const marksByScheduleId = new Map(marks.map((mark) => [mark.examScheduleId, { marks: mark.marks, isAbsent: mark.isAbsent }]))
+
+  const schedulesByExam = new Map<string, typeof schedules>()
+  for (const schedule of schedules) {
+    const list = schedulesByExam.get(schedule.examId)
+    if (list) {
+      list.push(schedule)
+    } else {
+      schedulesByExam.set(schedule.examId, [schedule])
+    }
+  }
+
+  const summaries: StudentExamResultSummary[] = []
+  for (const examSchedules of schedulesByExam.values()) {
+    const scheduleInputs: ScheduleInput[] = examSchedules.map((schedule) => ({
+      scheduleId: schedule.id,
+      subjectId: schedule.subjectId,
+      subjectName: schedule.subject.name,
+      fullMarks: schedule.fullMarks,
+      passMarks: schedule.passMarks,
+    }))
+    const result = calculateStudentExamResult(studentId, scheduleInputs, marksByScheduleId, gradeRules)
+    const exam = examSchedules[0].exam
+    summaries.push({
+      examId: exam.id,
+      examName: exam.name,
+      examTypeName: exam.examType.name,
+      academicYearName: exam.academicYear.name,
+      startDate: exam.startDate,
+      overallPercentage: result.overallPercentage,
+      gpa: result.gpa,
+      overallStatus: result.overallStatus,
+      isComplete: result.isComplete,
+    })
+  }
+
+  return summaries.sort((a, b) => b.startDate.getTime() - a.startDate.getTime())
 }
 
 export type StudentResultContext = {

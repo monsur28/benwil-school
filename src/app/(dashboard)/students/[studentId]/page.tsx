@@ -108,7 +108,7 @@ export default async function StudentProfilePage({
           <AttendanceTab studentId={student.id} />
         </TabsContent>
         <TabsContent value="results">
-          <ResultsTab studentId={student.id} />
+          <ResultsTab studentId={student.id} schoolId={student.schoolId} classId={student.classId} />
         </TabsContent>
         <TabsContent value="fees">
           <ComingSoon />
