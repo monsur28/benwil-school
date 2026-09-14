@@ -13,6 +13,8 @@ import {
   Bus,
   BarChart3,
   Settings,
+  Award,
+  SlidersHorizontal,
 } from "lucide-react"
 import { Role } from "@prisma/client"
 
@@ -36,6 +38,8 @@ export const NAV_ITEMS: NavItem[] = [
   { href: "/attendance", labelKey: "nav.attendance", icon: ClipboardCheck, roles: [...ADMIN_ROLES, Role.TEACHER] },
   { href: "/exams", labelKey: "nav.examsResults", icon: GraduationCap, roles: [...ADMIN_ROLES, Role.TEACHER] },
   { href: "/exams/types", labelKey: "exams.subnav.types", icon: GraduationCap, roles: ADMIN_ROLES },
+  { href: "/results", labelKey: "results.subnav.results", icon: Award, roles: [...ADMIN_ROLES, Role.TEACHER] },
+  { href: "/results/grading", labelKey: "results.subnav.grading", icon: SlidersHorizontal, roles: ADMIN_ROLES },
   { href: "/fees", labelKey: "nav.fees", icon: Wallet, roles: [...ADMIN_ROLES, Role.ACCOUNTANT, Role.STUDENT, Role.GUARDIAN] },
   { href: "/homework", labelKey: "nav.homework", icon: NotebookPen, roles: [...ADMIN_ROLES, Role.TEACHER, Role.STUDENT, Role.GUARDIAN] },
   { href: "/notices", labelKey: "nav.notices", icon: Megaphone, roles: ALL_ROLES },
