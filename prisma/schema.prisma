@@ -62,6 +62,8 @@ model User {
   teacherAssignments     TeacherAssignment[] @relation("TeacherAssignments")
   examMarksEntered       ExamMark[]          @relation("ExamMarksEntered")
   examResultStatusChanges Exam[]             @relation("ExamResultStatusChangedBy")
+  studentAccount         Student?            @relation("StudentAccount")
+  guardianAccount        Guardian?           @relation("GuardianAccount")
 
   @@index([schoolId])
   @@map("users")
@@ -170,6 +172,7 @@ model Student {
   classId                String
   sectionId              String
   roll                   Int
+  userId                 String?       @unique
   createdAt              DateTime      @default(now())
   updatedAt              DateTime      @updatedAt
 
@@ -177,6 +180,7 @@ model Student {
   academicYear AcademicYear      @relation(fields: [academicYearId], references: [id])
   class        Class             @relation(fields: [classId], references: [id])
   section      Section           @relation(fields: [sectionId], references: [id])
+  user         User?             @relation("StudentAccount", fields: [userId], references: [id])
   guardians    StudentGuardian[]
   documents    StudentDocument[]
   attendances  Attendance[]
@@ -202,10 +206,12 @@ model Guardian {
   email      String?
   occupation String?
   address    String?
+  userId     String?  @unique
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
   school   School            @relation(fields: [schoolId], references: [id])
+  user     User?             @relation("GuardianAccount", fields: [userId], references: [id])
   students StudentGuardian[]
 
   @@unique([schoolId, phone])
