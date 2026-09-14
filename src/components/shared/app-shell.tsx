@@ -1,6 +1,7 @@
 import type { ReactNode } from "react"
+import Link from "next/link"
 import { getTranslations } from "next-intl/server"
-import { GraduationCap } from "lucide-react"
+import { Search } from "lucide-react"
 import type { SessionData } from "@/lib/auth/session"
 import { getNavForRole } from "@/lib/permissions/nav"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -9,6 +10,7 @@ import { MobileNav } from "@/components/shared/mobile-nav"
 import { BreadcrumbNav } from "@/components/shared/breadcrumb-nav"
 import { UserMenu } from "@/components/shared/user-menu"
 import { LanguageSwitcher } from "@/components/shared/language-switcher"
+import { SchoolCrest } from "@/components/shared/school-crest"
 import { Toaster } from "@/components/ui/toast"
 
 export async function AppShell({ user, children }: { user: SessionData; children: ReactNode }) {
@@ -25,31 +27,66 @@ export async function AppShell({ user, children }: { user: SessionData; children
   }))
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <aside className="hidden w-60 shrink-0 flex-col border-r border-sidebar-border bg-sidebar lg:flex">
-        <div className="flex h-14 items-center gap-2 px-4">
-          <GraduationCap className="size-5 text-sidebar-primary" />
-          <span className="font-heading text-sm font-semibold text-sidebar-foreground">
-            {tCommon("appName")}
-          </span>
+    <div className="min-h-screen bg-background">
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-sidebar-border bg-sidebar lg:flex print:hidden">
+        {/* Institutional Sidebar Header with School Crest */}
+        <div className="flex h-16 items-center gap-3 border-b border-sidebar-border/60 px-4">
+          <SchoolCrest size="sm" className="size-8 drop-shadow-xs" />
+          <div className="min-w-0">
+            <span className="font-heading text-sm font-bold tracking-tight text-sidebar-foreground">
+              {tCommon("appName")}
+            </span>
+            <p className="text-[10px] font-medium tracking-widest text-sidebar-foreground/60 uppercase">
+              Est. 1994 • Model Campus
+            </p>
+          </div>
         </div>
-        <ScrollArea className="flex-1">
+
+        <ScrollArea className="flex-1 px-1 py-2">
           <SidebarNav items={navItems} />
         </ScrollArea>
+
+        {/* Institutional System Status Footer */}
+        <div className="border-t border-sidebar-border/60 p-3">
+          <div className="rounded-lg border border-sidebar-border/70 bg-sidebar-accent/30 p-2.5">
+            <div className="flex items-center justify-between text-[11px] font-medium text-sidebar-foreground">
+              <span>Session 2026</span>
+              <span className="inline-flex items-center gap-1 text-[10px] text-emerald-600 dark:text-emerald-400">
+                <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                Online
+              </span>
+            </div>
+            <p className="mt-0.5 text-[10px] text-sidebar-foreground/50">All Academic Modules Nominal</p>
+          </div>
+        </div>
       </aside>
 
-      <div className="flex min-h-screen flex-1 flex-col">
-        <header className="flex h-14 shrink-0 items-center justify-between gap-2 border-b border-border px-3 sm:px-6">
-          <div className="flex items-center gap-2">
+      <div className="flex min-h-screen flex-1 flex-col lg:pl-64 print:pl-0">
+        <header className="sticky top-0 z-20 flex h-14 shrink-0 items-center justify-between gap-2 border-b border-border px-3 sm:px-6 bg-background/95 backdrop-blur-xs print:hidden">
+          <div className="flex items-center gap-3">
             <MobileNav items={navItems} appName={tCommon("appName")} />
             <BreadcrumbNav items={navItems} dashboardLabel={t("nav.dashboard")} />
           </div>
-          <div className="flex items-center gap-1">
+
+          <div className="flex items-center gap-2">
+            {/* Quick Search Trigger */}
+            <Link
+              href="/students"
+              className="hidden md:flex items-center gap-2 rounded-md border border-border/70 bg-muted/30 px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:border-neutral-300 hover:text-foreground"
+            >
+              <Search className="size-3.5 text-muted-foreground" />
+              <span>Search directory...</span>
+              <kbd className="ml-1 rounded border border-border/80 bg-[#F7F6F3] px-1 font-mono text-[10px] text-muted-foreground dark:bg-neutral-800">
+                ⌘K
+              </kbd>
+            </Link>
+
             <LanguageSwitcher />
             <UserMenu name={user.name} roleLabel={tRoles(user.role)} />
           </div>
         </header>
-        <main className="flex flex-1 flex-col gap-4 p-4 sm:p-6">{children}</main>
+
+        <main className="flex flex-1 flex-col gap-4 p-4 sm:p-6 print:p-0">{children}</main>
       </div>
       <Toaster />
     </div>

@@ -117,6 +117,88 @@ export async function getClassSectionResults(params: {
   }
 }
 
+export type ExamClassRow = {
+  examId: string
+  examName: string
+  examTypeName: string
+  academicYearId: string
+  academicYearName: string
+  resultStatus: "DRAFT" | "FINALIZED"
+  classId: string
+  className: string
+  isComplete: boolean
+}
+
+// Lightweight: three COUNT queries per (exam, class) row rather than
+// fetching every student's full result just to know if it's complete -
+// used by the /results overview, which only needs a Complete/Incomplete
+// badge, not the actual grades.
+async function getExamClassCompletion(
+  examId: string,
+  classId: string,
+  schoolId: string,
+  academicYearId: string
+): Promise<boolean> {
+  const [scheduleCount, studentCount, markCount] = await Promise.all([
+    prisma.examSchedule.count({ where: { examId, classId, schoolId } }),
+    prisma.student.count({ where: { schoolId, classId, academicYearId, status: "ACTIVE" } }),
+    prisma.examMark.count({
+      where: { examSchedule: { examId, classId, schoolId }, student: { academicYearId, status: "ACTIVE" } },
+    }),
+  ])
+  return scheduleCount > 0 && studentCount > 0 && markCount >= scheduleCount * studentCount
+}
+
+// Every (exam, class) pair that has at least one scheduled subject, scoped
+// to the school and optionally narrowed to a specific set of classIds (used
+// to restrict a TEACHER's view to only the classes they're assigned to).
+export async function getResultOverviewRows(params: {
+  schoolId: string
+  academicYearId?: string
+  examId?: string
+  classId?: string
+  restrictToClassIds?: string[]
+}): Promise<ExamClassRow[]> {
+  const { schoolId, academicYearId, examId, classId, restrictToClassIds } = params
+
+  if (restrictToClassIds && restrictToClassIds.length === 0) {
+    return []
+  }
+
+  const schedules = await prisma.examSchedule.findMany({
+    where: {
+      schoolId,
+      ...(examId ? { examId } : {}),
+      ...(classId ? { classId } : {}),
+      ...(restrictToClassIds ? { classId: { in: restrictToClassIds } } : {}),
+      exam: academicYearId ? { academicYearId } : undefined,
+    },
+    select: {
+      examId: true,
+      classId: true,
+      exam: { select: { name: true, academicYearId: true, resultStatus: true, examType: { select: { name: true } }, academicYear: { select: { name: true } } } },
+      class: { select: { name: true } },
+    },
+    distinct: ["examId", "classId"],
+  })
+
+  const rows = await Promise.all(
+    schedules.map(async (schedule) => ({
+      examId: schedule.examId,
+      examName: schedule.exam.name,
+      examTypeName: schedule.exam.examType.name,
+      academicYearId: schedule.exam.academicYearId,
+      academicYearName: schedule.exam.academicYear.name,
+      resultStatus: schedule.exam.resultStatus,
+      classId: schedule.classId,
+      className: schedule.class.name,
+      isComplete: await getExamClassCompletion(schedule.examId, schedule.classId, schoolId, schedule.exam.academicYearId),
+    }))
+  )
+
+  return rows.sort((a, b) => a.examName.localeCompare(b.examName) || a.className.localeCompare(b.className))
+}
+
 export type StudentResultContext = {
   student: {
     id: string

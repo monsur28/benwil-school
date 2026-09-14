@@ -7,9 +7,9 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), monospace;
+  --font-heading: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -126,5 +126,22 @@
   }
   html {
     @apply font-sans;
+  }
+}
+
+/* Report card printing (Phase 6): A4 page size/margins and avoiding
+   mid-table page breaks aren't expressible via Tailwind's print: variant
+   alone (that only toggles display), so this small block covers exactly
+   those two concerns. Hiding the dashboard chrome itself is still done
+   with print:hidden classes directly on AppShell. */
+@media print {
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+  tr,
+  td,
+  th {
+    break-inside: avoid;
   }
 }
