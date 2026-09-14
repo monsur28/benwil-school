@@ -18,12 +18,25 @@ export async function createGradingScale(input: unknown): Promise<GradingActionR
   if (!parsed.success) return { error: t("errors.invalidForm") }
 
   try {
-    await prisma.gradingScale.create({
-      data: {
-        schoolId: user.schoolId,
-        name: parsed.data.name,
-        nameBn: parsed.data.nameBn || null,
-      },
+    // At most one grading scale is active per school - getActiveGradeRules
+    // just picks one active scale, so leaving two active would make grade
+    // calculation depend on arbitrary query order. New scales default to
+    // active (schema default), so deactivate every other scale in the same
+    // transaction as the create.
+    await prisma.$transaction(async (tx) => {
+      const scale = await tx.gradingScale.create({
+        data: {
+          schoolId: user.schoolId,
+          name: parsed.data.name,
+          nameBn: parsed.data.nameBn || null,
+        },
+      })
+      if (scale.isActive) {
+        await tx.gradingScale.updateMany({
+          where: { schoolId: user.schoolId, id: { not: scale.id } },
+          data: { isActive: false },
+        })
+      }
     })
   } catch (error) {
     if (isUniqueConstraintError(error)) return { error: t("errors.duplicateGradingScale") }
@@ -48,13 +61,21 @@ export async function updateGradingScale(input: unknown): Promise<GradingActionR
   if (!existing) return { error: t("errors.notFound") }
 
   try {
-    await prisma.gradingScale.update({
-      where: { id: parsed.data.id },
-      data: {
-        name: parsed.data.name,
-        nameBn: parsed.data.nameBn || null,
-        isActive: parsed.data.isActive,
-      },
+    await prisma.$transaction(async (tx) => {
+      await tx.gradingScale.update({
+        where: { id: parsed.data.id },
+        data: {
+          name: parsed.data.name,
+          nameBn: parsed.data.nameBn || null,
+          isActive: parsed.data.isActive,
+        },
+      })
+      if (parsed.data.isActive) {
+        await tx.gradingScale.updateMany({
+          where: { schoolId: user.schoolId, id: { not: parsed.data.id } },
+          data: { isActive: false },
+        })
+      }
     })
   } catch (error) {
     if (isUniqueConstraintError(error)) return { error: t("errors.duplicateGradingScale") }
@@ -75,7 +96,15 @@ export async function toggleGradingScaleActive(id: string, isActive: boolean): P
   })
   if (!existing) return { error: t("errors.notFound") }
 
-  await prisma.gradingScale.update({ where: { id }, data: { isActive } })
+  await prisma.$transaction(async (tx) => {
+    await tx.gradingScale.update({ where: { id }, data: { isActive } })
+    if (isActive) {
+      await tx.gradingScale.updateMany({
+        where: { schoolId: user.schoolId, id: { not: id } },
+        data: { isActive: false },
+      })
+    }
+  })
   revalidatePath("/results/grading")
   return {}
 }
