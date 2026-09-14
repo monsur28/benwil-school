@@ -71,27 +71,7 @@ export const examScheduleSchema = z
   })
 export type ExamScheduleInput = z.infer<typeof examScheduleSchema>
 
-export const editExamScheduleSchema = z
-  .object({
-    id: z.string().min(1),
-    examId: z.string().min(1),
-    classId: z.string().min(1, { error: errors.classRequired }),
-    subjectId: z.string().min(1, { error: errors.subjectRequired }),
-    examDate: z.string().min(1, { error: errors.examDateRequired }),
-    startTime: optionalText,
-    endTime: optionalText,
-    room: optionalText,
-    fullMarks: z.coerce.number().int().positive({ error: errors.fullMarksInvalid }),
-    passMarks: z.coerce.number().int().min(0, { error: errors.passMarksInvalid }),
-  })
-  .refine((data) => data.passMarks <= data.fullMarks, {
-    error: errors.passMarksInvalid,
-    path: ["passMarks"],
-  })
-  .refine((data) => !data.startTime || !data.endTime || data.endTime > data.startTime, {
-    error: errors.invalidTimeRange,
-    path: ["endTime"],
-  })
+export const editExamScheduleSchema = examScheduleSchema.and(z.object({ id: z.string().min(1) }))
 export type EditExamScheduleInput = z.infer<typeof editExamScheduleSchema>
 
 const examMarkEntrySchema = z
