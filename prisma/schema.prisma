@@ -26,6 +26,7 @@ model School {
   exams              Exam[]
   examSchedules      ExamSchedule[]
   examMarks          ExamMark[]
+  gradingScales      GradingScale[]
 
   @@map("schools")
 }
@@ -56,10 +57,11 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  school             School              @relation(fields: [schoolId], references: [id])
-  attendancesMarked  Attendance[]        @relation("AttendanceMarkedBy")
-  teacherAssignments TeacherAssignment[] @relation("TeacherAssignments")
-  examMarksEntered   ExamMark[]          @relation("ExamMarksEntered")
+  school                 School              @relation(fields: [schoolId], references: [id])
+  attendancesMarked      Attendance[]        @relation("AttendanceMarkedBy")
+  teacherAssignments     TeacherAssignment[] @relation("TeacherAssignments")
+  examMarksEntered       ExamMark[]          @relation("ExamMarksEntered")
+  examResultStatusChanges Exam[]             @relation("ExamResultStatusChangedBy")
 
   @@index([schoolId])
   @@map("users")
@@ -383,6 +385,11 @@ model ExamType {
   @@map("exam_types")
 }
 
+enum ResultStatus {
+  DRAFT
+  FINALIZED
+}
+
 model Exam {
   id             String   @id @default(cuid())
   schoolId       String
@@ -396,15 +403,69 @@ model Exam {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  school       School         @relation(fields: [schoolId], references: [id])
-  academicYear AcademicYear   @relation(fields: [academicYearId], references: [id])
-  examType     ExamType       @relation(fields: [examTypeId], references: [id])
-  schedules    ExamSchedule[]
+  // Phase 6: locks the whole exam's marks once results are approved. Tracks
+  // only the most recent status change (who + when) - not a full audit log,
+  // per the "minimum required state" instruction. Reopening clears back to
+  // DRAFT and overwrites these with the reopen action's actor/time.
+  resultStatus         ResultStatus @default(DRAFT)
+  resultStatusChangedAt   DateTime?
+  resultStatusChangedById String?
+
+  school               School         @relation(fields: [schoolId], references: [id])
+  academicYear         AcademicYear   @relation(fields: [academicYearId], references: [id])
+  examType             ExamType       @relation(fields: [examTypeId], references: [id])
+  schedules            ExamSchedule[]
+  resultStatusChangedBy User?         @relation("ExamResultStatusChangedBy", fields: [resultStatusChangedById], references: [id])
 
   @@index([schoolId])
   @@index([academicYearId])
   @@index([examTypeId])
   @@map("exams")
+}
+
+// A school-defined set of grade boundaries (e.g. "Standard School Grading").
+// A school can have several; at most one is meant to be active for actual
+// result calculation at a time, but multiple can exist (draft/inactive) for
+// simple editing without disrupting already-calculated results elsewhere.
+model GradingScale {
+  id        String   @id @default(cuid())
+  schoolId  String
+  name      String
+  nameBn    String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  school     School      @relation(fields: [schoolId], references: [id])
+  gradeRules GradeRule[]
+
+  @@unique([schoolId, name])
+  @@index([schoolId])
+  @@map("grading_scales")
+}
+
+// One percentage band within a GradingScale (e.g. 70.00-79.99 -> "A", 4.00).
+// minPercentage/maxPercentage are Decimal (exact, base-10 storage), not
+// Float, specifically so boundary comparisons never suffer IEEE-754 binary
+// rounding surprises (e.g. 0.1 + 0.2 !== 0.3) - both ends are inclusive, so
+// adjacent bands must be entered as e.g. 70.00-79.99 and 80.00-100.00 to
+// avoid overlapping or leaving gaps.
+model GradeRule {
+  id             String  @id @default(cuid())
+  gradingScaleId String
+  minPercentage  Decimal @db.Decimal(5, 2)
+  maxPercentage  Decimal @db.Decimal(5, 2)
+  grade          String
+  gradeBn        String?
+  gradePoint     Decimal @db.Decimal(3, 2)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  gradingScale GradingScale @relation(fields: [gradingScaleId], references: [id], onDelete: Cascade)
+
+  @@index([gradingScaleId])
+  @@map("grade_rules")
 }
 
 // A single subject scheduled for a class within an exam. Sections are not
