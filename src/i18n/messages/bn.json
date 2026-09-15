@@ -15,7 +15,13 @@
     "somethingWentWrongDescription": "একটি অপ্রত্যাশিত সমস্যা হয়েছে। আবার চেষ্টা করুন।",
     "tryAgain": "আবার চেষ্টা করুন",
     "pageNotFound": "পাতাটি পাওয়া যায়নি",
-    "pageNotFoundDescription": "আপনি যে পাতাটি খুঁজছেন তা নেই।"
+    "pageNotFoundDescription": "আপনি যে পাতাটি খুঁজছেন তা নেই।",
+    "header": {
+      "academicSession": "শিক্ষাবর্ষ",
+      "notifications": "বিজ্ঞপ্তি",
+      "noNotifications": "কোনো নতুন বিজ্ঞপ্তি নেই",
+      "noNotificationsDescription": "আপনি সব দেখে ফেলেছেন।"
+    }
   },
   "roles": {
     "SUPER_ADMIN": "সুপার অ্যাডমিন",
@@ -336,6 +342,20 @@
         "active": "সক্রিয়",
         "calculatedAt": "দৈনিক স্বাস্থ্য স্কোর সকাল ০৮:০০ টায় গণনাকৃত",
         "compositeScore": "যৌথ স্কোর: ৯০.৫/১০০"
+      },
+      "notices": {
+        "title": "সাম্প্রতিক নোটিশ",
+        "description": "সর্বশেষ প্রাতিষ্ঠানিক ঘোষণা ও বুলেটিন",
+        "viewAll": "সব দেখুন",
+        "footer": "স্কুল প্রশাসন কর্তৃক প্রকাশিত",
+        "sampleBadge": "নমুনা তথ্য",
+        "emergencyTitle": "জরুরি স্কুল বন্ধ",
+        "emergencyScope": "সমগ্র স্কুল",
+        "ptmTitle": "অভিভাবক-শিক্ষক সভা",
+        "ptmScope": "অভিভাবকবৃন্দ",
+        "examRoutineTitle": "মধ্যবর্তী পরীক্ষার রুটিন",
+        "examRoutineScope": "৬ষ্ঠ–১০ম শ্রেণি",
+        "today": "আজ"
       }
     },
     "teacher": {
@@ -1119,6 +1139,184 @@
       "alreadyVoided": "এই পেমেন্টটি ইতিমধ্যে বাতিল করা হয়েছে।"
     }
   },
+  "notices": {
+    "title": "নোটিশ",
+    "subnav": {
+      "notices": "নোটিশ",
+      "categories": "বিভাগ"
+    },
+    "fields": {
+      "name": "নাম",
+      "nameBn": "বাংলা নাম",
+      "title": "শিরোনাম",
+      "titleBn": "বাংলা শিরোনাম",
+      "content": "বিষয়বস্তু",
+      "contentBn": "বাংলা বিষয়বস্তু",
+      "category": "বিভাগ",
+      "audience": "দর্শক",
+      "class": "শ্রেণি",
+      "section": "শাখা",
+      "publishAt": "প্রকাশের তারিখ ও সময়",
+      "expiresAt": "মেয়াদ শেষের তারিখ ও সময় (ঐচ্ছিক)",
+      "status": "অবস্থা",
+      "createdBy": "তৈরি করেছেন",
+      "updatedBy": "হালনাগাদ করেছেন"
+    },
+    "audience": {
+      "ALL": "সবাই",
+      "STUDENTS": "শিক্ষার্থীরা",
+      "GUARDIANS": "অভিভাবকরা",
+      "CLASS": "একটি শ্রেণি",
+      "SECTION": "একটি শ্রেণি শাখা"
+    },
+    "status": {
+      "DRAFT": "খসড়া",
+      "PUBLISHED": "প্রকাশিত",
+      "ARCHIVED": "সংরক্ষণাগারভুক্ত",
+      "active": "সক্রিয়",
+      "inactive": "নিষ্ক্রিয়"
+    },
+    "actions": {
+      "label": "কার্যক্রম",
+      "newNotice": "নতুন নোটিশ",
+      "edit": "সম্পাদনা",
+      "save": "সংরক্ষণ",
+      "cancel": "বাতিল",
+      "saveDraft": "খসড়া সংরক্ষণ করুন",
+      "publish": "প্রকাশ করুন",
+      "archive": "সংরক্ষণাগারভুক্ত করুন",
+      "addCategory": "বিভাগ যোগ করুন",
+      "activate": "সক্রিয় করুন",
+      "deactivate": "নিষ্ক্রিয় করুন",
+      "viewAll": "সব দেখুন",
+      "search": "অনুসন্ধান"
+    },
+    "list": {
+      "empty": "এখনও কোনো নোটিশ নেই।",
+      "emptyCategories": "এখনও কোনো নোটিশ বিভাগ নেই।",
+      "filterStatus": "সব অবস্থা",
+      "filterCategory": "সব বিভাগ",
+      "searchPlaceholder": "শিরোনাম দিয়ে অনুসন্ধান করুন"
+    },
+    "pagination": {
+      "previous": "পূর্ববর্তী",
+      "next": "পরবর্তী",
+      "pageInfo": "পৃষ্ঠা {page} এর {totalPages}"
+    },
+    "portal": {
+      "recentTitle": "সাম্প্রতিক নোটিশ",
+      "backToList": "নোটিশে ফিরে যান",
+      "publishedOn": "প্রকাশিত {date}"
+    },
+    "success": {
+      "categoryCreated": "বিভাগ তৈরি হয়েছে।",
+      "categoryUpdated": "বিভাগ হালনাগাদ হয়েছে।",
+      "draftSaved": "নোটিশ খসড়া হিসেবে সংরক্ষিত হয়েছে।",
+      "noticeUpdated": "নোটিশ হালনাগাদ হয়েছে।",
+      "published": "নোটিশ প্রকাশিত হয়েছে।",
+      "archived": "নোটিশ সংরক্ষণাগারভুক্ত হয়েছে।"
+    },
+    "errors": {
+      "invalidForm": "ফর্মটি পরীক্ষা করে আবার চেষ্টা করুন।",
+      "notFound": "নোটিশ পাওয়া যায়নি।",
+      "saveFailed": "সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।",
+      "duplicateCategory": "এই নামে একটি নোটিশ বিভাগ ইতিমধ্যে রয়েছে।",
+      "nameRequired": "নাম আবশ্যক।",
+      "invalidSelection": "একটি বৈধ নির্বাচন করুন।",
+      "titleRequired": "শিরোনাম আবশ্যক।",
+      "contentRequired": "বিষয়বস্তু আবশ্যক।",
+      "dateRequired": "এই তারিখটি আবশ্যক।",
+      "invalidDate": "একটি বৈধ তারিখ ও সময় দিন।",
+      "invalidDateRange": "মেয়াদ শেষের তারিখ অবশ্যই প্রকাশের তারিখের পরে হতে হবে।",
+      "classRequired": "এই দর্শকদের জন্য একটি শ্রেণি নির্বাচন করুন।",
+      "sectionRequired": "এই দর্শকদের জন্য একটি শ্রেণি ও শাখা নির্বাচন করুন।"
+    }
+  },
+  "homework": {
+    "title": "বাড়ির কাজ",
+    "subnav": {
+      "homework": "বাড়ির কাজ",
+      "categories": "বিভাগ"
+    },
+    "fields": {
+      "name": "নাম",
+      "description": "বিবরণ",
+      "title": "শিরোনাম",
+      "instructions": "নির্দেশনা",
+      "category": "বিভাগ",
+      "teacher": "শিক্ষক",
+      "class": "শ্রেণি",
+      "section": "শাখা",
+      "subject": "বিষয়",
+      "assignedDate": "নির্ধারণের তারিখ",
+      "dueDate": "জমার তারিখ",
+      "status": "অবস্থা",
+      "createdBy": "তৈরি করেছেন"
+    },
+    "status": {
+      "DRAFT": "খসড়া",
+      "PUBLISHED": "প্রকাশিত",
+      "active": "সক্রিয়",
+      "inactive": "নিষ্ক্রিয়"
+    },
+    "actions": {
+      "label": "কার্যক্রম",
+      "createHomework": "বাড়ির কাজ তৈরি করুন",
+      "editHomework": "বাড়ির কাজ সম্পাদনা করুন",
+      "details": "বাড়ির কাজের বিবরণ",
+      "back": "ফিরে যান",
+      "edit": "সম্পাদনা",
+      "save": "সংরক্ষণ",
+      "cancel": "বাতিল",
+      "saveDraft": "খসড়া সংরক্ষণ করুন",
+      "publish": "প্রকাশ করুন",
+      "addCategory": "বিভাগ যোগ করুন",
+      "activate": "সক্রিয় করুন",
+      "deactivate": "নিষ্ক্রিয় করুন",
+      "viewAll": "সব দেখুন",
+      "search": "অনুসন্ধান"
+    },
+    "list": {
+      "empty": "কোনো বাড়ির কাজ পাওয়া যায়নি।",
+      "emptyCategories": "এখনও কোনো বাড়ির কাজ বিভাগ নেই।",
+      "filterStatus": "সব অবস্থা",
+      "filterClass": "সব শ্রেণি",
+      "filterSection": "সব শাখা",
+      "filterSubject": "সব বিষয়",
+      "searchPlaceholder": "শিরোনাম দিয়ে অনুসন্ধান করুন"
+    },
+    "pagination": {
+      "previous": "পূর্ববর্তী",
+      "next": "পরবর্তী",
+      "pageInfo": "পৃষ্ঠা {page} এর {totalPages}"
+    },
+    "portal": {
+      "upcomingTitle": "আসন্ন বাড়ির কাজ",
+      "assignedOn": "নির্ধারিত {date}",
+      "dueOn": "জমার তারিখ {date}"
+    },
+    "success": {
+      "categoryCreated": "বিভাগ তৈরি হয়েছে।",
+      "categoryUpdated": "বিভাগ হালনাগাদ হয়েছে।",
+      "draftSaved": "বাড়ির কাজ খসড়া হিসেবে সংরক্ষিত হয়েছে।",
+      "homeworkUpdated": "বাড়ির কাজ হালনাগাদ হয়েছে।",
+      "published": "বাড়ির কাজ প্রকাশিত হয়েছে।"
+    },
+    "errors": {
+      "invalidForm": "ফর্মটি পরীক্ষা করে আবার চেষ্টা করুন।",
+      "notFound": "বাড়ির কাজ পাওয়া যায়নি।",
+      "saveFailed": "সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।",
+      "duplicateCategory": "এই নামে একটি বাড়ির কাজ বিভাগ ইতিমধ্যে রয়েছে।",
+      "notAssigned": "আপনি এই শ্রেণি, শাখা ও বিষয় পড়ানোর জন্য নিযুক্ত নন।",
+      "nameRequired": "নাম আবশ্যক।",
+      "invalidSelection": "একটি বৈধ নির্বাচন করুন।",
+      "titleRequired": "শিরোনাম আবশ্যক।",
+      "instructionsRequired": "নির্দেশনা আবশ্যক।",
+      "dateRequired": "এই তারিখটি আবশ্যক।",
+      "invalidDate": "একটি বৈধ তারিখ দিন।",
+      "invalidDateRange": "নির্ধারিত তারিখের আগে জমার তারিখ হতে পারবে না।"
+    }
+  },
   "portal": {
     "welcome": "স্বাগতম",
     "nav": {
@@ -1128,7 +1326,9 @@
       "results": "ফলাফল",
       "reportCard": "রিপোর্ট কার্ড",
       "myChildren": "আমার সন্তানরা",
-      "fees": "ফি"
+      "fees": "ফি",
+      "notices": "নোটিশ",
+      "homework": "বাড়ির কাজ"
     },
     "fields": {
       "roll": "রোল",
@@ -1153,7 +1353,11 @@
       "noChildren": "এই অ্যাকাউন্টের সাথে এখনও কোনো সন্তান যুক্ত নেই।",
       "noChildrenTitle": "কোনো সন্তান নেই",
       "noFees": "এখনও কোনো ফি নির্ধারণ করা হয়নি।",
-      "noFeesTitle": "কোনো ফি নেই"
+      "noFeesTitle": "কোনো ফি নেই",
+      "noNotices": "স্কুলের ঘোষণাগুলো এখানে প্রদর্শিত হবে।",
+      "noNoticesTitle": "কোনো নোটিশ নেই",
+      "noHomework": "কোনো আসন্ন বাড়ির কাজ নেই।",
+      "noHomeworkTitle": "কোনো বাড়ির কাজ নেই"
     },
     "account": {
       "cardTitle": "পোর্টাল অ্যাকাউন্ট",

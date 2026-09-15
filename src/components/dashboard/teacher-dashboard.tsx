@@ -1,13 +1,24 @@
 import { getTranslations } from "next-intl/server"
 import { CalendarClock, ClipboardCheck, Users, NotebookPen, GraduationCap, FileEdit } from "lucide-react"
+import { requireAuth } from "@/lib/auth/dal"
+import { getHomeworkList } from "@/lib/homework/get-homework"
 import { StatCard } from "@/components/dashboard/stat-card"
 import { QuickAction } from "@/components/dashboard/quick-action"
+import { PortalHomeworkWidget } from "@/components/portal/portal-homework-widget"
 
 export async function TeacherDashboard() {
-  const [t, tCommon] = await Promise.all([
+  const [user, t, tCommon] = await Promise.all([
+    requireAuth(),
     getTranslations("dashboard.teacher"),
     getTranslations("common"),
   ])
+
+  const { homework } = await getHomeworkList({
+    schoolId: user.schoolId,
+    teacherId: user.userId,
+    status: "PUBLISHED",
+    take: 5,
+  })
 
   const stats = [
     { icon: CalendarClock, label: t("todaysClasses") },
@@ -34,6 +45,7 @@ export async function TeacherDashboard() {
           <QuickAction key={action.label} {...action} />
         ))}
       </div>
+      <PortalHomeworkWidget homework={homework} viewAllHref="/homework" />
     </div>
   )
 }

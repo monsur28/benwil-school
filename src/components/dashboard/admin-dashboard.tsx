@@ -4,7 +4,7 @@ import { bn as bnLocale } from "date-fns/locale"
 import { getLocale, getTranslations } from "next-intl/server"
 import { requireAuth } from "@/lib/auth/dal"
 import { prisma } from "@/lib/db/client"
-import { formatCurrency, formatNumber } from "@/lib/format"
+import { formatCurrency, formatNumber, formatDate, pickLocalized } from "@/lib/format"
 import { getFeeDashboardSummary, getMonthlyCollections } from "@/lib/fees/get-fees"
 import { getClassPerformanceOverview } from "@/lib/results/get-results"
 import { DashboardHero } from "@/components/dashboard/dashboard-hero"
@@ -17,11 +17,13 @@ import { CompactQuickActions } from "@/components/dashboard/compact-quick-action
 import { RecentActivityFeed, type ActivityItem } from "@/components/dashboard/recent-activity-feed"
 import { UpcomingEventsCard, type EventItem } from "@/components/dashboard/upcoming-events-card"
 import { SchoolHealthCard } from "@/components/dashboard/school-health-card"
+import { NoticesWidget, type NoticeItem } from "@/components/dashboard/notices-widget"
 
 export async function AdminDashboard() {
-  const [user, t, locale] = await Promise.all([
+  const [user, t, tNotices, locale] = await Promise.all([
     requireAuth(),
     getTranslations("dashboard.admin"),
+    getTranslations("notices"),
     getLocale(),
   ])
   const schoolId = user.schoolId
@@ -87,6 +89,7 @@ export async function AdminDashboard() {
     monthlyCollections,
     classPerformance,
     upcomingExams,
+    recentNotices,
   ] = await Promise.all([
     prisma.attendance.groupBy({
       by: ["date", "status"],
@@ -118,6 +121,12 @@ export async function AdminDashboard() {
       orderBy: { startDate: "asc" },
       take: 4,
       include: { examType: true },
+    }),
+    prisma.notice.findMany({
+      where: { schoolId, status: "PUBLISHED", publishAt: { lte: new Date() } },
+      orderBy: { publishAt: "desc" },
+      take: 3,
+      include: { category: true, class: true, section: true },
     }),
   ])
 
@@ -222,6 +231,22 @@ export async function AdminDashboard() {
         }))
       : undefined
 
+  // 6b. Recent published notices - real, from Phase 9's Notice model.
+  // NoticesWidget falls back to its own labeled sample data when this is
+  // empty, the same convention as every other card on this dashboard.
+  const recentNoticeItems: NoticeItem[] | undefined =
+    recentNotices.length > 0
+      ? recentNotices.map((notice) => ({
+          id: notice.id,
+          title: pickLocalized(notice.title, notice.titleBn, locale),
+          scope: notice.class
+            ? `${notice.class.name}${notice.section ? ` ${notice.section.name}` : ""}`
+            : tNotices(`audience.${notice.audienceType}`),
+          date: formatDate(notice.publishAt, locale),
+          priority: "normal",
+        }))
+      : undefined
+
   // 7. Live Activity Stream - real admissions/payments only (attendance
   // completion and exam-scheduling events aren't sourced from any query),
   // with real relative timestamps instead of hardcoded "Recently"/"Today".
@@ -288,9 +313,9 @@ export async function AdminDashboard() {
         </div>
       </div>
 
-      {/* ── 4. Financial Analytics & Academic Performance ───────────────────── */}
+      {/* ── 4. Finance Row: Fee Collection & Upcoming Events ─────────────────── */}
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
-        <div className="lg:col-span-6">
+        <div className="lg:col-span-8">
           <FeeAnalyticsCard
             totalCollected={realTotalFees}
             targetAmount={totalAssigned}
@@ -299,37 +324,46 @@ export async function AdminDashboard() {
             monthlyData={monthlyData}
           />
         </div>
-        <div className="lg:col-span-6">
-          <AcademicPerformanceCard performanceData={performanceData} />
-        </div>
-      </div>
-
-      {/* ── 5. Compact Quick Actions Panel ─────────────────────────────────── */}
-      <CompactQuickActions />
-
-      {/* ── 6. Operational Telemetry: Activity Feed & Upcoming Milestones ──── */}
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
-        <div className="lg:col-span-6">
-          <RecentActivityFeed
-            activities={activities.length > 0 ? activities.slice(0, 4) : undefined}
-          />
-        </div>
-        <div className="lg:col-span-6">
+        <div className="lg:col-span-4">
           <UpcomingEventsCard events={upcomingEvents} />
         </div>
       </div>
 
-      {/* ── 7. Campus Health Index - exam-completion/teacher-activity rows  ── */}
-      {/* are marked "(sample)" by SchoolHealthCard itself: no tracking     */}
-      {/* model exists yet for either metric.                              */}
-      <SchoolHealthCard
-        metrics={{
-          attendanceRate,
-          feeCollectionRate: collectionRate,
-          examCompletionRate: 87.0,
-          teacherActivityRate: 98.0,
-        }}
-      />
+      {/* ── 5. Academics Row: Class Performance & Recent Activity ───────────── */}
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
+        <div className="lg:col-span-7">
+          <AcademicPerformanceCard performanceData={performanceData} />
+        </div>
+        <div className="lg:col-span-5">
+          <RecentActivityFeed
+            activities={activities.length > 0 ? activities.slice(0, 4) : undefined}
+          />
+        </div>
+      </div>
+
+      {/* ── 6. Campus Health Index & Recent Notices ─────────────────────────── */}
+      {/* Health card's exam-completion/teacher-activity rows are marked      */}
+      {/* "(sample)" by SchoolHealthCard itself: no tracking model exists yet */}
+      {/* for either metric. NoticesWidget falls back to its own labeled      */}
+      {/* sample data the same way, since there's no Notice model yet.        */}
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
+        <div className="lg:col-span-7">
+          <SchoolHealthCard
+            metrics={{
+              attendanceRate,
+              feeCollectionRate: collectionRate,
+              examCompletionRate: 87.0,
+              teacherActivityRate: 98.0,
+            }}
+          />
+        </div>
+        <div className="lg:col-span-5">
+          <NoticesWidget notices={recentNoticeItems} />
+        </div>
+      </div>
+
+      {/* ── 7. Compact Quick Actions Panel ───────────────────────────────────── */}
+      <CompactQuickActions />
     </div>
   )
 }

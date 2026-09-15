@@ -1,4 +1,5 @@
 "use server"
+import { ActionResult } from "@/lib/types/action"
 
 import { revalidatePath } from "next/cache"
 import { getTranslations } from "next-intl/server"
@@ -10,7 +11,7 @@ import { teacherAssignmentSchema, type TeacherAssignmentInput } from "@/lib/vali
 
 const CAN_MANAGE: Role[] = [Role.SUPER_ADMIN, Role.SCHOOL_ADMIN, Role.PRINCIPAL]
 
-export type AcademicResult = { error?: string }
+export type AcademicResult = ActionResult
 
 export async function createTeacherAssignment(
   input: TeacherAssignmentInput
@@ -19,7 +20,7 @@ export async function createTeacherAssignment(
   const t = await getTranslations("academics")
 
   const parsed = teacherAssignmentSchema.safeParse(input)
-  if (!parsed.success) return { error: t("errors.invalidForm") }
+  if (!parsed.success) return { success: false, error: t("errors.invalidForm") }
   const data = parsed.data
 
   const [teacher, section, classSubject] = await Promise.all([
@@ -33,8 +34,8 @@ export async function createTeacherAssignment(
       where: { classId: data.classId, subjectId: data.subjectId },
     }),
   ])
-  if (!teacher || !section) return { error: t("errors.notFound") }
-  if (!classSubject) return { error: t("errors.subjectNotInClass") }
+  if (!teacher || !section) return { success: false, error: t("errors.notFound") }
+  if (!classSubject) return { success: false, error: t("errors.subjectNotInClass") }
 
   try {
     await prisma.teacherAssignment.create({
@@ -48,14 +49,14 @@ export async function createTeacherAssignment(
     })
   } catch (error) {
     if (isUniqueConstraintError(error)) {
-      return { error: t("errors.duplicateAssignment") }
+      return { success: false, error: t("errors.duplicateAssignment") }
     }
-    return { error: t("errors.saveFailed") }
+    return { success: false, error: t("errors.saveFailed") }
   }
 
   revalidatePath("/academics/assignments")
   revalidatePath(`/academics/classes/${data.classId}`)
-  return {}
+  return { success: true }
 }
 
 export async function removeTeacherAssignment(id: string): Promise<AcademicResult> {
@@ -65,11 +66,11 @@ export async function removeTeacherAssignment(id: string): Promise<AcademicResul
   const existing = await prisma.teacherAssignment.findFirst({
     where: { id, schoolId: user.schoolId },
   })
-  if (!existing) return { error: t("errors.notFound") }
+  if (!existing) return { success: false, error: t("errors.notFound") }
 
   await prisma.teacherAssignment.delete({ where: { id } })
 
   revalidatePath("/academics/assignments")
   revalidatePath(`/academics/classes/${existing.classId}`)
-  return {}
+  return { success: true }
 }

@@ -1,4 +1,5 @@
 "use server"
+import { ActionResult } from "@/lib/types/action"
 
 import { revalidatePath } from "next/cache"
 import { getTranslations } from "next-intl/server"
@@ -15,14 +16,14 @@ import {
 
 const CAN_MANAGE: Role[] = [Role.SUPER_ADMIN, Role.SCHOOL_ADMIN, Role.PRINCIPAL]
 
-export type AcademicResult = { error?: string }
+export type AcademicResult = ActionResult
 
 export async function createClass(input: CreateClassInput): Promise<AcademicResult> {
   const user = await requireRole(...CAN_MANAGE)
   const t = await getTranslations("academics")
 
   const parsed = createClassSchema.safeParse(input)
-  if (!parsed.success) return { error: t("errors.invalidForm") }
+  if (!parsed.success) return { success: false, error: t("errors.invalidForm") }
 
   try {
     await prisma.class.create({
@@ -30,13 +31,13 @@ export async function createClass(input: CreateClassInput): Promise<AcademicResu
     })
   } catch (error) {
     if (isUniqueConstraintError(error)) {
-      return { error: t("errors.duplicateClass") }
+      return { success: false, error: t("errors.duplicateClass") }
     }
-    return { error: t("errors.saveFailed") }
+    return { success: false, error: t("errors.saveFailed") }
   }
 
   revalidatePath("/academics/classes")
-  return {}
+  return { success: true }
 }
 
 export async function updateClass(input: EditClassInput): Promise<AcademicResult> {
@@ -44,12 +45,12 @@ export async function updateClass(input: EditClassInput): Promise<AcademicResult
   const t = await getTranslations("academics")
 
   const parsed = editClassSchema.safeParse(input)
-  if (!parsed.success) return { error: t("errors.invalidForm") }
+  if (!parsed.success) return { success: false, error: t("errors.invalidForm") }
 
   const existing = await prisma.class.findFirst({
     where: { id: parsed.data.id, schoolId: user.schoolId },
   })
-  if (!existing) return { error: t("errors.notFound") }
+  if (!existing) return { success: false, error: t("errors.notFound") }
 
   try {
     await prisma.class.update({
@@ -62,12 +63,12 @@ export async function updateClass(input: EditClassInput): Promise<AcademicResult
     })
   } catch (error) {
     if (isUniqueConstraintError(error) && uniqueConstraintTouches(error, "name")) {
-      return { error: t("errors.duplicateClass") }
+      return { success: false, error: t("errors.duplicateClass") }
     }
-    return { error: t("errors.saveFailed") }
+    return { success: false, error: t("errors.saveFailed") }
   }
 
   revalidatePath("/academics/classes")
   revalidatePath(`/academics/classes/${parsed.data.id}`)
-  return {}
+  return { success: true }
 }

@@ -8,7 +8,10 @@ export default async function GuardianPortalLayout({ children }: { children: Rea
   const { user } = await requireGuardianIdentity()
   const t = await getTranslations("portal")
 
-  const links = [{ href: "/portal/guardian", label: t("nav.myChildren"), exact: true }]
+  const links = [
+    { href: "/portal/guardian", label: t("nav.myChildren"), exact: true },
+    { href: "/portal/guardian/notices", label: t("nav.notices") },
+  ]
 
   return (
     <PortalShell user={user} nav={<PortalNav links={links} />}>

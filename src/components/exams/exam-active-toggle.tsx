@@ -20,7 +20,7 @@ export function ExamActiveToggle({ id, isActive }: { id: string; isActive: boole
       onClick={() => {
         startTransition(async () => {
           const result = await toggleExamActive(id, !isActive)
-          if (result.error) {
+          if (!result.success) {
             toast.add({ title: result.error, type: "error" })
             return
           }

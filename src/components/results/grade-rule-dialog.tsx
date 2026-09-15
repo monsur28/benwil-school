@@ -80,7 +80,7 @@ export function GradeRuleDialog({ gradingScaleId, gradeRule }: GradeRuleDialogPr
   function onSubmit(values: GradeRuleFormInput | EditGradeRuleFormInput) {
     startTransition(async () => {
       const result = isEdit ? await updateGradeRule(values) : await createGradeRule(values)
-      if (result.error) {
+      if (!result.success) {
         setError("root", { message: result.error })
         return
       }

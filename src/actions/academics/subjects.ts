@@ -1,4 +1,5 @@
 "use server"
+import { ActionResult } from "@/lib/types/action"
 
 import { revalidatePath } from "next/cache"
 import { getTranslations } from "next-intl/server"
@@ -15,14 +16,14 @@ import {
 
 const CAN_MANAGE: Role[] = [Role.SUPER_ADMIN, Role.SCHOOL_ADMIN, Role.PRINCIPAL]
 
-export type AcademicResult = { error?: string }
+export type AcademicResult = ActionResult
 
 export async function createSubject(input: CreateSubjectInput): Promise<AcademicResult> {
   const user = await requireRole(...CAN_MANAGE)
   const t = await getTranslations("academics")
 
   const parsed = createSubjectSchema.safeParse(input)
-  if (!parsed.success) return { error: t("errors.invalidForm") }
+  if (!parsed.success) return { success: false, error: t("errors.invalidForm") }
 
   try {
     await prisma.subject.create({
@@ -35,14 +36,14 @@ export async function createSubject(input: CreateSubjectInput): Promise<Academic
     })
   } catch (error) {
     if (isUniqueConstraintError(error)) {
-      if (uniqueConstraintTouches(error, "code")) return { error: t("errors.duplicateSubjectCode") }
-      return { error: t("errors.duplicateSubject") }
+      if (uniqueConstraintTouches(error, "code")) return { success: false, error: t("errors.duplicateSubjectCode") }
+      return { success: false, error: t("errors.duplicateSubject") }
     }
-    return { error: t("errors.saveFailed") }
+    return { success: false, error: t("errors.saveFailed") }
   }
 
   revalidatePath("/academics/subjects")
-  return {}
+  return { success: true }
 }
 
 export async function updateSubject(input: EditSubjectInput): Promise<AcademicResult> {
@@ -50,12 +51,12 @@ export async function updateSubject(input: EditSubjectInput): Promise<AcademicRe
   const t = await getTranslations("academics")
 
   const parsed = editSubjectSchema.safeParse(input)
-  if (!parsed.success) return { error: t("errors.invalidForm") }
+  if (!parsed.success) return { success: false, error: t("errors.invalidForm") }
 
   const existing = await prisma.subject.findFirst({
     where: { id: parsed.data.id, schoolId: user.schoolId },
   })
-  if (!existing) return { error: t("errors.notFound") }
+  if (!existing) return { success: false, error: t("errors.notFound") }
 
   try {
     await prisma.subject.update({
@@ -69,12 +70,12 @@ export async function updateSubject(input: EditSubjectInput): Promise<AcademicRe
     })
   } catch (error) {
     if (isUniqueConstraintError(error)) {
-      if (uniqueConstraintTouches(error, "code")) return { error: t("errors.duplicateSubjectCode") }
-      return { error: t("errors.duplicateSubject") }
+      if (uniqueConstraintTouches(error, "code")) return { success: false, error: t("errors.duplicateSubjectCode") }
+      return { success: false, error: t("errors.duplicateSubject") }
     }
-    return { error: t("errors.saveFailed") }
+    return { success: false, error: t("errors.saveFailed") }
   }
 
   revalidatePath("/academics/subjects")
-  return {}
+  return { success: true }
 }

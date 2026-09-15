@@ -73,7 +73,7 @@ export function TeacherAssignmentDialog({
   }) {
     startTransition(async () => {
       const result = await createTeacherAssignment(values)
-      if (result.error) {
+      if (!result.success) {
         setError("root", { message: result.error })
         return
       }

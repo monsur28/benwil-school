@@ -54,7 +54,7 @@ export function SectionDialog({
         ? await updateSection(classId, { id: section.id, name: values.name, isActive })
         : await createSection(values)
 
-      if (result.error) {
+      if (!result.success) {
         setError("root", { message: result.error })
         return
       }

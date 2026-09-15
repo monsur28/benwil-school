@@ -15,7 +15,13 @@
     "somethingWentWrongDescription": "An unexpected error occurred. Please try again.",
     "tryAgain": "Try again",
     "pageNotFound": "Page not found",
-    "pageNotFoundDescription": "The page you're looking for doesn't exist."
+    "pageNotFoundDescription": "The page you're looking for doesn't exist.",
+    "header": {
+      "academicSession": "Academic Session",
+      "notifications": "Notifications",
+      "noNotifications": "No new notifications",
+      "noNotificationsDescription": "You're all caught up."
+    }
   },
   "roles": {
     "SUPER_ADMIN": "Super Admin",
@@ -336,6 +342,20 @@
         "active": "Active",
         "calculatedAt": "Daily health score calculated at 08:00 AM",
         "compositeScore": "Composite: 90.5/100"
+      },
+      "notices": {
+        "title": "Recent Notices",
+        "description": "Latest institutional bulletins and announcements",
+        "viewAll": "View all",
+        "footer": "Posted by school administration",
+        "sampleBadge": "Sample data",
+        "emergencyTitle": "Emergency School Closure",
+        "emergencyScope": "School-wide",
+        "ptmTitle": "Parent Teacher Meeting",
+        "ptmScope": "Guardians",
+        "examRoutineTitle": "Mid-Term Examination Routine",
+        "examRoutineScope": "Classes 6–10",
+        "today": "Today"
       }
     },
     "teacher": {
@@ -1119,6 +1139,184 @@
       "alreadyVoided": "This payment is already voided."
     }
   },
+  "notices": {
+    "title": "Notices",
+    "subnav": {
+      "notices": "Notices",
+      "categories": "Categories"
+    },
+    "fields": {
+      "name": "Name",
+      "nameBn": "Bangla Name",
+      "title": "Title",
+      "titleBn": "Bangla Title",
+      "content": "Content",
+      "contentBn": "Bangla Content",
+      "category": "Category",
+      "audience": "Audience",
+      "class": "Class",
+      "section": "Section",
+      "publishAt": "Publish Date & Time",
+      "expiresAt": "Expiry Date & Time (optional)",
+      "status": "Status",
+      "createdBy": "Created By",
+      "updatedBy": "Updated By"
+    },
+    "audience": {
+      "ALL": "Everyone",
+      "STUDENTS": "Students",
+      "GUARDIANS": "Guardians",
+      "CLASS": "A Class",
+      "SECTION": "A Class Section"
+    },
+    "status": {
+      "DRAFT": "Draft",
+      "PUBLISHED": "Published",
+      "ARCHIVED": "Archived",
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "actions": {
+      "label": "Actions",
+      "newNotice": "New Notice",
+      "edit": "Edit",
+      "save": "Save",
+      "cancel": "Cancel",
+      "saveDraft": "Save Draft",
+      "publish": "Publish",
+      "archive": "Archive",
+      "addCategory": "Add Category",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "viewAll": "View all",
+      "search": "Search"
+    },
+    "list": {
+      "empty": "No notices yet.",
+      "emptyCategories": "No notice categories yet.",
+      "filterStatus": "All Statuses",
+      "filterCategory": "All Categories",
+      "searchPlaceholder": "Search by title"
+    },
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next",
+      "pageInfo": "Page {page} of {totalPages}"
+    },
+    "portal": {
+      "recentTitle": "Recent Notices",
+      "backToList": "Back to notices",
+      "publishedOn": "Published {date}"
+    },
+    "success": {
+      "categoryCreated": "Category created.",
+      "categoryUpdated": "Category updated.",
+      "draftSaved": "Notice saved as draft.",
+      "noticeUpdated": "Notice updated.",
+      "published": "Notice published.",
+      "archived": "Notice archived."
+    },
+    "errors": {
+      "invalidForm": "Please check the form and try again.",
+      "notFound": "Notice not found.",
+      "saveFailed": "Could not save. Please try again.",
+      "duplicateCategory": "A notice category with this name already exists.",
+      "nameRequired": "Name is required.",
+      "invalidSelection": "Please make a valid selection.",
+      "titleRequired": "Title is required.",
+      "contentRequired": "Content is required.",
+      "dateRequired": "This date is required.",
+      "invalidDate": "Enter a valid date and time.",
+      "invalidDateRange": "The expiry must be after the publish date.",
+      "classRequired": "Select a class for this audience.",
+      "sectionRequired": "Select a class and section for this audience."
+    }
+  },
+  "homework": {
+    "title": "Homework",
+    "subnav": {
+      "homework": "Homework",
+      "categories": "Categories"
+    },
+    "fields": {
+      "name": "Name",
+      "description": "Description",
+      "title": "Title",
+      "instructions": "Instructions",
+      "category": "Category",
+      "teacher": "Teacher",
+      "class": "Class",
+      "section": "Section",
+      "subject": "Subject",
+      "assignedDate": "Assigned Date",
+      "dueDate": "Due Date",
+      "status": "Status",
+      "createdBy": "Created By"
+    },
+    "status": {
+      "DRAFT": "Draft",
+      "PUBLISHED": "Published",
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "actions": {
+      "label": "Actions",
+      "createHomework": "Create Homework",
+      "editHomework": "Edit Homework",
+      "details": "Homework Details",
+      "back": "Back",
+      "edit": "Edit",
+      "save": "Save",
+      "cancel": "Cancel",
+      "saveDraft": "Save Draft",
+      "publish": "Publish",
+      "addCategory": "Add Category",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "viewAll": "View all",
+      "search": "Search"
+    },
+    "list": {
+      "empty": "No homework found.",
+      "emptyCategories": "No homework categories yet.",
+      "filterStatus": "All Statuses",
+      "filterClass": "All Classes",
+      "filterSection": "All Sections",
+      "filterSubject": "All Subjects",
+      "searchPlaceholder": "Search by title"
+    },
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next",
+      "pageInfo": "Page {page} of {totalPages}"
+    },
+    "portal": {
+      "upcomingTitle": "Upcoming Homework",
+      "assignedOn": "Assigned {date}",
+      "dueOn": "Due {date}"
+    },
+    "success": {
+      "categoryCreated": "Category created.",
+      "categoryUpdated": "Category updated.",
+      "draftSaved": "Homework saved as draft.",
+      "homeworkUpdated": "Homework updated.",
+      "published": "Homework published."
+    },
+    "errors": {
+      "invalidForm": "Please check the form and try again.",
+      "notFound": "Homework not found.",
+      "saveFailed": "Could not save. Please try again.",
+      "duplicateCategory": "A homework category with this name already exists.",
+      "notAssigned": "You are not assigned to teach this class, section, and subject.",
+      "nameRequired": "Name is required.",
+      "invalidSelection": "Please make a valid selection.",
+      "titleRequired": "Title is required.",
+      "instructionsRequired": "Instructions are required.",
+      "dateRequired": "This date is required.",
+      "invalidDate": "Enter a valid date.",
+      "invalidDateRange": "The due date cannot be earlier than the assigned date."
+    }
+  },
   "portal": {
     "welcome": "Welcome",
     "nav": {
@@ -1128,7 +1326,9 @@
       "results": "Results",
       "reportCard": "Report Card",
       "myChildren": "My Children",
-      "fees": "Fees"
+      "fees": "Fees",
+      "notices": "Notices",
+      "homework": "Homework"
     },
     "fields": {
       "roll": "Roll",
@@ -1153,7 +1353,11 @@
       "noChildren": "No children are linked to this account yet.",
       "noChildrenTitle": "No Children",
       "noFees": "No fees have been assigned yet.",
-      "noFeesTitle": "No Fees"
+      "noFeesTitle": "No Fees",
+      "noNotices": "School announcements will appear here.",
+      "noNoticesTitle": "No Notices",
+      "noHomework": "No upcoming homework.",
+      "noHomeworkTitle": "No Homework"
     },
     "account": {
       "cardTitle": "Portal Accounts",

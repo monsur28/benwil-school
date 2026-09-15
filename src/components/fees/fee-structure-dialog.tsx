@@ -85,7 +85,7 @@ export function FeeStructureDialog({ academicYears, classes, categories, structu
   function onSubmit(values: CreateFeeStructureFormInput | EditFeeStructureFormInput) {
     startTransition(async () => {
       const result = isEdit ? await updateFeeStructure(values) : await createFeeStructure(values)
-      if (result.error) {
+      if (!result.success) {
         setError("root", { message: result.error })
         return
       }

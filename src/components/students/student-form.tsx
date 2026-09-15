@@ -136,11 +136,11 @@ export function StudentForm({
       const result =
         mode === "create" ? await createStudent(payload) : await updateStudent(studentId!, payload)
 
-      if (result?.error) {
-        if (result.field) {
-          const stepIndex = STEP_FIELDS.findIndex((fields) => fields.includes(result.field!))
+      if (!result?.success) {
+        if ((result.field as any)) {
+          const stepIndex = STEP_FIELDS.findIndex((fields) => fields.includes((result.field as any)!))
           if (stepIndex >= 0) setCurrentStep(stepIndex)
-          setError(result.field, { type: "server", message: result.error })
+          setError((result.field as any), { type: "server", message: result.error })
         } else {
           setError("root", { type: "server", message: result.error })
         }

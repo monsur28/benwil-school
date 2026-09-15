@@ -1,4 +1,5 @@
 "use server"
+import { ActionResult } from "@/lib/types/action"
 
 import { revalidatePath } from "next/cache"
 import { getTranslations } from "next-intl/server"
@@ -8,7 +9,7 @@ import { rangesOverlap } from "@/lib/results/calculate-result"
 import { RESULT_ADMIN_ROLES } from "@/lib/results/result-access"
 import { gradeRuleSchema, editGradeRuleSchema } from "@/lib/validations/grading"
 
-export type GradingActionResult = { error?: string }
+export type GradingActionResult = ActionResult
 
 async function assertNoOverlap(
   gradingScaleId: string,
@@ -35,13 +36,13 @@ export async function createGradeRule(input: unknown): Promise<GradingActionResu
   const t = await getTranslations("results")
 
   const parsed = gradeRuleSchema.safeParse(input)
-  if (!parsed.success) return { error: t("errors.invalidForm") }
+  if (!parsed.success) return { success: false, error: t("errors.invalidForm") }
 
   const scale = await prisma.gradingScale.findFirst({
     where: { id: parsed.data.gradingScaleId, schoolId: user.schoolId },
     select: { id: true },
   })
-  if (!scale) return { error: t("errors.notFound") }
+  if (!scale) return { success: false, error: t("errors.notFound") }
 
   const overlapError = await assertNoOverlap(
     parsed.data.gradingScaleId,
@@ -50,7 +51,7 @@ export async function createGradeRule(input: unknown): Promise<GradingActionResu
     undefined,
     t
   )
-  if (overlapError) return { error: overlapError }
+  if (overlapError) return { success: false, error: overlapError }
 
   await prisma.gradeRule.create({
     data: {
@@ -64,7 +65,7 @@ export async function createGradeRule(input: unknown): Promise<GradingActionResu
   })
 
   revalidatePath("/results/grading")
-  return {}
+  return { success: true }
 }
 
 export async function updateGradeRule(input: unknown): Promise<GradingActionResult> {
@@ -72,14 +73,14 @@ export async function updateGradeRule(input: unknown): Promise<GradingActionResu
   const t = await getTranslations("results")
 
   const parsed = editGradeRuleSchema.safeParse(input)
-  if (!parsed.success) return { error: t("errors.invalidForm") }
+  if (!parsed.success) return { success: false, error: t("errors.invalidForm") }
 
   const existing = await prisma.gradeRule.findFirst({
     where: { id: parsed.data.id, gradingScale: { schoolId: user.schoolId } },
     select: { id: true, gradingScaleId: true },
   })
   if (!existing || existing.gradingScaleId !== parsed.data.gradingScaleId) {
-    return { error: t("errors.notFound") }
+    return { success: false, error: t("errors.notFound") }
   }
 
   const overlapError = await assertNoOverlap(
@@ -89,7 +90,7 @@ export async function updateGradeRule(input: unknown): Promise<GradingActionResu
     parsed.data.id,
     t
   )
-  if (overlapError) return { error: overlapError }
+  if (overlapError) return { success: false, error: overlapError }
 
   await prisma.gradeRule.update({
     where: { id: parsed.data.id },
@@ -103,7 +104,7 @@ export async function updateGradeRule(input: unknown): Promise<GradingActionResu
   })
 
   revalidatePath("/results/grading")
-  return {}
+  return { success: true }
 }
 
 // GradeRule has no dependents (results are calculated on the fly from
@@ -119,9 +120,9 @@ export async function deleteGradeRule(id: string): Promise<GradingActionResult> 
     where: { id, gradingScale: { schoolId: user.schoolId } },
     select: { id: true },
   })
-  if (!existing) return { error: t("errors.notFound") }
+  if (!existing) return { success: false, error: t("errors.notFound") }
 
   await prisma.gradeRule.delete({ where: { id } })
   revalidatePath("/results/grading")
-  return {}
+  return { success: true }
 }

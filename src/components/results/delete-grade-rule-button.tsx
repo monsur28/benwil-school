@@ -24,7 +24,7 @@ export function DeleteGradeRuleButton({ id }: { id: string }) {
         }
         startTransition(async () => {
           const result = await deleteGradeRule(id)
-          if (result.error) {
+          if (!result.success) {
             toast.add({ title: result.error, type: "error" })
             return
           }

@@ -52,7 +52,7 @@ export function AcademicYearDialog({
         ? await updateAcademicYear({ id: academicYear.id, name: values.name })
         : await createAcademicYear(values)
 
-      if (result.error) {
+      if (!result.success) {
         setError("root", { message: result.error })
         return
       }

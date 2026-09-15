@@ -30,7 +30,7 @@ export function WaiveCancelDialog({ studentFeeId, mode }: { studentFeeId: string
         mode === "waive"
           ? await waiveStudentFee({ studentFeeId, waiverReason: reason })
           : await cancelStudentFee({ studentFeeId, cancelReason: reason })
-      if (result.error) {
+      if (!result.success) {
         setError(result.error)
         return
       }

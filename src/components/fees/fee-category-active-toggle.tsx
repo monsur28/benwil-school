@@ -20,7 +20,7 @@ export function FeeCategoryActiveToggle({ id, isActive }: { id: string; isActive
       onClick={() => {
         startTransition(async () => {
           const result = await toggleFeeCategoryActive(id, !isActive)
-          if (result.error) {
+          if (!result.success) {
             toast.add({ title: result.error, type: "error" })
             return
           }

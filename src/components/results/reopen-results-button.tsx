@@ -22,7 +22,7 @@ export function ReopenResultsButton({ examId }: { examId: string }) {
       onClick={() => {
         startTransition(async () => {
           const result = await reopenExamResults(examId)
-          if (result.error) {
+          if (!result.success) {
             toast.add({ title: result.error, type: "error" })
             return
           }

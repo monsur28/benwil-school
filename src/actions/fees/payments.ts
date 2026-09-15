@@ -1,4 +1,5 @@
 "use server"
+import { ActionResult } from "@/lib/types/action"
 
 import { revalidatePath } from "next/cache"
 import { getTranslations } from "next-intl/server"
@@ -10,8 +11,8 @@ import { FEE_ADMIN_ROLES, FEE_STAFF_ROLES } from "@/lib/fees/fee-access"
 import { calculateFeeBalance } from "@/lib/fees/calculate-fee-balance"
 import { createPaymentSchema, voidPaymentSchema } from "@/lib/validations/fees"
 
-export type PaymentActionResult = { error?: string; data?: { paymentId: string; receiptNumber: string } }
-export type VoidActionResult = { error?: string }
+export type PaymentActionResult = ActionResult<{ paymentId: string; receiptNumber: string }>
+export type VoidActionResult = ActionResult
 
 // Thrown for ordinary business-rule failures discovered *inside* the
 // transaction (fresh, re-checked balances) - as opposed to a Postgres
@@ -33,21 +34,21 @@ export async function createPayment(input: unknown): Promise<PaymentActionResult
   const t = await getTranslations("fees")
 
   const parsed = createPaymentSchema.safeParse(input)
-  if (!parsed.success) return { error: t("errors.invalidForm") }
+  if (!parsed.success) return { success: false, error: t("errors.invalidForm") }
   const data = parsed.data
 
   const student = await prisma.student.findFirst({
     where: { id: data.studentId, schoolId: user.schoolId },
     select: { id: true },
   })
-  if (!student) return { error: t("errors.invalidSelection") }
+  if (!student) return { success: false, error: t("errors.invalidSelection") }
 
   const paidAt = new Date(data.paidAt)
-  if (Number.isNaN(paidAt.getTime())) return { error: t("errors.invalidSelection") }
+  if (Number.isNaN(paidAt.getTime())) return { success: false, error: t("errors.invalidSelection") }
 
   const uniqueFeeIds = [...new Set(data.allocations.map((allocation) => allocation.studentFeeId))]
   if (uniqueFeeIds.length !== data.allocations.length) {
-    return { error: t("errors.invalidAllocation") }
+    return { success: false, error: t("errors.invalidAllocation") }
   }
 
   for (let attempt = 1; attempt <= MAX_SERIALIZATION_RETRIES; attempt += 1) {
@@ -134,7 +135,10 @@ export async function createPayment(input: unknown): Promise<PaymentActionResult
             })
           }
 
-          return { paymentId: payment.id, receiptNumber: payment.receiptNumber }
+          return {
+            paymentId: payment.id,
+            receiptNumber: payment.receiptNumber,
+          }
         },
         { isolationLevel: Prisma.TransactionIsolationLevel.Serializable }
       )
@@ -143,20 +147,20 @@ export async function createPayment(input: unknown): Promise<PaymentActionResult
       revalidatePath(`/students/${data.studentId}`)
       revalidatePath("/fees/payments")
       revalidatePath("/fees")
-      return { data: result }
+      return { success: true, data: result }
     } catch (error) {
       if (error instanceof FeeValidationError) {
-        return { error: error.message }
+        return { success: false, error: error.message }
       }
       if (isSerializationError(error)) {
         if (attempt < MAX_SERIALIZATION_RETRIES) continue
-        return { error: t("errors.balanceChanged") }
+        return { success: false, error: t("errors.balanceChanged") }
       }
-      return { error: t("errors.saveFailed") }
+      return { success: false, error: t("errors.saveFailed") }
     }
   }
 
-  return { error: t("errors.saveFailed") }
+  return { success: false, error: t("errors.saveFailed") }
 }
 
 // Voiding is a single-row compare-and-swap (mirrors GradingScale's guarded
@@ -169,13 +173,13 @@ export async function voidPayment(input: unknown): Promise<VoidActionResult> {
   const t = await getTranslations("fees")
 
   const parsed = voidPaymentSchema.safeParse(input)
-  if (!parsed.success) return { error: t("errors.invalidForm") }
+  if (!parsed.success) return { success: false, error: t("errors.invalidForm") }
 
   const payment = await prisma.payment.findFirst({
     where: { id: parsed.data.paymentId, schoolId: user.schoolId },
     include: { allocations: true },
   })
-  if (!payment) return { error: t("errors.notFound") }
+  if (!payment) return { success: false, error: t("errors.notFound") }
 
   const voided = await prisma.payment.updateMany({
     where: { id: payment.id, schoolId: user.schoolId, status: "COMPLETED" },
@@ -186,7 +190,7 @@ export async function voidPayment(input: unknown): Promise<VoidActionResult> {
       voidReason: parsed.data.voidReason,
     },
   })
-  if (voided.count === 0) return { error: t("errors.alreadyVoided") }
+  if (voided.count === 0) return { success: false, error: t("errors.alreadyVoided") }
 
   // The voided payment's allocations no longer count toward any fee's paid
   // amount (calculateFeeBalance excludes non-COMPLETED payments), so every
@@ -209,5 +213,5 @@ export async function voidPayment(input: unknown): Promise<VoidActionResult> {
   revalidatePath(`/fees/student/${payment.studentId}`)
   revalidatePath("/fees/payments")
   revalidatePath("/fees")
-  return {}
+  return { success: true }
 }

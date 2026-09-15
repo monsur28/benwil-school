@@ -28,7 +28,7 @@ export function RemoveScheduleButton({ id, hasMarks }: { id: string; hasMarks: b
         }
         startTransition(async () => {
           const result = await deleteExamSchedule(id)
-          if (result.error) {
+          if (!result.success) {
             toast.add({ title: result.error, type: "error" })
             return
           }

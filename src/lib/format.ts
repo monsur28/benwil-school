@@ -36,3 +36,30 @@ export function formatLakh(val: number, locale: string = "en", suffixLakh: strin
   }
   return formatNumber(val, locale)
 }
+
+export function formatDate(date: Date, locale: string = "en"): string {
+  return new Intl.DateTimeFormat(locale === "bn" ? "bn-BD" : "en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  }).format(date)
+}
+
+export function formatDateTime(date: Date, locale: string = "en"): string {
+  return new Intl.DateTimeFormat(locale === "bn" ? "bn-BD" : "en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(date)
+}
+
+/**
+ * Picks the Bangla value when the locale is "bn" and it's present, otherwise
+ * falls back to the English value - never renders blank for a partially
+ * translated bilingual field (title/titleBn, content/contentBn, ...).
+ */
+export function pickLocalized(en: string, bn: string | null | undefined, locale: string): string {
+  return locale === "bn" && bn ? bn : en
+}

@@ -76,7 +76,7 @@ export function AssignFeeDialog({
   function onSubmit(values: AssignStudentFeeFormInput) {
     startTransition(async () => {
       const result = await assignStudentFee(values)
-      if (result.error) {
+      if (!result.success) {
         setError("root", { message: result.error })
         return
       }

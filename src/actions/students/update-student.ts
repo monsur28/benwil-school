@@ -23,12 +23,12 @@ export async function updateStudent(
     where: { id: studentId, schoolId: user.schoolId },
   })
   if (!existing) {
-    return { error: t("errors.notFound") }
+    return { success: false, error: t("errors.notFound") }
   }
 
   const parsed = updateStudentSchema.safeParse(input)
   if (!parsed.success) {
-    return { error: t("errors.invalidForm") }
+    return { success: false, error: t("errors.invalidForm") }
   }
   const data = parsed.data
 
@@ -39,7 +39,7 @@ export async function updateStudent(
     }),
   ])
   if (!academicYear || !section) {
-    return { error: t("errors.invalidAcademicSelection") }
+    return { success: false, error: t("errors.invalidAcademicSelection") }
   }
 
   try {
@@ -72,16 +72,16 @@ export async function updateStudent(
   } catch (error) {
     if (isUniqueConstraintError(error)) {
       if (uniqueConstraintTouches(error, "admissionNumber")) {
-        return { error: t("errors.duplicateAdmissionNumber"), field: "admissionNumber" }
+        return { success: false, error: t("errors.duplicateAdmissionNumber"), field: "admissionNumber" }
       }
       if (uniqueConstraintTouches(error, "roll")) {
-        return { error: t("errors.duplicateRoll"), field: "roll" }
+        return { success: false, error: t("errors.duplicateRoll"), field: "roll" }
       }
-      return { error: t("errors.saveFailed") }
+      return { success: false, error: t("errors.saveFailed") }
     }
     if (error && typeof error === "object" && "digest" in error) {
       throw error
     }
-    return { error: t("errors.saveFailed") }
+    return { success: false, error: t("errors.saveFailed") }
   }
 }

@@ -54,7 +54,7 @@ export function FeeCategoryDialog({ category }: FeeCategoryDialogProps) {
   function onSubmit(values: CreateFeeCategoryInput | EditFeeCategoryInput) {
     startTransition(async () => {
       const result = isEdit ? await updateFeeCategory(values) : await createFeeCategory(values)
-      if (result.error) {
+      if (!result.success) {
         setError("root", { message: result.error })
         return
       }

@@ -23,7 +23,7 @@ export function AddDocumentForm({ studentId }: { studentId: string }) {
 
     startTransition(async () => {
       const result = await addStudentDocument(studentId, { title, type: type as never })
-      if (result.error) {
+      if (!result.success) {
         setError(result.error)
         return
       }

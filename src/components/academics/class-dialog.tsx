@@ -57,7 +57,7 @@ export function ClassDialog({
         ? await updateClass({ id: klass.id, ...values, isActive })
         : await createClass(values)
 
-      if (result.error) {
+      if (!result.success) {
         setError("root", { message: result.error })
         return
       }

@@ -1,4 +1,5 @@
 "use server"
+import { ActionResult } from "@/lib/types/action"
 
 import { revalidatePath } from "next/cache"
 import { getTranslations } from "next-intl/server"
@@ -9,7 +10,7 @@ import { createExamSchema, editExamSchema } from "@/lib/validations/exams"
 
 const CAN_MANAGE: Role[] = [Role.SUPER_ADMIN, Role.SCHOOL_ADMIN, Role.PRINCIPAL]
 
-export type ExamActionResult = { error?: string }
+export type ExamActionResult = ActionResult
 
 async function assertYearAndTypeBelongToSchool(
   schoolId: string,
@@ -31,7 +32,7 @@ export async function createExam(input: unknown): Promise<ExamActionResult> {
   const t = await getTranslations("exams")
 
   const parsed = createExamSchema.safeParse(input)
-  if (!parsed.success) return { error: t("errors.invalidForm") }
+  if (!parsed.success) return { success: false, error: t("errors.invalidForm") }
 
   const relationError = await assertYearAndTypeBelongToSchool(
     user.schoolId,
@@ -39,7 +40,7 @@ export async function createExam(input: unknown): Promise<ExamActionResult> {
     parsed.data.examTypeId,
     t
   )
-  if (relationError) return { error: relationError }
+  if (relationError) return { success: false, error: relationError }
 
   await prisma.exam.create({
     data: {
@@ -54,7 +55,7 @@ export async function createExam(input: unknown): Promise<ExamActionResult> {
   })
 
   revalidatePath("/exams")
-  return {}
+  return { success: true }
 }
 
 export async function updateExam(input: unknown): Promise<ExamActionResult> {
@@ -62,13 +63,13 @@ export async function updateExam(input: unknown): Promise<ExamActionResult> {
   const t = await getTranslations("exams")
 
   const parsed = editExamSchema.safeParse(input)
-  if (!parsed.success) return { error: t("errors.invalidForm") }
+  if (!parsed.success) return { success: false, error: t("errors.invalidForm") }
 
   const existing = await prisma.exam.findFirst({
     where: { id: parsed.data.id, schoolId: user.schoolId },
     select: { id: true },
   })
-  if (!existing) return { error: t("errors.notFound") }
+  if (!existing) return { success: false, error: t("errors.notFound") }
 
   const relationError = await assertYearAndTypeBelongToSchool(
     user.schoolId,
@@ -76,7 +77,7 @@ export async function updateExam(input: unknown): Promise<ExamActionResult> {
     parsed.data.examTypeId,
     t
   )
-  if (relationError) return { error: relationError }
+  if (relationError) return { success: false, error: relationError }
 
   await prisma.exam.update({
     where: { id: parsed.data.id },
@@ -93,7 +94,7 @@ export async function updateExam(input: unknown): Promise<ExamActionResult> {
 
   revalidatePath("/exams")
   revalidatePath(`/exams/${parsed.data.id}`)
-  return {}
+  return { success: true }
 }
 
 export async function toggleExamActive(id: string, isActive: boolean): Promise<ExamActionResult> {
@@ -104,10 +105,10 @@ export async function toggleExamActive(id: string, isActive: boolean): Promise<E
     where: { id, schoolId: user.schoolId },
     select: { id: true },
   })
-  if (!existing) return { error: t("errors.notFound") }
+  if (!existing) return { success: false, error: t("errors.notFound") }
 
   await prisma.exam.update({ where: { id }, data: { isActive } })
   revalidatePath("/exams")
   revalidatePath(`/exams/${id}`)
-  return {}
+  return { success: true }
 }

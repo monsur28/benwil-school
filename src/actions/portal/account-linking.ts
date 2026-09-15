@@ -1,4 +1,5 @@
 "use server"
+import { ActionResult } from "@/lib/types/action"
 
 import { revalidatePath } from "next/cache"
 import { getTranslations } from "next-intl/server"
@@ -11,7 +12,7 @@ import { createPortalAccountSchema } from "@/lib/validations/portal-account"
 
 const ADMIN_ROLES: Role[] = [Role.SUPER_ADMIN, Role.SCHOOL_ADMIN, Role.PRINCIPAL]
 
-export type PortalAccountActionResult = { error?: string }
+export type PortalAccountActionResult = ActionResult
 
 export async function createStudentAccount(
   studentId: string,
@@ -21,7 +22,7 @@ export async function createStudentAccount(
   const t = await getTranslations("portal")
 
   const parsed = createPortalAccountSchema.safeParse(input)
-  if (!parsed.success) return { error: t("errors.invalidForm") }
+  if (!parsed.success) return { success: false, error: t("errors.invalidForm") }
 
   // Re-fetch by (id, schoolId) rather than trusting the caller's studentId
   // alone - never link an account to another school's student.
@@ -29,8 +30,8 @@ export async function createStudentAccount(
     where: { id: studentId, schoolId: user.schoolId },
     select: { id: true, name: true, userId: true },
   })
-  if (!student) return { error: t("errors.notFound") }
-  if (student.userId) return { error: t("errors.alreadyLinked") }
+  if (!student) return { success: false, error: t("errors.notFound") }
+  if (student.userId) return { success: false, error: t("errors.alreadyLinked") }
 
   try {
     const passwordHash = await hashPassword(parsed.data.password)
@@ -48,13 +49,13 @@ export async function createStudentAccount(
     })
   } catch (error) {
     if (isUniqueConstraintError(error) && uniqueConstraintTouches(error, "email")) {
-      return { error: t("errors.emailTaken") }
+      return { success: false, error: t("errors.emailTaken") }
     }
-    return { error: t("errors.saveFailed") }
+    return { success: false, error: t("errors.saveFailed") }
   }
 
   revalidatePath(`/students/${studentId}`)
-  return {}
+  return { success: true }
 }
 
 export async function createGuardianAccount(
@@ -65,14 +66,14 @@ export async function createGuardianAccount(
   const t = await getTranslations("portal")
 
   const parsed = createPortalAccountSchema.safeParse(input)
-  if (!parsed.success) return { error: t("errors.invalidForm") }
+  if (!parsed.success) return { success: false, error: t("errors.invalidForm") }
 
   const guardian = await prisma.guardian.findFirst({
     where: { id: guardianId, schoolId: user.schoolId },
     select: { id: true, name: true, userId: true },
   })
-  if (!guardian) return { error: t("errors.notFound") }
-  if (guardian.userId) return { error: t("errors.alreadyLinked") }
+  if (!guardian) return { success: false, error: t("errors.notFound") }
+  if (guardian.userId) return { success: false, error: t("errors.alreadyLinked") }
 
   try {
     const passwordHash = await hashPassword(parsed.data.password)
@@ -90,13 +91,13 @@ export async function createGuardianAccount(
     })
   } catch (error) {
     if (isUniqueConstraintError(error) && uniqueConstraintTouches(error, "email")) {
-      return { error: t("errors.emailTaken") }
+      return { success: false, error: t("errors.emailTaken") }
     }
-    return { error: t("errors.saveFailed") }
+    return { success: false, error: t("errors.saveFailed") }
   }
 
   revalidatePath(`/students`)
-  return {}
+  return { success: true }
 }
 
 // Shared toggle for both kinds of portal account - the target must be a
@@ -113,9 +114,9 @@ export async function setPortalAccountActive(
     where: { id: userId, schoolId: admin.schoolId, role: { in: [Role.STUDENT, Role.GUARDIAN] } },
     select: { id: true },
   })
-  if (!account) return { error: t("errors.notFound") }
+  if (!account) return { success: false, error: t("errors.notFound") }
 
   await prisma.user.update({ where: { id: account.id }, data: { isActive } })
   revalidatePath(`/students`)
-  return {}
+  return { success: true }
 }

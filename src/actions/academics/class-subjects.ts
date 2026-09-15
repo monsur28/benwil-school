@@ -1,4 +1,5 @@
 "use server"
+import { ActionResult } from "@/lib/types/action"
 
 import { revalidatePath } from "next/cache"
 import { getTranslations } from "next-intl/server"
@@ -10,20 +11,20 @@ import { classSubjectSchema, type ClassSubjectInput } from "@/lib/validations/ac
 
 const CAN_MANAGE: Role[] = [Role.SUPER_ADMIN, Role.SCHOOL_ADMIN, Role.PRINCIPAL]
 
-export type AcademicResult = { error?: string }
+export type AcademicResult = ActionResult
 
 export async function assignSubjectToClass(input: ClassSubjectInput): Promise<AcademicResult> {
   const user = await requireRole(...CAN_MANAGE)
   const t = await getTranslations("academics")
 
   const parsed = classSubjectSchema.safeParse(input)
-  if (!parsed.success) return { error: t("errors.invalidForm") }
+  if (!parsed.success) return { success: false, error: t("errors.invalidForm") }
 
   const [klass, subject] = await Promise.all([
     prisma.class.findFirst({ where: { id: parsed.data.classId, schoolId: user.schoolId } }),
     prisma.subject.findFirst({ where: { id: parsed.data.subjectId, schoolId: user.schoolId } }),
   ])
-  if (!klass || !subject) return { error: t("errors.notFound") }
+  if (!klass || !subject) return { success: false, error: t("errors.notFound") }
 
   try {
     await prisma.classSubject.create({
@@ -31,13 +32,13 @@ export async function assignSubjectToClass(input: ClassSubjectInput): Promise<Ac
     })
   } catch (error) {
     if (isUniqueConstraintError(error)) {
-      return { error: t("errors.duplicateClassSubject") }
+      return { success: false, error: t("errors.duplicateClassSubject") }
     }
-    return { error: t("errors.saveFailed") }
+    return { success: false, error: t("errors.saveFailed") }
   }
 
   revalidatePath(`/academics/classes/${parsed.data.classId}`)
-  return {}
+  return { success: true }
 }
 
 export async function removeSubjectFromClass(
@@ -50,10 +51,10 @@ export async function removeSubjectFromClass(
   const existing = await prisma.classSubject.findFirst({
     where: { classId, subjectId, class: { schoolId: user.schoolId } },
   })
-  if (!existing) return { error: t("errors.notFound") }
+  if (!existing) return { success: false, error: t("errors.notFound") }
 
   await prisma.classSubject.delete({ where: { id: existing.id } })
 
   revalidatePath(`/academics/classes/${classId}`)
-  return {}
+  return { success: true }
 }

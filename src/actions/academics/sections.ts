@@ -1,4 +1,5 @@
 "use server"
+import { ActionResult } from "@/lib/types/action"
 
 import { revalidatePath } from "next/cache"
 import { getTranslations } from "next-intl/server"
@@ -15,19 +16,19 @@ import {
 
 const CAN_MANAGE: Role[] = [Role.SUPER_ADMIN, Role.SCHOOL_ADMIN, Role.PRINCIPAL]
 
-export type AcademicResult = { error?: string }
+export type AcademicResult = ActionResult
 
 export async function createSection(input: CreateSectionInput): Promise<AcademicResult> {
   const user = await requireRole(...CAN_MANAGE)
   const t = await getTranslations("academics")
 
   const parsed = createSectionSchema.safeParse(input)
-  if (!parsed.success) return { error: t("errors.invalidForm") }
+  if (!parsed.success) return { success: false, error: t("errors.invalidForm") }
 
   const klass = await prisma.class.findFirst({
     where: { id: parsed.data.classId, schoolId: user.schoolId },
   })
-  if (!klass) return { error: t("errors.notFound") }
+  if (!klass) return { success: false, error: t("errors.notFound") }
 
   try {
     await prisma.section.create({
@@ -35,13 +36,13 @@ export async function createSection(input: CreateSectionInput): Promise<Academic
     })
   } catch (error) {
     if (isUniqueConstraintError(error)) {
-      return { error: t("errors.duplicateSection") }
+      return { success: false, error: t("errors.duplicateSection") }
     }
-    return { error: t("errors.saveFailed") }
+    return { success: false, error: t("errors.saveFailed") }
   }
 
   revalidatePath(`/academics/classes/${parsed.data.classId}`)
-  return {}
+  return { success: true }
 }
 
 export async function updateSection(
@@ -52,12 +53,12 @@ export async function updateSection(
   const t = await getTranslations("academics")
 
   const parsed = editSectionSchema.safeParse(input)
-  if (!parsed.success) return { error: t("errors.invalidForm") }
+  if (!parsed.success) return { success: false, error: t("errors.invalidForm") }
 
   const existing = await prisma.section.findFirst({
     where: { id: parsed.data.id, class: { schoolId: user.schoolId } },
   })
-  if (!existing) return { error: t("errors.notFound") }
+  if (!existing) return { success: false, error: t("errors.notFound") }
 
   try {
     await prisma.section.update({
@@ -66,11 +67,11 @@ export async function updateSection(
     })
   } catch (error) {
     if (isUniqueConstraintError(error) && uniqueConstraintTouches(error, "name")) {
-      return { error: t("errors.duplicateSection") }
+      return { success: false, error: t("errors.duplicateSection") }
     }
-    return { error: t("errors.saveFailed") }
+    return { success: false, error: t("errors.saveFailed") }
   }
 
   revalidatePath(`/academics/classes/${classId}`)
-  return {}
+  return { success: true }
 }

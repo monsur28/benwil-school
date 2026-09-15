@@ -20,7 +20,7 @@ export function GradingScaleActiveToggle({ id, isActive }: { id: string; isActiv
       onClick={() => {
         startTransition(async () => {
           const result = await toggleGradingScaleActive(id, !isActive)
-          if (result.error) {
+          if (!result.success) {
             toast.add({ title: result.error, type: "error" })
             return
           }

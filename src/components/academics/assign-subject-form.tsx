@@ -36,7 +36,7 @@ export function AssignSubjectForm({
 
     startTransition(async () => {
       const result = await assignSubjectToClass({ classId, subjectId })
-      if (result.error) {
+      if (!result.success) {
         toast.add({ title: result.error, type: "error" })
         return
       }

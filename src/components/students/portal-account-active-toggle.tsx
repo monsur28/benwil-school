@@ -20,7 +20,7 @@ export function PortalAccountActiveToggle({ userId, isActive }: { userId: string
       onClick={() => {
         startTransition(async () => {
           const result = await setPortalAccountActive(userId, !isActive)
-          if (result.error) {
+          if (!result.success) {
             toast.add({ title: result.error, type: "error" })
             return
           }

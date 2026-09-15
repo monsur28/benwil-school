@@ -30,7 +30,9 @@ export type GuardianChild = {
   id: string
   name: string
   studentUid: string
+  classId: string
   className: string
+  sectionId: string
   sectionName: string
 }
 
@@ -56,7 +58,9 @@ export const requireGuardianIdentity = cache(async () => {
       id: link.student.id,
       name: link.student.name,
       studentUid: link.student.studentUid,
+      classId: link.student.classId,
       className: link.student.class.name,
+      sectionId: link.student.sectionId,
       sectionName: link.student.section.name,
     }))
 

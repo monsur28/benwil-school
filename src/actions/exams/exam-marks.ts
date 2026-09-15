@@ -1,4 +1,5 @@
 "use server"
+import { ActionResult } from '@/lib/types/action'
 
 import { revalidatePath } from "next/cache"
 import { getTranslations } from "next-intl/server"
@@ -7,7 +8,7 @@ import { prisma } from "@/lib/db/client"
 import { checkScheduleAccess, type ScheduleAccessResult } from "@/lib/exams/schedule-access"
 import { saveExamMarksSchema } from "@/lib/validations/exams"
 
-export type SaveExamMarksResult = { error: string } | { saved: number }
+export type SaveExamMarksResult = ActionResult<{ saved: number }>
 
 function accessErrorMessage(
   access: Extract<ScheduleAccessResult, { ok: false }>,
@@ -27,10 +28,10 @@ export async function saveExamMarks(input: unknown): Promise<SaveExamMarksResult
   const t = await getTranslations("exams")
 
   const parsed = saveExamMarksSchema.safeParse(input)
-  if (!parsed.success) return { error: t("errors.invalidForm") }
+  if (!parsed.success) return { success: false, error: t("errors.invalidForm") }
 
   const access = await checkScheduleAccess(user, parsed.data.examScheduleId, parsed.data.sectionId)
-  if (!access.ok) return { error: accessErrorMessage(access, t) }
+  if (!access.ok) return { success: false, error: accessErrorMessage(access, t) }
   const { schedule, section } = access
 
   // Phase 6: once an exam's results are finalized, marks become read-only
@@ -38,7 +39,7 @@ export async function saveExamMarks(input: unknown): Promise<SaveExamMarksResult
   // - checked here on the write path, not just hidden in the UI, since a
   // direct request must not be able to bypass the lock.
   if (schedule.resultStatus === "FINALIZED") {
-    return { error: t("errors.resultsFinalized") }
+    return { success: false, error: t("errors.resultsFinalized") }
   }
 
   const studentIds = parsed.data.entries.map((entry) => entry.studentId)
@@ -53,12 +54,12 @@ export async function saveExamMarks(input: unknown): Promise<SaveExamMarksResult
     select: { id: true },
   })
   if (validStudents.length !== new Set(studentIds).size) {
-    return { error: t("errors.invalidStudent") }
+    return { success: false, error: t("errors.invalidStudent") }
   }
 
   for (const entry of parsed.data.entries) {
     if (!entry.isAbsent && (entry.marks === null || entry.marks < 0 || entry.marks > schedule.fullMarks)) {
-      return { error: t("errors.marksOutOfRange") }
+      return { success: false, error: t("errors.marksOutOfRange") }
     }
   }
 
@@ -90,7 +91,7 @@ export async function saveExamMarks(input: unknown): Promise<SaveExamMarksResult
 
   revalidatePath(`/exams/${schedule.examId}/marks`)
   revalidatePath(`/exams/${schedule.examId}`)
-  return { saved: parsed.data.entries.length }
+  return { success: true, data: { saved: parsed.data.entries.length } }
 }
 
 export async function markAllAbsent(examScheduleId: string, sectionId: string): Promise<SaveExamMarksResult> {
@@ -98,11 +99,11 @@ export async function markAllAbsent(examScheduleId: string, sectionId: string): 
   const t = await getTranslations("exams")
 
   const access = await checkScheduleAccess(user, examScheduleId, sectionId)
-  if (!access.ok) return { error: accessErrorMessage(access, t) }
+  if (!access.ok) return { success: false, error: accessErrorMessage(access, t) }
   const { schedule, section } = access
 
   if (schedule.resultStatus === "FINALIZED") {
-    return { error: t("errors.resultsFinalized") }
+    return { success: false, error: t("errors.resultsFinalized") }
   }
 
   const students = await prisma.student.findMany({
@@ -136,5 +137,5 @@ export async function markAllAbsent(examScheduleId: string, sectionId: string): 
   )
 
   revalidatePath(`/exams/${schedule.examId}/marks`)
-  return { saved: students.length }
+  return { success: true, data: { saved: students.length } }
 }

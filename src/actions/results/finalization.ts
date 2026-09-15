@@ -1,4 +1,5 @@
 "use server"
+import { ActionResult } from "@/lib/types/action"
 
 import { Prisma } from "@prisma/client"
 import { revalidatePath } from "next/cache"
@@ -8,7 +9,7 @@ import { prisma } from "@/lib/db/client"
 import { RESULT_ADMIN_ROLES } from "@/lib/results/result-access"
 import type { GradeLookupRule } from "@/lib/results/calculate-result"
 
-export type GradingActionResult = { error?: string }
+export type GradingActionResult = ActionResult
 
 // Finalizing/reopening applies to the whole exam (every schedule, every
 // class/section) - matching the spec's suggested Exam.resultStatus field
@@ -34,10 +35,10 @@ export async function finalizeExamResults(examId: string): Promise<GradingAction
     }),
   ])
 
-  if (!exam) return { error: t("errors.notFound") }
-  if (exam.resultStatus === "FINALIZED") return { error: t("errors.alreadyFinalized") }
+  if (!exam) return { success: false, error: t("errors.notFound") }
+  if (exam.resultStatus === "FINALIZED") return { success: false, error: t("errors.alreadyFinalized") }
   if (!scale || scale.gradeRules.length === 0) {
-    return { error: t("errors.noActiveGradingScale") }
+    return { success: false, error: t("errors.noActiveGradingScale") }
   }
 
   const rules: GradeLookupRule[] = scale.gradeRules
@@ -65,7 +66,7 @@ export async function finalizeExamResults(examId: string): Promise<GradingAction
   })
 
   revalidatePath("/results")
-  return {}
+  return { success: true }
 }
 
 export async function reopenExamResults(examId: string): Promise<GradingActionResult> {
@@ -76,8 +77,8 @@ export async function reopenExamResults(examId: string): Promise<GradingActionRe
     where: { id: examId, schoolId: user.schoolId },
     select: { id: true, resultStatus: true },
   })
-  if (!exam) return { error: t("errors.notFound") }
-  if (exam.resultStatus === "DRAFT") return { error: t("errors.alreadyDraft") }
+  if (!exam) return { success: false, error: t("errors.notFound") }
+  if (exam.resultStatus === "DRAFT") return { success: false, error: t("errors.alreadyDraft") }
 
   await prisma.exam.update({
     where: { id: examId },
@@ -91,5 +92,5 @@ export async function reopenExamResults(examId: string): Promise<GradingActionRe
   })
 
   revalidatePath("/results")
-  return {}
+  return { success: true }
 }

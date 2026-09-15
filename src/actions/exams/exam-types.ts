@@ -1,4 +1,5 @@
 "use server"
+import { ActionResult } from "@/lib/types/action"
 
 import { revalidatePath } from "next/cache"
 import { getTranslations } from "next-intl/server"
@@ -10,14 +11,14 @@ import { createExamTypeSchema, editExamTypeSchema } from "@/lib/validations/exam
 
 const CAN_MANAGE: Role[] = [Role.SUPER_ADMIN, Role.SCHOOL_ADMIN, Role.PRINCIPAL]
 
-export type ExamActionResult = { error?: string }
+export type ExamActionResult = ActionResult
 
 export async function createExamType(input: unknown): Promise<ExamActionResult> {
   const user = await requireRole(...CAN_MANAGE)
   const t = await getTranslations("exams")
 
   const parsed = createExamTypeSchema.safeParse(input)
-  if (!parsed.success) return { error: t("errors.invalidForm") }
+  if (!parsed.success) return { success: false, error: t("errors.invalidForm") }
 
   try {
     await prisma.examType.create({
@@ -29,13 +30,13 @@ export async function createExamType(input: unknown): Promise<ExamActionResult> 
     })
   } catch (error) {
     if (isUniqueConstraintError(error)) {
-      return { error: t("errors.duplicateExamType") }
+      return { success: false, error: t("errors.duplicateExamType") }
     }
-    return { error: t("errors.saveFailed") }
+    return { success: false, error: t("errors.saveFailed") }
   }
 
   revalidatePath("/exams/types")
-  return {}
+  return { success: true }
 }
 
 export async function updateExamType(input: unknown): Promise<ExamActionResult> {
@@ -43,13 +44,13 @@ export async function updateExamType(input: unknown): Promise<ExamActionResult> 
   const t = await getTranslations("exams")
 
   const parsed = editExamTypeSchema.safeParse(input)
-  if (!parsed.success) return { error: t("errors.invalidForm") }
+  if (!parsed.success) return { success: false, error: t("errors.invalidForm") }
 
   const existing = await prisma.examType.findFirst({
     where: { id: parsed.data.id, schoolId: user.schoolId },
     select: { id: true },
   })
-  if (!existing) return { error: t("errors.notFound") }
+  if (!existing) return { success: false, error: t("errors.notFound") }
 
   try {
     await prisma.examType.update({
@@ -62,13 +63,13 @@ export async function updateExamType(input: unknown): Promise<ExamActionResult> 
     })
   } catch (error) {
     if (isUniqueConstraintError(error)) {
-      return { error: t("errors.duplicateExamType") }
+      return { success: false, error: t("errors.duplicateExamType") }
     }
-    return { error: t("errors.saveFailed") }
+    return { success: false, error: t("errors.saveFailed") }
   }
 
   revalidatePath("/exams/types")
-  return {}
+  return { success: true }
 }
 
 export async function toggleExamTypeActive(id: string, isActive: boolean): Promise<ExamActionResult> {
@@ -79,9 +80,9 @@ export async function toggleExamTypeActive(id: string, isActive: boolean): Promi
     where: { id, schoolId: user.schoolId },
     select: { id: true },
   })
-  if (!existing) return { error: t("errors.notFound") }
+  if (!existing) return { success: false, error: t("errors.notFound") }
 
   await prisma.examType.update({ where: { id }, data: { isActive } })
   revalidatePath("/exams/types")
-  return {}
+  return { success: true }
 }

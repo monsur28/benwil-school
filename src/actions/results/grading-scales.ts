@@ -1,4 +1,5 @@
 "use server"
+import { ActionResult } from "@/lib/types/action"
 
 import { revalidatePath } from "next/cache"
 import { getTranslations } from "next-intl/server"
@@ -8,14 +9,14 @@ import { isUniqueConstraintError } from "@/lib/db/prisma-errors"
 import { RESULT_ADMIN_ROLES } from "@/lib/results/result-access"
 import { createGradingScaleSchema, editGradingScaleSchema } from "@/lib/validations/grading"
 
-export type GradingActionResult = { error?: string }
+export type GradingActionResult = ActionResult
 
 export async function createGradingScale(input: unknown): Promise<GradingActionResult> {
   const user = await requireRole(...RESULT_ADMIN_ROLES)
   const t = await getTranslations("results")
 
   const parsed = createGradingScaleSchema.safeParse(input)
-  if (!parsed.success) return { error: t("errors.invalidForm") }
+  if (!parsed.success) return { success: false, error: t("errors.invalidForm") }
 
   try {
     // At most one grading scale is active per school - getActiveGradeRules
@@ -39,12 +40,12 @@ export async function createGradingScale(input: unknown): Promise<GradingActionR
       }
     })
   } catch (error) {
-    if (isUniqueConstraintError(error)) return { error: t("errors.duplicateGradingScale") }
-    return { error: t("errors.saveFailed") }
+    if (isUniqueConstraintError(error)) return { success: false, error: t("errors.duplicateGradingScale") }
+    return { success: false, error: t("errors.saveFailed") }
   }
 
   revalidatePath("/results/grading")
-  return {}
+  return { success: true }
 }
 
 export async function updateGradingScale(input: unknown): Promise<GradingActionResult> {
@@ -52,13 +53,13 @@ export async function updateGradingScale(input: unknown): Promise<GradingActionR
   const t = await getTranslations("results")
 
   const parsed = editGradingScaleSchema.safeParse(input)
-  if (!parsed.success) return { error: t("errors.invalidForm") }
+  if (!parsed.success) return { success: false, error: t("errors.invalidForm") }
 
   const existing = await prisma.gradingScale.findFirst({
     where: { id: parsed.data.id, schoolId: user.schoolId },
     select: { id: true },
   })
-  if (!existing) return { error: t("errors.notFound") }
+  if (!existing) return { success: false, error: t("errors.notFound") }
 
   try {
     await prisma.$transaction(async (tx) => {
@@ -78,12 +79,12 @@ export async function updateGradingScale(input: unknown): Promise<GradingActionR
       }
     })
   } catch (error) {
-    if (isUniqueConstraintError(error)) return { error: t("errors.duplicateGradingScale") }
-    return { error: t("errors.saveFailed") }
+    if (isUniqueConstraintError(error)) return { success: false, error: t("errors.duplicateGradingScale") }
+    return { success: false, error: t("errors.saveFailed") }
   }
 
   revalidatePath("/results/grading")
-  return {}
+  return { success: true }
 }
 
 export async function toggleGradingScaleActive(id: string, isActive: boolean): Promise<GradingActionResult> {
@@ -94,7 +95,7 @@ export async function toggleGradingScaleActive(id: string, isActive: boolean): P
     where: { id, schoolId: user.schoolId },
     select: { id: true },
   })
-  if (!existing) return { error: t("errors.notFound") }
+  if (!existing) return { success: false, error: t("errors.notFound") }
 
   await prisma.$transaction(async (tx) => {
     await tx.gradingScale.update({ where: { id }, data: { isActive } })
@@ -106,5 +107,5 @@ export async function toggleGradingScaleActive(id: string, isActive: boolean): P
     }
   })
   revalidatePath("/results/grading")
-  return {}
+  return { success: true }
 }

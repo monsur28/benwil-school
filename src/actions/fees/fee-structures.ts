@@ -1,4 +1,5 @@
 "use server"
+import { ActionResult } from "@/lib/types/action"
 
 import { revalidatePath } from "next/cache"
 import { getTranslations } from "next-intl/server"
@@ -8,7 +9,7 @@ import { isUniqueConstraintError } from "@/lib/db/prisma-errors"
 import { FEE_STAFF_ROLES } from "@/lib/fees/fee-access"
 import { createFeeStructureSchema, editFeeStructureSchema } from "@/lib/validations/fees"
 
-export type FeeActionResult = { error?: string }
+export type FeeActionResult = ActionResult
 
 async function verifyStructureRefs(schoolId: string, academicYearId: string, classId: string, feeCategoryId: string) {
   const [academicYear, classRecord, category] = await Promise.all([
@@ -24,11 +25,11 @@ export async function createFeeStructure(input: unknown): Promise<FeeActionResul
   const t = await getTranslations("fees")
 
   const parsed = createFeeStructureSchema.safeParse(input)
-  if (!parsed.success) return { error: t("errors.invalidForm") }
+  if (!parsed.success) return { success: false, error: t("errors.invalidForm") }
   const data = parsed.data
 
   const refsValid = await verifyStructureRefs(user.schoolId, data.academicYearId, data.classId, data.feeCategoryId)
-  if (!refsValid) return { error: t("errors.invalidSelection") }
+  if (!refsValid) return { success: false, error: t("errors.invalidSelection") }
 
   try {
     await prisma.feeStructure.create({
@@ -45,12 +46,12 @@ export async function createFeeStructure(input: unknown): Promise<FeeActionResul
       },
     })
   } catch (error) {
-    if (isUniqueConstraintError(error)) return { error: t("errors.duplicateStructure") }
-    return { error: t("errors.saveFailed") }
+    if (isUniqueConstraintError(error)) return { success: false, error: t("errors.duplicateStructure") }
+    return { success: false, error: t("errors.saveFailed") }
   }
 
   revalidatePath("/fees/structures")
-  return {}
+  return { success: true }
 }
 
 export async function updateFeeStructure(input: unknown): Promise<FeeActionResult> {
@@ -58,17 +59,17 @@ export async function updateFeeStructure(input: unknown): Promise<FeeActionResul
   const t = await getTranslations("fees")
 
   const parsed = editFeeStructureSchema.safeParse(input)
-  if (!parsed.success) return { error: t("errors.invalidForm") }
+  if (!parsed.success) return { success: false, error: t("errors.invalidForm") }
   const data = parsed.data
 
   const existing = await prisma.feeStructure.findFirst({
     where: { id: data.id, schoolId: user.schoolId },
     select: { id: true },
   })
-  if (!existing) return { error: t("errors.notFound") }
+  if (!existing) return { success: false, error: t("errors.notFound") }
 
   const refsValid = await verifyStructureRefs(user.schoolId, data.academicYearId, data.classId, data.feeCategoryId)
-  if (!refsValid) return { error: t("errors.invalidSelection") }
+  if (!refsValid) return { success: false, error: t("errors.invalidSelection") }
 
   // Editing amount/frequency here never touches any StudentFee already
   // assigned from this structure - those rows keep their own copied
@@ -89,12 +90,12 @@ export async function updateFeeStructure(input: unknown): Promise<FeeActionResul
       },
     })
   } catch (error) {
-    if (isUniqueConstraintError(error)) return { error: t("errors.duplicateStructure") }
-    return { error: t("errors.saveFailed") }
+    if (isUniqueConstraintError(error)) return { success: false, error: t("errors.duplicateStructure") }
+    return { success: false, error: t("errors.saveFailed") }
   }
 
   revalidatePath("/fees/structures")
-  return {}
+  return { success: true }
 }
 
 export async function toggleFeeStructureActive(id: string, isActive: boolean): Promise<FeeActionResult> {
@@ -105,9 +106,9 @@ export async function toggleFeeStructureActive(id: string, isActive: boolean): P
     where: { id, schoolId: user.schoolId },
     select: { id: true },
   })
-  if (!existing) return { error: t("errors.notFound") }
+  if (!existing) return { success: false, error: t("errors.notFound") }
 
   await prisma.feeStructure.update({ where: { id }, data: { isActive } })
   revalidatePath("/fees/structures")
-  return {}
+  return { success: true }
 }

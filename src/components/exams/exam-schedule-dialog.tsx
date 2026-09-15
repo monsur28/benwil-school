@@ -102,7 +102,7 @@ export function ExamScheduleDialog({ examId, classes, classSubjects, schedule }:
   function onSubmit(values: ExamScheduleFormInput | EditExamScheduleFormInput) {
     startTransition(async () => {
       const result = isEdit ? await updateExamSchedule(values) : await createExamSchedule(values)
-      if (result.error) {
+      if (!result.success) {
         setError("root", { message: result.error })
         return
       }

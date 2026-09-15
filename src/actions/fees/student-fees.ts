@@ -1,4 +1,5 @@
 "use server"
+import { ActionResult } from "@/lib/types/action"
 
 import { revalidatePath } from "next/cache"
 import { getTranslations } from "next-intl/server"
@@ -13,15 +14,15 @@ import {
   waiveStudentFeeSchema,
 } from "@/lib/validations/fees"
 
-export type FeeActionResult = { error?: string }
-export type BulkAssignResult = { error?: string; data?: { createdCount: number; skippedCount: number } }
+export type FeeActionResult = ActionResult
+export type BulkAssignResult = ActionResult<{ createdCount: number; skippedCount: number }>
 
 export async function assignStudentFee(input: unknown): Promise<FeeActionResult> {
   const user = await requireRole(...FEE_STAFF_ROLES)
   const t = await getTranslations("fees")
 
   const parsed = assignStudentFeeSchema.safeParse(input)
-  if (!parsed.success) return { error: t("errors.invalidForm") }
+  if (!parsed.success) return { success: false, error: t("errors.invalidForm") }
   const data = parsed.data
 
   const [student, academicYear, category, structure] = await Promise.all([
@@ -33,7 +34,7 @@ export async function assignStudentFee(input: unknown): Promise<FeeActionResult>
       : Promise.resolve(null),
   ])
   if (!student || !academicYear || !category || (data.feeStructureId && !structure)) {
-    return { error: t("errors.invalidSelection") }
+    return { success: false, error: t("errors.invalidSelection") }
   }
 
   try {
@@ -51,13 +52,13 @@ export async function assignStudentFee(input: unknown): Promise<FeeActionResult>
       },
     })
   } catch (error) {
-    if (isUniqueConstraintError(error)) return { error: t("errors.alreadyAssigned") }
-    return { error: t("errors.saveFailed") }
+    if (isUniqueConstraintError(error)) return { success: false, error: t("errors.alreadyAssigned") }
+    return { success: false, error: t("errors.saveFailed") }
   }
 
   revalidatePath(`/fees/student/${data.studentId}`)
   revalidatePath(`/students/${data.studentId}`)
-  return {}
+  return { success: true }
 }
 
 // Assigns one FeeStructure's charge to every currently-ACTIVE student in
@@ -72,13 +73,13 @@ export async function bulkAssignFeeToClass(input: unknown): Promise<BulkAssignRe
   const t = await getTranslations("fees")
 
   const parsed = bulkAssignFeeSchema.safeParse(input)
-  if (!parsed.success) return { error: t("errors.invalidForm") }
+  if (!parsed.success) return { success: false, error: t("errors.invalidForm") }
   const data = parsed.data
 
   const structure = await prisma.feeStructure.findFirst({
     where: { id: data.feeStructureId, schoolId: user.schoolId },
   })
-  if (!structure) return { error: t("errors.invalidSelection") }
+  if (!structure) return { success: false, error: t("errors.invalidSelection") }
 
   const eligibleStudents = await prisma.student.findMany({
     where: {
@@ -90,7 +91,7 @@ export async function bulkAssignFeeToClass(input: unknown): Promise<BulkAssignRe
     },
     select: { id: true },
   })
-  if (eligibleStudents.length === 0) return { data: { createdCount: 0, skippedCount: 0 } }
+  if (eligibleStudents.length === 0) return { success: true, data: { createdCount: 0, skippedCount: 0 } }
 
   const dueDate = data.dueDate ? new Date(data.dueDate) : structure.dueDate
 
@@ -110,7 +111,7 @@ export async function bulkAssignFeeToClass(input: unknown): Promise<BulkAssignRe
   })
 
   revalidatePath("/fees/student")
-  return { data: { createdCount: result.count, skippedCount: eligibleStudents.length - result.count } }
+  return { success: true, data: { createdCount: result.count, skippedCount: eligibleStudents.length - result.count } }
 }
 
 export async function waiveStudentFee(input: unknown): Promise<FeeActionResult> {
@@ -118,14 +119,14 @@ export async function waiveStudentFee(input: unknown): Promise<FeeActionResult> 
   const t = await getTranslations("fees")
 
   const parsed = waiveStudentFeeSchema.safeParse(input)
-  if (!parsed.success) return { error: t("errors.invalidForm") }
+  if (!parsed.success) return { success: false, error: t("errors.invalidForm") }
 
   const fee = await prisma.studentFee.findFirst({
     where: { id: parsed.data.studentFeeId, schoolId: user.schoolId },
     select: { id: true, status: true, studentId: true },
   })
-  if (!fee) return { error: t("errors.notFound") }
-  if (fee.status !== "UNPAID") return { error: t("errors.cannotWaiveOrCancel") }
+  if (!fee) return { success: false, error: t("errors.notFound") }
+  if (fee.status !== "UNPAID") return { success: false, error: t("errors.cannotWaiveOrCancel") }
 
   await prisma.studentFee.update({
     where: { id: fee.id },
@@ -138,7 +139,7 @@ export async function waiveStudentFee(input: unknown): Promise<FeeActionResult> 
   })
 
   revalidatePath(`/fees/student/${fee.studentId}`)
-  return {}
+  return { success: true }
 }
 
 export async function cancelStudentFee(input: unknown): Promise<FeeActionResult> {
@@ -146,14 +147,14 @@ export async function cancelStudentFee(input: unknown): Promise<FeeActionResult>
   const t = await getTranslations("fees")
 
   const parsed = cancelStudentFeeSchema.safeParse(input)
-  if (!parsed.success) return { error: t("errors.invalidForm") }
+  if (!parsed.success) return { success: false, error: t("errors.invalidForm") }
 
   const fee = await prisma.studentFee.findFirst({
     where: { id: parsed.data.studentFeeId, schoolId: user.schoolId },
     select: { id: true, status: true, studentId: true },
   })
-  if (!fee) return { error: t("errors.notFound") }
-  if (fee.status !== "UNPAID") return { error: t("errors.cannotWaiveOrCancel") }
+  if (!fee) return { success: false, error: t("errors.notFound") }
+  if (fee.status !== "UNPAID") return { success: false, error: t("errors.cannotWaiveOrCancel") }
 
   await prisma.studentFee.update({
     where: { id: fee.id },
@@ -166,5 +167,5 @@ export async function cancelStudentFee(input: unknown): Promise<FeeActionResult>
   })
 
   revalidatePath(`/fees/student/${fee.studentId}`)
-  return {}
+  return { success: true }
 }

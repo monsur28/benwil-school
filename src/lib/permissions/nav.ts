@@ -21,6 +21,15 @@ import { Role } from "@prisma/client"
 const ADMIN_ROLES = [Role.SUPER_ADMIN, Role.SCHOOL_ADMIN, Role.PRINCIPAL]
 const ALL_ROLES = Object.values(Role)
 const FEE_STAFF_ROLES = [...ADMIN_ROLES, Role.ACCOUNTANT]
+// Full notice management (create/edit/publish/archive/categories) is
+// admin-tier only - students/guardians read notices through their own
+// portal routes instead of this admin page, and no other staff role
+// manages notices in this phase (see src/lib/notices/notice-access.ts).
+const NOTICE_ADMIN_ROLES = ADMIN_ROLES
+// Homework management (create/edit/publish) is admin-tier or the assigned
+// teacher - students/guardians read homework through their own portal
+// routes instead of this admin page (see src/lib/homework/homework-access.ts).
+const HOMEWORK_MANAGE_ROLES = [...ADMIN_ROLES, Role.TEACHER]
 
 export type NavItem = {
   href: string
@@ -71,8 +80,8 @@ export const NAV_GROUPS: NavGroup[] = [
   {
     titleKey: "nav.groups.communication",
     items: [
-      { href: "/notices", labelKey: "nav.notices", icon: Megaphone, roles: ALL_ROLES },
-      { href: "/homework", labelKey: "nav.homework", icon: NotebookPen, roles: [...ADMIN_ROLES, Role.TEACHER, Role.STUDENT, Role.GUARDIAN] },
+      { href: "/notices", labelKey: "nav.notices", icon: Megaphone, roles: NOTICE_ADMIN_ROLES },
+      { href: "/homework", labelKey: "nav.homework", icon: NotebookPen, roles: HOMEWORK_MANAGE_ROLES },
     ],
   },
   {
@@ -101,6 +110,8 @@ const ADDITIONAL_ROLE_ROUTES: NavItem[] = [
   { href: "/exams/types", labelKey: "exams.subnav.types", icon: GraduationCap, roles: ADMIN_ROLES },
   { href: "/fees/categories", labelKey: "fees.subnav.categories", icon: Wallet, roles: ADMIN_ROLES },
   { href: "/fees/reports/collections", labelKey: "fees.subnav.collections", icon: BarChart3, roles: FEE_STAFF_ROLES },
+  { href: "/notices/categories", labelKey: "notices.subnav.categories", icon: Megaphone, roles: NOTICE_ADMIN_ROLES },
+  { href: "/homework/categories", labelKey: "homework.subnav.categories", icon: NotebookPen, roles: ADMIN_ROLES },
 ]
 
 export const NAV_ITEMS: NavItem[] = [

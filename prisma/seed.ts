@@ -341,6 +341,101 @@ async function main() {
   console.log(
     `Seeded fee category "${tuitionCategory.name}" and structure "${class5TuitionStructure.name}" (1200.00/month), assigned to ${linkedStudent.name} with one 500.00 test payment (receipt RCPT-2026-000001) - example/test data, not real billing.`
   )
+
+  // --- Phase 9 fixture: a small set of notice categories and published    ---
+  // --- notices covering each audience type, so the portal test accounts  ---
+  // --- (student@benwil.test / guardian@benwil.test, linked to STU-0501,  ---
+  // --- Class 5 Section A) have something real to see out of the box.     ---
+  const noticeCategoryDefs = [
+    { name: "General", nameBn: "সাধারণ" },
+    { name: "Academic", nameBn: "একাডেমিক" },
+    { name: "Emergency", nameBn: "জরুরি" },
+  ]
+  const noticeCategories: Record<string, { id: string }> = {}
+  for (const def of noticeCategoryDefs) {
+    noticeCategories[def.name] = await prisma.noticeCategory.upsert({
+      where: { schoolId_name: { schoolId: school.id, name: def.name } },
+      update: {},
+      create: { schoolId: school.id, name: def.name, nameBn: def.nameBn },
+    })
+  }
+
+  const schoolAdminUser = await prisma.user.findFirstOrThrow({
+    where: { schoolId: school.id, email: "school.admin@benwil.test" },
+  })
+  const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000)
+
+  const noticeDefs = [
+    {
+      title: "Welcome to the 2026 Academic Session",
+      titleBn: "২০২৬ শিক্ষাবর্ষে স্বাগতম",
+      content: "Classes for the new academic session begin this week. Please check your class routine on the notice board.",
+      contentBn: "নতুন শিক্ষাবর্ষের ক্লাস এই সপ্তাহ থেকে শুরু হচ্ছে। নোটিশ বোর্ডে আপনার ক্লাস রুটিন দেখে নিন।",
+      categoryName: "General",
+      audienceType: "ALL" as const,
+      classId: null as string | null,
+      sectionId: null as string | null,
+    },
+    {
+      title: "Library Card Renewal for All Students",
+      titleBn: "সকল শিক্ষার্থীর জন্য লাইব্রেরি কার্ড নবায়ন",
+      content: "All students must renew their library cards at the library desk before the end of this month.",
+      contentBn: "এই মাসের শেষের আগে সকল শিক্ষার্থীকে লাইব্রেরি ডেস্কে তাদের লাইব্রেরি কার্ড নবায়ন করতে হবে।",
+      categoryName: "Academic",
+      audienceType: "STUDENTS" as const,
+      classId: null as string | null,
+      sectionId: null as string | null,
+    },
+    {
+      title: "Parent-Teacher Meeting Schedule",
+      titleBn: "অভিভাবক-শিক্ষক সভার সময়সূচি",
+      content: "The termly parent-teacher meeting will be held next Saturday. Please contact your child's class teacher to confirm your slot.",
+      contentBn: "মেয়াদী অভিভাবক-শিক্ষক সভা আগামী শনিবার অনুষ্ঠিত হবে। আপনার স্লট নিশ্চিত করতে সন্তানের শ্রেণি শিক্ষকের সাথে যোগাযোগ করুন।",
+      categoryName: "General",
+      audienceType: "GUARDIANS" as const,
+      classId: null as string | null,
+      sectionId: null as string | null,
+    },
+    {
+      title: "Class 5 Field Trip Permission Slips",
+      titleBn: "পঞ্চম শ্রেণির ভ্রমণের অনুমতিপত্র",
+      content: "Class 5 students: permission slips for next month's educational field trip are due to your class teacher by Thursday.",
+      contentBn: "পঞ্চম শ্রেণির শিক্ষার্থীরা: আগামী মাসের শিক্ষামূলক ভ্রমণের অনুমতিপত্র বৃহস্পতিবারের মধ্যে শ্রেণি শিক্ষকের কাছে জমা দিতে হবে।",
+      categoryName: "Academic",
+      audienceType: "CLASS" as const,
+      classId: class5.id,
+      sectionId: null as string | null,
+    },
+  ]
+
+  for (const def of noticeDefs) {
+    const existing = await prisma.notice.findFirst({
+      where: { schoolId: school.id, title: def.title },
+      select: { id: true },
+    })
+    if (!existing) {
+      await prisma.notice.create({
+        data: {
+          schoolId: school.id,
+          categoryId: noticeCategories[def.categoryName].id,
+          title: def.title,
+          titleBn: def.titleBn,
+          content: def.content,
+          contentBn: def.contentBn,
+          status: "PUBLISHED",
+          audienceType: def.audienceType,
+          classId: def.classId,
+          sectionId: def.sectionId,
+          publishAt: oneDayAgo,
+          createdById: schoolAdminUser.id,
+        },
+      })
+    }
+  }
+
+  console.log(
+    `Seeded ${noticeCategoryDefs.length} notice categories and ${noticeDefs.length} published notices (ALL/STUDENTS/GUARDIANS/CLASS 5) - example/test data.`
+  )
 }
 
 main()

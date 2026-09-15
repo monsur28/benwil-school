@@ -56,7 +56,7 @@ export function SubjectDialog({
         ? await updateSubject({ id: subject.id, ...values, isActive })
         : await createSubject(values)
 
-      if (result.error) {
+      if (!result.success) {
         setError("root", { message: result.error })
         return
       }

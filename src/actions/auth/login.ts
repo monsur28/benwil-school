@@ -1,4 +1,5 @@
 "use server"
+import { ActionResult } from '@/lib/types/action'
 
 import { redirect } from "next/navigation"
 import { headers } from "next/headers"
@@ -10,22 +11,23 @@ import { loginSchema, type LoginInput } from "@/lib/validations/auth"
 import { portalHomeForRole } from "@/lib/portal/routes"
 import { checkRateLimit, recordFailedAttempt, resetRateLimit } from "@/lib/auth/rate-limit"
 
-export async function login(input: LoginInput): Promise<{ error: string }> {
+export async function login(input: LoginInput): Promise<ActionResult> {
   try {
     const t = await getTranslations("auth")
     const parsed = loginSchema.safeParse(input)
     if (!parsed.success) {
-      return { error: t("errors.invalidForm") }
+      return { success: false, error: t("errors.invalidForm") }
     }
 
     const headerList = await headers()
-    const ip = headerList.get("x-forwarded-for")?.split(",")[0].trim() || headerList.get("x-real-ip") || "unknown"
+    // In a real proxy setup, this should be trusted, but for defense-in-depth or if proxy is absent:
+    const ip = headerList.get("x-real-ip") || headerList.get("x-forwarded-for")?.split(",")[0].trim() || "unknown"
     const normalizedEmail = parsed.data.email.toLowerCase().trim()
     const rateLimitKey = `${ip}:${normalizedEmail}`
 
-    const { allowed } = checkRateLimit(rateLimitKey)
+    const { allowed } = await checkRateLimit(rateLimitKey)
     if (!allowed) {
-      return { error: t("errors.tooManyAttempts") }
+      return { success: false, error: t("errors.tooManyAttempts") }
     }
 
     const user = await prisma.user.findUnique({
@@ -33,17 +35,41 @@ export async function login(input: LoginInput): Promise<{ error: string }> {
     })
 
     if (!user || !user.isActive) {
-      recordFailedAttempt(rateLimitKey)
-      return { error: t("invalidCredentials") }
+      await recordFailedAttempt(rateLimitKey)
+      return { success: false, error: t("invalidCredentials") }
+    }
+
+    if (user.lockedUntil && user.lockedUntil > new Date()) {
+      return { success: false, error: t("errors.tooManyAttempts") } // use same generic error, or a specific locked out one
     }
 
     const passwordMatches = await verifyPassword(parsed.data.password, user.passwordHash)
     if (!passwordMatches) {
-      recordFailedAttempt(rateLimitKey)
-      return { error: t("invalidCredentials") }
+      await recordFailedAttempt(rateLimitKey)
+      
+      // Implement account lockout logic: if they failed enough, lock them out.
+      // But we just use the rate limit to get the count.
+      // Or simply: check the rate limit count AFTER recording it
+      const { remaining } = await checkRateLimit(rateLimitKey)
+      if (remaining === 0) {
+        // Lock out the user for 15 minutes
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { lockedUntil: new Date(Date.now() + 15 * 60 * 1000) }
+        })
+      }
+
+      return { success: false, error: t("invalidCredentials") }
     }
 
-    resetRateLimit(rateLimitKey)
+    // Reset rate limit and lockout on success
+    await resetRateLimit(rateLimitKey)
+    if (user.lockedUntil) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { lockedUntil: null }
+      })
+    }
 
     await createSession({
       userId: user.id,
@@ -65,7 +91,7 @@ export async function login(input: LoginInput): Promise<{ error: string }> {
     }
     console.error("Login action error:", err)
     const t = await getTranslations("auth")
-    return { error: t("errors.loginFailed") }
+    return { success: false, error: t("errors.loginFailed") }
   }
 }
 

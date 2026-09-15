@@ -10,9 +10,9 @@ import { saveAttendanceSchema, type SaveAttendanceInput } from "@/lib/validation
 
 const CAN_MANAGE: Role[] = [Role.SUPER_ADMIN, Role.SCHOOL_ADMIN, Role.PRINCIPAL, Role.TEACHER]
 
-export type SaveAttendanceResult =
-  | { error: string }
-  | { counts: Record<"PRESENT" | "ABSENT" | "LATE" | "LEAVE", number> }
+import { ActionResult } from "@/lib/types/action"
+
+export type SaveAttendanceResult = ActionResult<{ counts: Record<"PRESENT" | "ABSENT" | "LATE" | "LEAVE", number> }>
 
 export async function saveAttendance(input: SaveAttendanceInput): Promise<SaveAttendanceResult> {
   const user = await requireRole(...CAN_MANAGE)
@@ -20,7 +20,7 @@ export async function saveAttendance(input: SaveAttendanceInput): Promise<SaveAt
 
   const parsed = saveAttendanceSchema.safeParse(input)
   if (!parsed.success) {
-    return { error: t("errors.invalidForm") }
+    return { success: false, error: t("errors.invalidForm") }
   }
   const data = parsed.data
 
@@ -31,7 +31,7 @@ export async function saveAttendance(input: SaveAttendanceInput): Promise<SaveAt
     where: { id: data.academicYearId, schoolId: user.schoolId },
   })
   if (!section || !academicYear) {
-    return { error: t("errors.invalidSelection") }
+    return { success: false, error: t("errors.invalidSelection") }
   }
 
   // Academic Management (Phase 4) now provides teacher-class-section
@@ -42,7 +42,7 @@ export async function saveAttendance(input: SaveAttendanceInput): Promise<SaveAt
   if (user.role === Role.TEACHER) {
     const isAssigned = await isTeacherAssignedToSection(user.userId, data.classId, data.sectionId)
     if (!isAssigned) {
-      return { error: t("errors.notAssigned") }
+      return { success: false, error: t("errors.notAssigned") }
     }
   }
 
@@ -59,7 +59,7 @@ export async function saveAttendance(input: SaveAttendanceInput): Promise<SaveAt
   const validStudentIds = new Set(validStudents.map((student) => student.id))
   const hasInvalidStudent = data.entries.some((entry) => !validStudentIds.has(entry.studentId))
   if (hasInvalidStudent) {
-    return { error: t("errors.invalidStudents") }
+    return { success: false, error: t("errors.invalidStudents") }
   }
 
   const date = new Date(data.date)
@@ -97,9 +97,9 @@ export async function saveAttendance(input: SaveAttendanceInput): Promise<SaveAt
       })
     )
   } catch {
-    return { error: t("errors.saveFailed") }
+    return { success: false, error: t("errors.saveFailed") }
   }
 
   revalidatePath("/attendance")
-  return { counts }
+  return { success: true, data: { counts } }
 }

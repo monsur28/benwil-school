@@ -1,4 +1,5 @@
 "use server"
+import { ActionResult } from "@/lib/types/action"
 
 import { revalidatePath } from "next/cache"
 import { getTranslations } from "next-intl/server"
@@ -10,7 +11,7 @@ import { examScheduleSchema, editExamScheduleSchema } from "@/lib/validations/ex
 
 const CAN_MANAGE: Role[] = [Role.SUPER_ADMIN, Role.SCHOOL_ADMIN, Role.PRINCIPAL]
 
-export type ExamActionResult = { error?: string }
+export type ExamActionResult = ActionResult
 
 async function assertScheduleRelations(
   schoolId: string,
@@ -38,7 +39,7 @@ export async function createExamSchedule(input: unknown): Promise<ExamActionResu
   const t = await getTranslations("exams")
 
   const parsed = examScheduleSchema.safeParse(input)
-  if (!parsed.success) return { error: t("errors.invalidForm") }
+  if (!parsed.success) return { success: false, error: t("errors.invalidForm") }
 
   const relationError = await assertScheduleRelations(
     user.schoolId,
@@ -47,7 +48,7 @@ export async function createExamSchedule(input: unknown): Promise<ExamActionResu
     parsed.data.subjectId,
     t
   )
-  if (relationError) return { error: relationError }
+  if (relationError) return { success: false, error: relationError }
 
   try {
     await prisma.examSchedule.create({
@@ -65,12 +66,12 @@ export async function createExamSchedule(input: unknown): Promise<ExamActionResu
       },
     })
   } catch (error) {
-    if (isUniqueConstraintError(error)) return { error: t("errors.duplicateSchedule") }
-    return { error: t("errors.saveFailed") }
+    if (isUniqueConstraintError(error)) return { success: false, error: t("errors.duplicateSchedule") }
+    return { success: false, error: t("errors.saveFailed") }
   }
 
   revalidatePath(`/exams/${parsed.data.examId}`)
-  return {}
+  return { success: true }
 }
 
 export async function updateExamSchedule(input: unknown): Promise<ExamActionResult> {
@@ -78,13 +79,13 @@ export async function updateExamSchedule(input: unknown): Promise<ExamActionResu
   const t = await getTranslations("exams")
 
   const parsed = editExamScheduleSchema.safeParse(input)
-  if (!parsed.success) return { error: t("errors.invalidForm") }
+  if (!parsed.success) return { success: false, error: t("errors.invalidForm") }
 
   const existing = await prisma.examSchedule.findFirst({
     where: { id: parsed.data.id, schoolId: user.schoolId },
     select: { id: true },
   })
-  if (!existing) return { error: t("errors.notFound") }
+  if (!existing) return { success: false, error: t("errors.notFound") }
 
   const relationError = await assertScheduleRelations(
     user.schoolId,
@@ -93,7 +94,7 @@ export async function updateExamSchedule(input: unknown): Promise<ExamActionResu
     parsed.data.subjectId,
     t
   )
-  if (relationError) return { error: relationError }
+  if (relationError) return { success: false, error: relationError }
 
   try {
     await prisma.examSchedule.update({
@@ -110,12 +111,12 @@ export async function updateExamSchedule(input: unknown): Promise<ExamActionResu
       },
     })
   } catch (error) {
-    if (isUniqueConstraintError(error)) return { error: t("errors.duplicateSchedule") }
-    return { error: t("errors.saveFailed") }
+    if (isUniqueConstraintError(error)) return { success: false, error: t("errors.duplicateSchedule") }
+    return { success: false, error: t("errors.saveFailed") }
   }
 
   revalidatePath(`/exams/${parsed.data.examId}`)
-  return {}
+  return { success: true }
 }
 
 export async function deleteExamSchedule(id: string): Promise<ExamActionResult> {
@@ -126,10 +127,10 @@ export async function deleteExamSchedule(id: string): Promise<ExamActionResult> 
     where: { id, schoolId: user.schoolId },
     select: { id: true, examId: true, _count: { select: { marks: true } } },
   })
-  if (!existing) return { error: t("errors.notFound") }
-  if (existing._count.marks > 0) return { error: t("errors.hasMarksCannotDelete") }
+  if (!existing) return { success: false, error: t("errors.notFound") }
+  if (existing._count.marks > 0) return { success: false, error: t("errors.hasMarksCannotDelete") }
 
   await prisma.examSchedule.delete({ where: { id } })
   revalidatePath(`/exams/${existing.examId}`)
-  return {}
+  return { success: true }
 }

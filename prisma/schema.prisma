@@ -33,6 +33,11 @@ model School {
   payments            Payment[]
   paymentAllocations  PaymentAllocation[]
   feeReceiptSequences FeeReceiptSequence[]
+  noticeCategories    NoticeCategory[]
+  notices             Notice[]
+  homeworkCategories  HomeworkCategory[]
+  homeworks           Homework[]
+  homeworkSubmissions HomeworkSubmission[]
 
   @@map("schools")
 }
@@ -59,9 +64,10 @@ model User {
   email        String   @unique
   passwordHash String
   role         Role
-  isActive     Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  isActive     Boolean   @default(true)
+  lockedUntil  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   school                  School              @relation(fields: [schoolId], references: [id])
   attendancesMarked       Attendance[]        @relation("AttendanceMarkedBy")
@@ -75,6 +81,10 @@ model User {
   studentFeesCancelled    StudentFee[]        @relation("StudentFeeCancelledBy")
   paymentsReceived        Payment[]           @relation("PaymentReceivedBy")
   paymentsVoided          Payment[]           @relation("PaymentVoidedBy")
+  noticesCreated          Notice[]            @relation("NoticeCreatedBy")
+  noticesUpdated          Notice[]            @relation("NoticeUpdatedBy")
+  homeworksTeaching           Homework[]           @relation("HomeworkTeacher")
+  reviewedHomeworkSubmissions HomeworkSubmission[] @relation("ReviewedHomeworkSubmissions")
 
   @@index([schoolId])
   @@map("users")
@@ -95,6 +105,7 @@ model AcademicYear {
   exams         Exam[]
   feeStructures FeeStructure[]
   studentFees   StudentFee[]
+  homeworks     Homework[]
 
   @@unique([schoolId, name])
   @@index([schoolId])
@@ -117,6 +128,8 @@ model Class {
   teacherAssignments TeacherAssignment[]
   examSchedules      ExamSchedule[]
   feeStructures      FeeStructure[]
+  notices            Notice[]
+  homeworks          Homework[]
 
   @@unique([schoolId, name])
   @@index([schoolId])
@@ -133,6 +146,8 @@ model Section {
   students           Student[]
   attendances        Attendance[]
   teacherAssignments TeacherAssignment[]
+  notices            Notice[]
+  homeworks          Homework[]
 
   @@unique([classId, name])
   @@index([classId])
@@ -200,13 +215,15 @@ model Student {
   attendances  Attendance[]
   examMarks    ExamMark[]
   studentFees  StudentFee[]
-  payments     Payment[]
+  payments            Payment[]
+  homeworkSubmissions HomeworkSubmission[]
 
   @@unique([schoolId, admissionNumber])
   @@unique([sectionId, academicYearId, roll])
   @@index([schoolId])
   @@index([classId])
   @@index([sectionId])
+  @@index([academicYearId])
   @@map("students")
 }
 
@@ -249,7 +266,7 @@ model StudentGuardian {
   relation   GuardianRelation
   isPrimary  Boolean          @default(false)
 
-  student  Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  student  Student  @relation(fields: [studentId], references: [id])
   guardian Guardian @relation(fields: [guardianId], references: [id], onDelete: Cascade)
 
   @@unique([studentId, guardianId])
@@ -276,7 +293,7 @@ model StudentDocument {
   fileName   String?
   uploadedAt DateTime     @default(now())
 
-  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  student Student @relation(fields: [studentId], references: [id])
 
   @@index([studentId])
   @@map("student_documents")
@@ -307,7 +324,7 @@ model Attendance {
   updatedAt      DateTime         @updatedAt
 
   school       School       @relation(fields: [schoolId], references: [id])
-  student      Student      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  student      Student      @relation(fields: [studentId], references: [id])
   class        Class        @relation(fields: [classId], references: [id])
   section      Section      @relation(fields: [sectionId], references: [id])
   academicYear AcademicYear @relation(fields: [academicYearId], references: [id])
@@ -315,6 +332,7 @@ model Attendance {
 
   @@unique([schoolId, studentId, date])
   @@index([schoolId, classId, sectionId, date])
+  @@index([markedById])
   @@map("attendances")
 }
 
@@ -336,6 +354,7 @@ model Subject {
   classSubjects      ClassSubject[]
   teacherAssignments TeacherAssignment[]
   examSchedules      ExamSchedule[]
+  homeworks          Homework[]
 
   @@unique([schoolId, code])
   @@unique([schoolId, name])
@@ -546,7 +565,7 @@ model ExamMark {
 
   school       School       @relation(fields: [schoolId], references: [id])
   examSchedule ExamSchedule @relation(fields: [examScheduleId], references: [id], onDelete: Cascade)
-  student      Student      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  student      Student      @relation(fields: [studentId], references: [id])
   enteredBy    User         @relation("ExamMarksEntered", fields: [enteredById], references: [id])
 
   @@unique([examScheduleId, studentId])
@@ -745,6 +764,8 @@ model Payment {
   @@index([schoolId])
   @@index([studentId])
   @@index([status])
+  @@index([receivedById])
+  @@index([voidedById])
   @@map("payments")
 }
 
@@ -789,4 +810,212 @@ model FeeReceiptSequence {
 
   @@id([schoolId, year])
   @@map("fee_receipt_sequences")
+}
+
+// --- Phase 9: Notices & Announcements ---
+//
+// A pure announcement board: admin creates/targets/publishes, students and
+// guardians see only what applies to them. Audience lives directly on the
+// notice (not a join table) since a notice targets exactly one audience at
+// a time - ALL, or STUDENTS, or one CLASS, or one SECTION, never several at
+// once - the same denormalization convention as Attendance/StudentFee's
+// classId. TEACHERS/STAFF audiences are intentionally not modeled: no
+// teacher/staff portal exists to show them in yet.
+
+enum NoticeStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum NoticeAudienceType {
+  ALL
+  STUDENTS
+  GUARDIANS
+  CLASS
+  SECTION
+}
+
+// A school's own announcement categories (General/Academic/Exam/Holiday/...),
+// admin-managed rather than hardcoded. Deactivate, never delete, once a
+// category has notices attached - same convention as FeeCategory/ExamType.
+model NoticeCategory {
+  id        String   @id @default(cuid())
+  schoolId  String
+  name      String
+  nameBn    String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  school  School   @relation(fields: [schoolId], references: [id])
+  notices Notice[]
+
+  @@unique([schoolId, name])
+  @@index([schoolId])
+  @@map("notice_categories")
+}
+
+// classId/sectionId are only meaningful when audienceType is CLASS/SECTION
+// respectively; every create/update action re-validates they belong to this
+// notice's own school before saving (Prisma can't cross-check that
+// declaratively, same reasoning as PaymentAllocation's studentId check).
+// publishAt/expiresAt visibility (publishAt <= now <= expiresAt) is
+// evaluated at query time in src/lib/notices/notice-visibility.ts - no
+// background job publishes/expires a notice, the query just does.
+model Notice {
+  id           String             @id @default(cuid())
+  schoolId     String
+  categoryId   String
+  title        String
+  titleBn      String?
+  content      String
+  contentBn    String?
+  status       NoticeStatus       @default(DRAFT)
+  audienceType NoticeAudienceType
+  classId      String?
+  sectionId    String?
+  publishAt    DateTime
+  expiresAt    DateTime?
+  createdById  String
+  updatedById  String?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  school    School         @relation(fields: [schoolId], references: [id])
+  category  NoticeCategory @relation(fields: [categoryId], references: [id])
+  class     Class?         @relation(fields: [classId], references: [id])
+  section   Section?       @relation(fields: [sectionId], references: [id])
+  createdBy User           @relation("NoticeCreatedBy", fields: [createdById], references: [id])
+  updatedBy User?          @relation("NoticeUpdatedBy", fields: [updatedById], references: [id])
+
+  @@index([schoolId])
+  @@index([schoolId, status, publishAt])
+  @@index([categoryId])
+  @@index([classId])
+  @@index([sectionId])
+  @@map("notices")
+}
+
+// --- Phase 10.1: Homework & Assignments (database + server foundation) ---
+//
+// Informational only at this stage - no submissions, grading, or file
+// attachments. A teacher assigns homework to one class+section for one
+// subject; visibility/portal surfaces are a later phase.
+
+enum HomeworkStatus {
+  DRAFT
+  PUBLISHED
+}
+
+// A school's own homework categories (e.g. "Class Work", "Project"),
+// admin-managed rather than hardcoded, same convention as NoticeCategory.
+// Deactivate, never delete, once a category has homework attached.
+model HomeworkCategory {
+  id          String   @id @default(cuid())
+  schoolId    String
+  name        String
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  school    School     @relation(fields: [schoolId], references: [id])
+  homeworks Homework[]
+
+  @@unique([schoolId, name])
+  @@index([schoolId])
+  @@map("homework_categories")
+}
+
+// teacherId references the existing User record (role TEACHER) who owns
+// this homework - no separate Teacher table exists (same reasoning as
+// TeacherAssignment). Every write re-validates the acting teacher has a
+// matching TeacherAssignment for classId+sectionId+subjectId (see
+// src/lib/homework/homework-access.ts) - never trust these ids as
+// authorization on their own.
+model Homework {
+  id             String         @id @default(cuid())
+  schoolId       String
+  academicYearId String
+  teacherId      String
+  subjectId      String
+  classId        String
+  sectionId      String
+  categoryId     String?
+  title          String
+  instructions   String
+  assignedDate DateTime          @db.Date
+  dueDate      DateTime          @db.Date
+  maxMarks     Int?
+  status       HomeworkStatus    @default(DRAFT)
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  school       School               @relation(fields: [schoolId], references: [id])
+  academicYear AcademicYear         @relation(fields: [academicYearId], references: [id])
+  teacher      User                 @relation("HomeworkTeacher", fields: [teacherId], references: [id])
+  subject      Subject              @relation(fields: [subjectId], references: [id])
+  class        Class                @relation(fields: [classId], references: [id])
+  section      Section              @relation(fields: [sectionId], references: [id])
+  category     HomeworkCategory?    @relation(fields: [categoryId], references: [id])
+  submissions  HomeworkSubmission[]
+
+  @@index([schoolId])
+  @@index([academicYearId])
+  @@index([teacherId])
+  @@index([subjectId])
+  @@index([classId])
+  @@index([sectionId])
+  @@index([status])
+  @@index([dueDate])
+  @@map("homeworks")
+}
+
+enum HomeworkSubmissionStatus {
+  SUBMITTED
+  REVIEWED
+}
+
+// Phase 10.3: Student homework submissions with plain-text content and/or file
+// attachments, and teacher reviews (marks, grade, feedback).
+// Single active record per student per homework enforced by @@unique.
+model HomeworkSubmission {
+  id           String                   @id @default(cuid())
+  schoolId     String
+  homeworkId   String
+  studentId    String
+  content      String?
+  fileUrl      String?
+  fileName     String?
+  fileSize     Int?
+  status       HomeworkSubmissionStatus @default(SUBMITTED)
+  marks        Decimal?                 @db.Decimal(5, 2)
+  grade        String?
+  feedback     String?
+  submittedAt  DateTime                 @default(now())
+  updatedAt    DateTime                 @updatedAt
+  reviewedAt   DateTime?
+  reviewedById String?
+
+  school     School   @relation(fields: [schoolId], references: [id])
+  homework   Homework @relation(fields: [homeworkId], references: [id], onDelete: Cascade)
+  student    Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  reviewedBy User?    @relation("ReviewedHomeworkSubmissions", fields: [reviewedById], references: [id])
+
+  @@unique([schoolId, homeworkId, studentId])
+  @@index([schoolId])
+  @@index([homeworkId])
+  @@index([studentId])
+  @@index([status])
+  @@map("homework_submissions")
+}
+
+model RateLimit {
+  key          String   @id
+  count        Int      @default(0)
+  firstAttempt DateTime
+  lastAttempt  DateTime
+
+  @@map("rate_limits")
 }

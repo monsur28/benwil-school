@@ -1,4 +1,5 @@
 "use server"
+import { ActionResult } from "@/lib/types/action"
 
 import { revalidatePath } from "next/cache"
 import { getTranslations } from "next-intl/server"
@@ -15,14 +16,14 @@ import {
 
 const CAN_MANAGE: Role[] = [Role.SUPER_ADMIN, Role.SCHOOL_ADMIN, Role.PRINCIPAL]
 
-export type AcademicResult = { error?: string }
+export type AcademicResult = ActionResult
 
 export async function createAcademicYear(input: CreateAcademicYearInput): Promise<AcademicResult> {
   const user = await requireRole(...CAN_MANAGE)
   const t = await getTranslations("academics")
 
   const parsed = createAcademicYearSchema.safeParse(input)
-  if (!parsed.success) return { error: t("errors.invalidForm") }
+  if (!parsed.success) return { success: false, error: t("errors.invalidForm") }
 
   const existingCount = await prisma.academicYear.count({ where: { schoolId: user.schoolId } })
 
@@ -32,13 +33,13 @@ export async function createAcademicYear(input: CreateAcademicYearInput): Promis
     })
   } catch (error) {
     if (isUniqueConstraintError(error)) {
-      return { error: t("errors.duplicateAcademicYear") }
+      return { success: false, error: t("errors.duplicateAcademicYear") }
     }
-    return { error: t("errors.saveFailed") }
+    return { success: false, error: t("errors.saveFailed") }
   }
 
   revalidatePath("/academics/years")
-  return {}
+  return { success: true }
 }
 
 export async function updateAcademicYear(input: EditAcademicYearInput): Promise<AcademicResult> {
@@ -46,12 +47,12 @@ export async function updateAcademicYear(input: EditAcademicYearInput): Promise<
   const t = await getTranslations("academics")
 
   const parsed = editAcademicYearSchema.safeParse(input)
-  if (!parsed.success) return { error: t("errors.invalidForm") }
+  if (!parsed.success) return { success: false, error: t("errors.invalidForm") }
 
   const existing = await prisma.academicYear.findFirst({
     where: { id: parsed.data.id, schoolId: user.schoolId },
   })
-  if (!existing) return { error: t("errors.notFound") }
+  if (!existing) return { success: false, error: t("errors.notFound") }
 
   try {
     await prisma.academicYear.update({
@@ -60,13 +61,13 @@ export async function updateAcademicYear(input: EditAcademicYearInput): Promise<
     })
   } catch (error) {
     if (isUniqueConstraintError(error) && uniqueConstraintTouches(error, "name")) {
-      return { error: t("errors.duplicateAcademicYear") }
+      return { success: false, error: t("errors.duplicateAcademicYear") }
     }
-    return { error: t("errors.saveFailed") }
+    return { success: false, error: t("errors.saveFailed") }
   }
 
   revalidatePath("/academics/years")
-  return {}
+  return { success: true }
 }
 
 export async function setActiveAcademicYear(id: string): Promise<AcademicResult> {
@@ -76,7 +77,7 @@ export async function setActiveAcademicYear(id: string): Promise<AcademicResult>
   const target = await prisma.academicYear.findFirst({
     where: { id, schoolId: user.schoolId },
   })
-  if (!target) return { error: t("errors.notFound") }
+  if (!target) return { success: false, error: t("errors.notFound") }
 
   await prisma.$transaction([
     prisma.academicYear.updateMany({
@@ -87,5 +88,5 @@ export async function setActiveAcademicYear(id: string): Promise<AcademicResult>
   ])
 
   revalidatePath("/academics/years")
-  return {}
+  return { success: true }
 }

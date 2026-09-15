@@ -33,7 +33,7 @@ export function BulkAssignPanel({
   function onConfirm() {
     startTransition(async () => {
       const result = await bulkAssignFeeToClass({ feeStructureId: structureId, dueDate })
-      if (result.error) {
+      if (!result.success) {
         toast.add({ title: result.error, type: "error" })
         return
       }

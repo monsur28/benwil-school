@@ -54,7 +54,7 @@ export function PortalAccountDialog({ kind, targetId, targetName }: PortalAccoun
         kind === "student"
           ? await createStudentAccount(targetId, values)
           : await createGuardianAccount(targetId, values)
-      if (result.error) {
+      if (!result.success) {
         setError("root", { message: result.error })
         return
       }

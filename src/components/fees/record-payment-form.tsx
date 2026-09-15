@@ -69,7 +69,7 @@ export function RecordPaymentForm({ studentId, outstandingFees }: { studentId: s
         notes,
         allocations,
       })
-      if (result.error) {
+      if (!result.success) {
         setError(result.error)
         return
       }

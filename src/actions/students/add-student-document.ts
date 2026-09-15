@@ -1,4 +1,5 @@
 "use server"
+import { ActionResult } from '@/lib/types/action'
 
 import { revalidatePath } from "next/cache"
 import { getTranslations } from "next-intl/server"
@@ -12,7 +13,7 @@ const CAN_MANAGE: Role[] = [Role.SUPER_ADMIN, Role.SCHOOL_ADMIN, Role.PRINCIPAL]
 export async function addStudentDocument(
   studentId: string,
   input: DocumentInput
-): Promise<{ error?: string }> {
+): Promise<ActionResult> {
   const user = await requireRole(...CAN_MANAGE)
   const t = await getTranslations("students")
 
@@ -20,12 +21,12 @@ export async function addStudentDocument(
     where: { id: studentId, schoolId: user.schoolId },
   })
   if (!student) {
-    return { error: t("errors.notFound") }
+    return { success: false, error: t("errors.notFound") }
   }
 
   const parsed = documentInputSchema.safeParse(input)
   if (!parsed.success) {
-    return { error: t("errors.invalidForm") }
+    return { success: false, error: t("errors.invalidForm") }
   }
 
   // No storage provider is configured (see lib/storage/document-storage.ts),
@@ -35,5 +36,5 @@ export async function addStudentDocument(
   })
 
   revalidatePath(`/students/${studentId}`)
-  return {}
+  return { success: true }
 }

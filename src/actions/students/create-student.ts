@@ -12,10 +12,8 @@ import { syncStudentGuardians } from "@/lib/students/guardians"
 
 const CAN_MANAGE: Role[] = [Role.SUPER_ADMIN, Role.SCHOOL_ADMIN, Role.PRINCIPAL]
 
-export type StudentFormResult = {
-  error: string
-  field?: "admissionNumber" | "roll"
-}
+import { ActionResult } from "@/lib/types/action"
+export type StudentFormResult = ActionResult;
 
 export async function createStudent(input: CreateStudentInput): Promise<StudentFormResult> {
   const user = await requireRole(...CAN_MANAGE)
@@ -23,7 +21,7 @@ export async function createStudent(input: CreateStudentInput): Promise<StudentF
 
   const parsed = createStudentSchema.safeParse(input)
   if (!parsed.success) {
-    return { error: t("errors.invalidForm") }
+    return { success: false, error: t("errors.invalidForm") }
   }
   const data = parsed.data
 
@@ -34,7 +32,7 @@ export async function createStudent(input: CreateStudentInput): Promise<StudentF
     }),
   ])
   if (!academicYear || !section) {
-    return { error: t("errors.invalidAcademicSelection") }
+    return { success: false, error: t("errors.invalidAcademicSelection") }
   }
 
   try {
@@ -81,16 +79,16 @@ export async function createStudent(input: CreateStudentInput): Promise<StudentF
   } catch (error) {
     if (isUniqueConstraintError(error)) {
       if (uniqueConstraintTouches(error, "admissionNumber")) {
-        return { error: t("errors.duplicateAdmissionNumber"), field: "admissionNumber" }
+        return { success: false, error: t("errors.duplicateAdmissionNumber"), field: "admissionNumber" }
       }
       if (uniqueConstraintTouches(error, "roll")) {
-        return { error: t("errors.duplicateRoll"), field: "roll" }
+        return { success: false, error: t("errors.duplicateRoll"), field: "roll" }
       }
-      return { error: t("errors.saveFailed") }
+      return { success: false, error: t("errors.saveFailed") }
     }
     if (error && typeof error === "object" && "digest" in error) {
       throw error // Next.js redirect()/notFound() internals, not a real error
     }
-    return { error: t("errors.saveFailed") }
+    return { success: false, error: t("errors.saveFailed") }
   }
 }

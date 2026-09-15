@@ -3,7 +3,7 @@
 import { useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { useLocale, useTranslations } from "next-intl"
-import { Globe, Check } from "lucide-react"
+import { Globe, Check, ChevronDown } from "lucide-react"
 import { setLocale } from "@/actions/settings/set-locale"
 import type { Locale } from "@/i18n/request"
 import { Button } from "@/components/ui/button"
@@ -20,7 +20,7 @@ const LANGUAGES: { value: Locale; label: string }[] = [
 ]
 
 interface LanguageSwitcherProps {
-  variant?: "ghost" | "pill"
+  variant?: "ghost" | "pill" | "rounded"
 }
 
 export function LanguageSwitcher({ variant = "ghost" }: LanguageSwitcherProps = {}) {
@@ -37,11 +37,20 @@ export function LanguageSwitcher({ variant = "ghost" }: LanguageSwitcherProps = 
     })
   }
 
+  const currentLanguage = LANGUAGES.find((l) => l.value === locale)?.label || "English"
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
         render={
-          variant === "pill" ? (
+          variant === "rounded" ? (
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={isPending}
+              className="h-8 rounded-lg bg-white/95 px-3 text-xs font-medium border-slate-200 gap-1.5 hover:bg-white text-slate-700 cursor-pointer shadow-2xs"
+            />
+          ) : variant === "pill" ? (
             <Button
               variant="outline"
               size="sm"
@@ -53,7 +62,13 @@ export function LanguageSwitcher({ variant = "ghost" }: LanguageSwitcherProps = 
           )
         }
       >
-        <Globe className={variant === "pill" ? "size-3.5 text-muted-foreground" : undefined} />
+        <Globe className="size-3.5 text-slate-500" />
+        {variant === "rounded" && (
+          <>
+            <span className="text-slate-700 font-medium text-xs">{currentLanguage}</span>
+            <ChevronDown className="size-3 text-slate-400" />
+          </>
+        )}
         {variant === "pill" && (
           <span className="uppercase text-slate-700 font-semibold text-[11px] tracking-wide">{locale}</span>
         )}

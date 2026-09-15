@@ -24,7 +24,7 @@ export function VoidPaymentForm({ paymentId }: { paymentId: string }) {
     }
     startTransition(async () => {
       const result = await voidPayment({ paymentId, voidReason: reason })
-      if (result.error) {
+      if (!result.success) {
         setError(result.error)
         return
       }

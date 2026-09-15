@@ -59,7 +59,7 @@ export function GradingScaleDialog({ gradingScale }: GradingScaleDialogProps) {
   function onSubmit(values: CreateGradingScaleInput | EditGradingScaleInput) {
     startTransition(async () => {
       const result = isEdit ? await updateGradingScale(values) : await createGradingScale(values)
-      if (result.error) {
+      if (!result.success) {
         setError("root", { message: result.error })
         return
       }

@@ -1,22 +1,28 @@
 import type { ReactNode } from "react"
 import Link from "next/link"
 import { getTranslations } from "next-intl/server"
-import { Search } from "lucide-react"
+import { Search, GraduationCap } from "lucide-react"
 import type { SessionData } from "@/lib/auth/session"
 import { getNavForRole, getGroupedNavForRole } from "@/lib/permissions/nav"
+import { prisma } from "@/lib/db/client"
 import { SidebarNav } from "@/components/shared/sidebar-nav"
 import { MobileNav } from "@/components/shared/mobile-nav"
 import { BreadcrumbNav } from "@/components/shared/breadcrumb-nav"
 import { UserMenu } from "@/components/shared/user-menu"
 import { LanguageSwitcher } from "@/components/shared/language-switcher"
+import { NotificationsMenu } from "@/components/shared/notifications-menu"
 import { SchoolCrest } from "@/components/shared/school-crest"
 import { Toaster } from "@/components/ui/toast"
 
 export async function AppShell({ user, children }: { user: SessionData; children: ReactNode }) {
-  const [t, tCommon, tRoles] = await Promise.all([
+  const [t, tCommon, tRoles, activeAcademicYear] = await Promise.all([
     getTranslations(),
     getTranslations("common"),
     getTranslations("roles"),
+    prisma.academicYear.findFirst({
+      where: { schoolId: user.schoolId, isActive: true },
+      select: { name: true },
+    }),
   ])
 
   const navItems = getNavForRole(user.role).map((item) => ({
@@ -79,6 +85,16 @@ export async function AppShell({ user, children }: { user: SessionData; children
           </div>
 
           <div className="flex items-center gap-2">
+            {activeAcademicYear && (
+              <span
+                className="hidden items-center gap-1.5 rounded-md border border-brand-navy-light bg-brand-navy-light px-2.5 py-1 text-xs font-medium text-brand-navy md:flex"
+                title={t("common.header.academicSession")}
+              >
+                <GraduationCap className="size-3.5" />
+                {activeAcademicYear.name}
+              </span>
+            )}
+
             {/* Quick Search Trigger */}
             <Link
               href="/students"
@@ -91,6 +107,7 @@ export async function AppShell({ user, children }: { user: SessionData; children
               </kbd>
             </Link>
 
+            <NotificationsMenu />
             <LanguageSwitcher />
             <UserMenu name={user.name} roleLabel={tRoles(user.role)} />
           </div>

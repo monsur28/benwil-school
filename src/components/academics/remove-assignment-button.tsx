@@ -16,7 +16,7 @@ export function RemoveAssignmentButton({ id }: { id: string }) {
   function onClick() {
     startTransition(async () => {
       const result = await removeTeacherAssignment(id)
-      if (result.error) {
+      if (!result.success) {
         toast.add({ title: result.error, type: "error" })
         return
       }

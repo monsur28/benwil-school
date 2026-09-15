@@ -59,7 +59,7 @@ export function ExamTypeDialog({ examType }: ExamTypeDialogProps) {
   function onSubmit(values: CreateExamTypeInput | EditExamTypeInput) {
     startTransition(async () => {
       const result = isEdit ? await updateExamType(values) : await createExamType(values)
-      if (result.error) {
+      if (!result.success) {
         setError("root", { message: result.error })
         return
       }
