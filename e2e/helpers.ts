@@ -5,6 +5,8 @@ export const ACCOUNTS = {
   principal: { email: "principal@benwil.test", password: "Passw0rd!" },
   teacher: { email: "teacher@benwil.test", password: "Passw0rd!" },
   accountant: { email: "accountant@benwil.test", password: "Passw0rd!" },
+  librarian: { email: "librarian@benwil.test", password: "Passw0rd!" },
+  hr: { email: "hr@benwil.test", password: "Passw0rd!" },
   // Seeded and linked in prisma/seed.ts: student@benwil.test -> Nusrat Jahan
   // (STU-0501), guardian@benwil.test -> that same student's sole guardian.
   student: { email: "student@benwil.test", password: "Passw0rd!" },

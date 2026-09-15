@@ -2,6 +2,7 @@ import "server-only"
 import { prisma } from "@/lib/db/client"
 import {
   calculateStudentExamResult,
+  findGradeForMarks,
   type GradeLookupRule,
   type OverallStatus,
   type ScheduleInput,
@@ -35,6 +36,25 @@ export async function getActiveGradeRules(schoolId: string): Promise<GradeLookup
     .sort((a, b) => a.minPercentageScaled - b.minPercentageScaled)
 }
 
+// Resolves the grade rules to use for an exam. If the exam is FINALIZED and
+// has a persisted rules snapshot, returns the snapshot to guarantee historical
+// integrity. Otherwise, falls back to the school's currently active grading scale.
+export function parseGradeRulesSnapshot(snapshot: unknown): GradeLookupRule[] | null {
+  if (!snapshot || !Array.isArray(snapshot) || snapshot.length === 0) return null
+  return snapshot as GradeLookupRule[]
+}
+
+export async function resolveGradeRulesForExam(
+  schoolId: string,
+  exam: { resultStatus: "DRAFT" | "FINALIZED"; gradingRulesSnapshot?: unknown } | null
+): Promise<GradeLookupRule[]> {
+  if (exam?.resultStatus === "FINALIZED") {
+    const rules = parseGradeRulesSnapshot(exam.gradingRulesSnapshot)
+    if (rules) return rules
+  }
+  return getActiveGradeRules(schoolId)
+}
+
 export type ClassSectionResultsRow = StudentExamResult & {
   name: string
   studentUid: string
@@ -60,7 +80,11 @@ export async function getClassSectionResults(params: {
 }): Promise<ClassSectionResults> {
   const { schoolId, examId, classId, sectionId, academicYearId } = params
 
-  const [scheduleRows, students, gradeRules] = await Promise.all([
+  const [exam, scheduleRows, students] = await Promise.all([
+    prisma.exam.findFirst({
+      where: { id: examId, schoolId },
+      select: { resultStatus: true, gradingRulesSnapshot: true },
+    }),
     prisma.examSchedule.findMany({
       where: { examId, classId, schoolId },
       include: { subject: true },
@@ -70,8 +94,9 @@ export async function getClassSectionResults(params: {
       where: { schoolId, classId, sectionId, academicYearId, status: "ACTIVE" },
       orderBy: { roll: "asc" },
     }),
-    getActiveGradeRules(schoolId),
   ])
+
+  const gradeRules = await resolveGradeRulesForExam(schoolId, exam)
 
   const schedules: ScheduleInput[] = scheduleRows.map((schedule) => ({
     scheduleId: schedule.id,
@@ -230,7 +255,7 @@ export async function getStudentResultSummaries(params: {
 }): Promise<StudentExamResultSummary[]> {
   const { schoolId, studentId, classId, finalizedOnly = false } = params
 
-  const [schedules, gradeRules] = await Promise.all([
+  const [schedules, activeGradeRules] = await Promise.all([
     prisma.examSchedule.findMany({
       where: { schoolId, classId, ...(finalizedOnly ? { exam: { resultStatus: "FINALIZED" } } : {}) },
       include: { subject: true, exam: { include: { academicYear: true, examType: true } } },
@@ -256,6 +281,11 @@ export async function getStudentResultSummaries(params: {
 
   const summaries: StudentExamResultSummary[] = []
   for (const examSchedules of schedulesByExam.values()) {
+    const exam = examSchedules[0].exam
+    const examGradeRules =
+      (exam.resultStatus === "FINALIZED" ? parseGradeRulesSnapshot(exam.gradingRulesSnapshot) : null) ??
+      activeGradeRules
+
     const scheduleInputs: ScheduleInput[] = examSchedules.map((schedule) => ({
       scheduleId: schedule.id,
       subjectId: schedule.subjectId,
@@ -263,8 +293,7 @@ export async function getStudentResultSummaries(params: {
       fullMarks: schedule.fullMarks,
       passMarks: schedule.passMarks,
     }))
-    const result = calculateStudentExamResult(studentId, scheduleInputs, marksByScheduleId, gradeRules)
-    const exam = examSchedules[0].exam
+    const result = calculateStudentExamResult(studentId, scheduleInputs, marksByScheduleId, examGradeRules)
     summaries.push({
       examId: exam.id,
       examName: exam.name,
@@ -298,6 +327,7 @@ export type StudentResultContext = {
     examTypeName: string
     academicYearName: string
     resultStatus: "DRAFT" | "FINALIZED"
+    gradingScaleName?: string | null
   }
   result: StudentExamResult
 }
@@ -330,7 +360,7 @@ export async function getStudentExamResult(params: {
       include: { subject: true },
       orderBy: { subject: { name: "asc" } },
     }),
-    getActiveGradeRules(schoolId),
+    resolveGradeRulesForExam(schoolId, exam),
   ])
 
   const schedules: ScheduleInput[] = scheduleRows.map((schedule) => ({
@@ -364,7 +394,123 @@ export async function getStudentExamResult(params: {
       examTypeName: exam.examType.name,
       academicYearName: exam.academicYear.name,
       resultStatus: exam.resultStatus,
+      gradingScaleName: exam.gradingScaleName,
     },
     result,
+  }
+}
+
+export type ClassPerformanceRow = {
+  className: string
+  averagePercentage: number
+  grade: string | null
+  passBenchmark: number
+  studentCount: number
+}
+
+// Real average exam performance per class, for the admin dashboard's
+// Academic Performance card - the most recently finalized exam school-wide,
+// averaged across every active student who has a complete result. Batched
+// (one schedules query, one students query, one marks query covering every
+// class at once) rather than one query per class.
+export async function getClassPerformanceOverview(
+  schoolId: string
+): Promise<{ examName: string; rows: ClassPerformanceRow[] } | null> {
+  const exam = await prisma.exam.findFirst({
+    where: { schoolId, resultStatus: "FINALIZED" },
+    orderBy: { startDate: "desc" },
+  })
+  if (!exam) return null
+
+  const [gradeRules, scheduleRows] = await Promise.all([
+    resolveGradeRulesForExam(schoolId, exam),
+    prisma.examSchedule.findMany({
+      where: { examId: exam.id, schoolId },
+      include: { subject: true, class: true },
+    }),
+  ])
+  if (scheduleRows.length === 0) return null
+
+  const classIds = [...new Set(scheduleRows.map((schedule) => schedule.classId))]
+
+  const students = await prisma.student.findMany({
+    where: { schoolId, classId: { in: classIds }, status: "ACTIVE" },
+    select: { id: true, classId: true },
+  })
+
+  const marks = await prisma.examMark.findMany({
+    where: {
+      examScheduleId: { in: scheduleRows.map((schedule) => schedule.id) },
+      studentId: { in: students.map((student) => student.id) },
+    },
+  })
+  const marksByStudentId = new Map<string, Map<string, { marks: number | null; isAbsent: boolean }>>()
+  for (const mark of marks) {
+    if (!marksByStudentId.has(mark.studentId)) marksByStudentId.set(mark.studentId, new Map())
+    marksByStudentId.get(mark.studentId)!.set(mark.examScheduleId, { marks: mark.marks, isAbsent: mark.isAbsent })
+  }
+
+  const schedulesByClassId = new Map<string, ScheduleInput[]>()
+  const classMeta = new Map<string, { name: string; order: number; passBenchmark: number }>()
+  for (const schedule of scheduleRows) {
+    const list = schedulesByClassId.get(schedule.classId) ?? []
+    list.push({
+      scheduleId: schedule.id,
+      subjectId: schedule.subjectId,
+      subjectName: schedule.subject.name,
+      fullMarks: schedule.fullMarks,
+      passMarks: schedule.passMarks,
+    })
+    schedulesByClassId.set(schedule.classId, list)
+  }
+  for (const [classId, schedules] of schedulesByClassId) {
+    const classRow = scheduleRows.find((s) => s.classId === classId)!.class
+    const avgPassPercent =
+      schedules.reduce((sum, s) => sum + (s.passMarks / s.fullMarks) * 100, 0) / schedules.length
+    classMeta.set(classId, {
+      name: classRow.name,
+      order: classRow.order,
+      passBenchmark: Math.round(avgPassPercent),
+    })
+  }
+
+  const studentIdsByClassId = new Map<string, string[]>()
+  for (const student of students) {
+    const list = studentIdsByClassId.get(student.classId) ?? []
+    list.push(student.id)
+    studentIdsByClassId.set(student.classId, list)
+  }
+
+  const ranked: { order: number; row: ClassPerformanceRow }[] = []
+  for (const [classId, schedules] of schedulesByClassId) {
+    const studentIds = studentIdsByClassId.get(classId) ?? []
+    const percentages: number[] = []
+    for (const studentId of studentIds) {
+      const result = calculateStudentExamResult(studentId, schedules, marksByStudentId.get(studentId) ?? new Map(), gradeRules)
+      if (result.isComplete && result.overallPercentage !== null) {
+        percentages.push(result.overallPercentage)
+      }
+    }
+    if (percentages.length === 0) continue
+
+    const average = Math.round((percentages.reduce((sum, p) => sum + p, 0) / percentages.length) * 10) / 10
+    const meta = classMeta.get(classId)!
+    const gradeRule = findGradeForMarks(average, 100, gradeRules)
+    ranked.push({
+      order: meta.order,
+      row: {
+        className: meta.name,
+        averagePercentage: average,
+        grade: gradeRule?.grade ?? null,
+        passBenchmark: meta.passBenchmark,
+        studentCount: percentages.length,
+      },
+    })
+  }
+  ranked.sort((a, b) => a.order - b.order)
+
+  return {
+    examName: exam.name,
+    rows: ranked.map((entry) => entry.row),
   }
 }

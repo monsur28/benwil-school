@@ -15,6 +15,7 @@ import { OverviewTab } from "@/components/students/tabs/overview-tab"
 import { AcademicTab } from "@/components/students/tabs/academic-tab"
 import { AttendanceTab } from "@/components/students/tabs/attendance-tab"
 import { ResultsTab } from "@/components/students/tabs/results-tab"
+import { FeesTab } from "@/components/students/tabs/fees-tab"
 import { DocumentsTab } from "@/components/students/tabs/documents-tab"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
@@ -112,7 +113,7 @@ export default async function StudentProfilePage({
           <ResultsTab studentId={student.id} schoolId={student.schoolId} classId={student.classId} />
         </TabsContent>
         <TabsContent value="fees">
-          <ComingSoon />
+          <FeesTab studentId={student.id} schoolId={student.schoolId} />
         </TabsContent>
         <TabsContent value="homework">
           <ComingSoon />

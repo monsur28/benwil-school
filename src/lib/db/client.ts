@@ -5,7 +5,14 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
 }
 
-const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL })
+// Ensure sslmode=verify-full is used to satisfy pg/pg-connection-string security requirements
+function getDatabaseUrl(): string | undefined {
+  const url = process.env.DATABASE_URL
+  if (!url) return undefined
+  return url.replace(/([?&])sslmode=require(&|$)/, "$1sslmode=verify-full$2")
+}
+
+const adapter = new PrismaPg({ connectionString: getDatabaseUrl() })
 
 export const prisma = globalForPrisma.prisma ?? new PrismaClient({ adapter })
 

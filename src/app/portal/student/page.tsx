@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server"
-import { CalendarCheck, Award, Printer, User } from "lucide-react"
+import { CalendarCheck, Award, Printer, User, Wallet } from "lucide-react"
 import { requireStudentIdentity } from "@/lib/portal/identity"
 import { getStudentAttendanceSummary } from "@/lib/attendance/get-attendance"
 import { getStudentResultSummaries } from "@/lib/results/get-results"
@@ -23,14 +23,16 @@ export default async function StudentDashboardPage() {
   const latestResult = results[0] ?? null
 
   const actions: QuickAction[] = [
-    { href: "/portal/student/attendance", label: t("nav.attendance"), icon: CalendarCheck },
-    { href: "/portal/student/results", label: t("nav.results"), icon: Award },
+    { key: "attendance", href: "/portal/student/attendance", label: t("nav.attendance"), icon: CalendarCheck },
+    { key: "results", href: "/portal/student/results", label: t("nav.results"), icon: Award },
     {
+      key: "report-card",
       href: latestResult ? `/portal/student/results/${latestResult.examId}/report-card` : "/portal/student/results",
       label: t("nav.reportCard"),
       icon: Printer,
     },
-    { href: "/portal/student/profile", label: t("nav.profile"), icon: User },
+    { key: "profile", href: "/portal/student/profile", label: t("nav.profile"), icon: User },
+    { key: "fees", href: "/portal/student/fees", label: t("nav.fees"), icon: Wallet },
   ]
 
   return (

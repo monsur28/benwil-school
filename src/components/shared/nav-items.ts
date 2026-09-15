@@ -5,3 +5,9 @@ export type TranslatedNavItem = {
   label: string
   icon: ReactNode
 }
+
+export type TranslatedNavGroup = {
+  titleKey: string
+  title: string
+  items: TranslatedNavItem[]
+}

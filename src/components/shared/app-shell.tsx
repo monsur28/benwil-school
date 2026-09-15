@@ -3,8 +3,7 @@ import Link from "next/link"
 import { getTranslations } from "next-intl/server"
 import { Search } from "lucide-react"
 import type { SessionData } from "@/lib/auth/session"
-import { getNavForRole } from "@/lib/permissions/nav"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { getNavForRole, getGroupedNavForRole } from "@/lib/permissions/nav"
 import { SidebarNav } from "@/components/shared/sidebar-nav"
 import { MobileNav } from "@/components/shared/mobile-nav"
 import { BreadcrumbNav } from "@/components/shared/breadcrumb-nav"
@@ -26,11 +25,21 @@ export async function AppShell({ user, children }: { user: SessionData; children
     icon: <item.icon className="size-4" />,
   }))
 
+  const navGroups = getGroupedNavForRole(user.role).map((group) => ({
+    titleKey: group.titleKey,
+    title: t(group.titleKey),
+    items: group.items.map((item) => ({
+      href: item.href,
+      label: t(item.labelKey),
+      icon: <item.icon className="size-4" />,
+    })),
+  }))
+
   return (
     <div className="min-h-screen bg-background">
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-sidebar-border bg-sidebar lg:flex print:hidden">
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-60 flex-col border-r border-sidebar-border bg-sidebar lg:flex print:hidden">
         {/* Institutional Sidebar Header with School Crest */}
-        <div className="flex h-16 items-center gap-3 border-b border-sidebar-border/60 px-4">
+        <div className="flex h-16 shrink-0 items-center gap-3 border-b border-sidebar-border/60 px-4">
           <SchoolCrest size="sm" className="size-8 drop-shadow-xs" />
           <div className="min-w-0">
             <span className="font-heading text-sm font-bold tracking-tight text-sidebar-foreground">
@@ -42,12 +51,13 @@ export async function AppShell({ user, children }: { user: SessionData; children
           </div>
         </div>
 
-        <ScrollArea className="flex-1 px-1 py-2">
-          <SidebarNav items={navItems} />
-        </ScrollArea>
+        {/* Scrollable Navigation Container */}
+        <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-1 py-2 [scrollbar-width:thin] [scrollbar-color:var(--color-sidebar-border)_transparent] hover:[scrollbar-color:var(--color-muted-foreground)_transparent]">
+          <SidebarNav groups={navGroups} items={navItems} />
+        </div>
 
         {/* Institutional System Status Footer */}
-        <div className="border-t border-sidebar-border/60 p-3">
+        <div className="shrink-0 border-t border-sidebar-border/60 p-3">
           <div className="rounded-lg border border-sidebar-border/70 bg-sidebar-accent/30 p-2.5">
             <div className="flex items-center justify-between text-[11px] font-medium text-sidebar-foreground">
               <span>Session 2026</span>
@@ -61,10 +71,10 @@ export async function AppShell({ user, children }: { user: SessionData; children
         </div>
       </aside>
 
-      <div className="flex min-h-screen flex-1 flex-col lg:pl-64 print:pl-0">
-        <header className="sticky top-0 z-20 flex h-14 shrink-0 items-center justify-between gap-2 border-b border-border px-3 sm:px-6 bg-background/95 backdrop-blur-xs print:hidden">
+      <div className="flex min-h-screen flex-1 flex-col lg:pl-60 print:pl-0">
+        <header className="sticky top-0 z-20 flex h-[68px] shrink-0 items-center justify-between gap-2 border-b border-border px-3 sm:px-6 bg-background/95 backdrop-blur-xs print:hidden">
           <div className="flex items-center gap-3">
-            <MobileNav items={navItems} appName={tCommon("appName")} />
+            <MobileNav groups={navGroups} items={navItems} appName={tCommon("appName")} />
             <BreadcrumbNav items={navItems} dashboardLabel={t("nav.dashboard")} />
           </div>
 
@@ -76,7 +86,7 @@ export async function AppShell({ user, children }: { user: SessionData; children
             >
               <Search className="size-3.5 text-muted-foreground" />
               <span>Search directory...</span>
-              <kbd className="ml-1 rounded border border-border/80 bg-[#F7F6F3] px-1 font-mono text-[10px] text-muted-foreground dark:bg-neutral-800">
+              <kbd className="ml-1 rounded border border-border/80 bg-muted px-1 font-mono text-[10px] text-muted-foreground">
                 ⌘K
               </kbd>
             </Link>

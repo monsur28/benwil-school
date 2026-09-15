@@ -13,6 +13,7 @@ export default async function StudentPortalLayout({ children }: { children: Reac
     { href: "/portal/student/profile", label: t("nav.profile") },
     { href: "/portal/student/attendance", label: t("nav.attendance") },
     { href: "/portal/student/results", label: t("nav.results") },
+    { href: "/portal/student/fees", label: t("nav.fees") },
   ]
 
   return (

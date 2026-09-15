@@ -14,19 +14,25 @@ model School {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  users              User[]
-  academicYears      AcademicYear[]
-  classes            Class[]
-  students           Student[]
-  guardians          Guardian[]
-  attendances        Attendance[]
-  subjects           Subject[]
-  teacherAssignments TeacherAssignment[]
-  examTypes          ExamType[]
-  exams              Exam[]
-  examSchedules      ExamSchedule[]
-  examMarks          ExamMark[]
-  gradingScales      GradingScale[]
+  users               User[]
+  academicYears       AcademicYear[]
+  classes             Class[]
+  students            Student[]
+  guardians           Guardian[]
+  attendances         Attendance[]
+  subjects            Subject[]
+  teacherAssignments  TeacherAssignment[]
+  examTypes           ExamType[]
+  exams               Exam[]
+  examSchedules       ExamSchedule[]
+  examMarks           ExamMark[]
+  gradingScales       GradingScale[]
+  feeCategories       FeeCategory[]
+  feeStructures       FeeStructure[]
+  studentFees         StudentFee[]
+  payments            Payment[]
+  paymentAllocations  PaymentAllocation[]
+  feeReceiptSequences FeeReceiptSequence[]
 
   @@map("schools")
 }
@@ -57,13 +63,18 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  school                 School              @relation(fields: [schoolId], references: [id])
-  attendancesMarked      Attendance[]        @relation("AttendanceMarkedBy")
-  teacherAssignments     TeacherAssignment[] @relation("TeacherAssignments")
-  examMarksEntered       ExamMark[]          @relation("ExamMarksEntered")
-  examResultStatusChanges Exam[]             @relation("ExamResultStatusChangedBy")
-  studentAccount         Student?            @relation("StudentAccount")
-  guardianAccount        Guardian?           @relation("GuardianAccount")
+  school                  School              @relation(fields: [schoolId], references: [id])
+  attendancesMarked       Attendance[]        @relation("AttendanceMarkedBy")
+  teacherAssignments      TeacherAssignment[] @relation("TeacherAssignments")
+  examMarksEntered        ExamMark[]          @relation("ExamMarksEntered")
+  examResultStatusChanges Exam[]              @relation("ExamResultStatusChangedBy")
+  studentAccount          Student?            @relation("StudentAccount")
+  guardianAccount         Guardian?           @relation("GuardianAccount")
+  studentFeesAssigned     StudentFee[]        @relation("StudentFeeAssignedBy")
+  studentFeesWaived       StudentFee[]        @relation("StudentFeeWaivedBy")
+  studentFeesCancelled    StudentFee[]        @relation("StudentFeeCancelledBy")
+  paymentsReceived        Payment[]           @relation("PaymentReceivedBy")
+  paymentsVoided          Payment[]           @relation("PaymentVoidedBy")
 
   @@index([schoolId])
   @@map("users")
@@ -78,10 +89,12 @@ model AcademicYear {
   name     String
   isActive Boolean @default(true)
 
-  school      School       @relation(fields: [schoolId], references: [id])
-  students    Student[]
-  attendances Attendance[]
-  exams       Exam[]
+  school        School         @relation(fields: [schoolId], references: [id])
+  students      Student[]
+  attendances   Attendance[]
+  exams         Exam[]
+  feeStructures FeeStructure[]
+  studentFees   StudentFee[]
 
   @@unique([schoolId, name])
   @@index([schoolId])
@@ -103,6 +116,7 @@ model Class {
   classSubjects      ClassSubject[]
   teacherAssignments TeacherAssignment[]
   examSchedules      ExamSchedule[]
+  feeStructures      FeeStructure[]
 
   @@unique([schoolId, name])
   @@index([schoolId])
@@ -185,6 +199,8 @@ model Student {
   documents    StudentDocument[]
   attendances  Attendance[]
   examMarks    ExamMark[]
+  studentFees  StudentFee[]
+  payments     Payment[]
 
   @@unique([schoolId, admissionNumber])
   @@unique([sectionId, academicYearId, roll])
@@ -413,15 +429,22 @@ model Exam {
   // only the most recent status change (who + when) - not a full audit log,
   // per the "minimum required state" instruction. Reopening clears back to
   // DRAFT and overwrites these with the reopen action's actor/time.
-  resultStatus         ResultStatus @default(DRAFT)
+  resultStatus            ResultStatus @default(DRAFT)
   resultStatusChangedAt   DateTime?
   resultStatusChangedById String?
 
-  school               School         @relation(fields: [schoolId], references: [id])
-  academicYear         AcademicYear   @relation(fields: [academicYearId], references: [id])
-  examType             ExamType       @relation(fields: [examTypeId], references: [id])
-  schedules            ExamSchedule[]
-  resultStatusChangedBy User?         @relation("ExamResultStatusChangedBy", fields: [resultStatusChangedById], references: [id])
+  // Phase 8: Snapshots the school's active grading scale and rules at the
+  // exact moment of finalization. Subsequent modifications to the school's
+  // active GradingScale will never alter published grades or report cards
+  // for this finalized exam. Reopening clears this snapshot back to null.
+  gradingScaleName     String?
+  gradingRulesSnapshot Json?
+
+  school                School         @relation(fields: [schoolId], references: [id])
+  academicYear          AcademicYear   @relation(fields: [academicYearId], references: [id])
+  examType              ExamType       @relation(fields: [examTypeId], references: [id])
+  schedules             ExamSchedule[]
+  resultStatusChangedBy User?          @relation("ExamResultStatusChangedBy", fields: [resultStatusChangedById], references: [id])
 
   @@index([schoolId])
   @@index([academicYearId])
@@ -530,4 +553,240 @@ model ExamMark {
   @@index([schoolId])
   @@index([studentId])
   @@map("exam_marks")
+}
+
+// --- Phase 8: Fees & Accounts ---
+//
+// Chain: FeeCategory (named bucket, e.g. "Tuition Fee") -> FeeStructure
+// (what a class normally owes for that category in a given academic year)
+// -> StudentFee (the actual charge assigned to one student, with its own
+// permanently-copied amount) -> Payment + PaymentAllocation (money received,
+// split across one or more StudentFee rows, possibly over several payments).
+//
+// Historical-amount rule: StudentFee.amount is copied from FeeStructure at
+// assignment time and is never re-read from FeeStructure again. Raising next
+// year's tuition on a FeeStructure must never change an already-assigned
+// StudentFee's amount - unlike Exam's gradingRulesSnapshot (a whole rule
+// table, needed to re-evaluate grade boundaries), a fee charge is a single
+// flat number, so storing it directly on StudentFee *is* the entire
+// snapshot; no JSON needed.
+
+enum FeeFrequency {
+  ONE_TIME
+  MONTHLY
+  QUARTERLY
+  HALF_YEARLY
+  ANNUAL
+}
+
+// A cached, transactionally-maintained projection of a StudentFee's payment
+// state (see calculateFeeBalance in src/lib/fees/calculate-fee-balance.ts).
+// Every write path that can affect it recomputes it fresh from live,
+// non-voided PaymentAllocation rows and overwrites this column in the same
+// transaction - it is never accepted as client input and never drives a
+// payment/waiver/cancellation decision on its own.
+enum StudentFeeStatus {
+  UNPAID
+  PARTIAL
+  PAID
+  WAIVED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  CASH
+  BANK_TRANSFER
+  CHEQUE
+  MOBILE_BANKING
+  OTHER
+}
+
+enum PaymentStatus {
+  COMPLETED
+  VOIDED
+}
+
+// A school-defined bucket of charges (Tuition Fee, Admission Fee, Exam Fee,
+// Transport Fee, ...). No amount here - amount lives on FeeStructure and is
+// copied again onto StudentFee, so renaming/deactivating a category never
+// touches historical charges. Deactivate rather than delete once in use.
+model FeeCategory {
+  id          String   @id @default(cuid())
+  schoolId    String
+  name        String
+  nameBn      String?
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  school        School         @relation(fields: [schoolId], references: [id])
+  feeStructures FeeStructure[]
+  studentFees   StudentFee[]
+
+  @@unique([schoolId, name])
+  @@index([schoolId])
+  @@map("fee_categories")
+}
+
+// A priced fee template for one class in one academic year (e.g. "Class 6
+// Tuition Fee, 2026, 1200.00/month"). Config, not a charge to any student -
+// see StudentFee for the per-student, historical charge this feeds.
+model FeeStructure {
+  id             String       @id @default(cuid())
+  schoolId       String
+  academicYearId String
+  classId        String
+  feeCategoryId  String
+  name           String
+  nameBn         String?
+  amount         Decimal      @db.Decimal(10, 2)
+  frequency      FeeFrequency @default(ONE_TIME)
+  dueDate        DateTime?    @db.Date
+  isActive       Boolean      @default(true)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  school       School       @relation(fields: [schoolId], references: [id])
+  academicYear AcademicYear @relation(fields: [academicYearId], references: [id])
+  class        Class        @relation(fields: [classId], references: [id])
+  feeCategory  FeeCategory  @relation(fields: [feeCategoryId], references: [id])
+  studentFees  StudentFee[]
+
+  @@unique([schoolId, academicYearId, classId, feeCategoryId, name])
+  @@index([schoolId])
+  @@index([academicYearId])
+  @@index([classId])
+  @@index([feeCategoryId])
+  @@map("fee_structures")
+}
+
+// A student's actual charge. `amount`/`feeCategoryId`/`name` are copied from
+// FeeStructure at assignment time (or set directly for an ad-hoc charge with
+// no template - feeStructureId is nullable for exactly that case), so this
+// row stays fully self-contained even if the FeeStructure/FeeCategory it
+// came from is later edited or deactivated. Waiving/cancelling preserve the
+// original amount and record who/why/when, mirroring Payment's void fields;
+// both are mutually exclusive in practice with having any non-voided
+// payment allocation, enforced by the waive/cancel actions.
+model StudentFee {
+  id             String           @id @default(cuid())
+  schoolId       String
+  studentId      String
+  academicYearId String
+  feeStructureId String?
+  feeCategoryId  String
+  name           String
+  amount         Decimal          @db.Decimal(10, 2)
+  dueDate        DateTime?        @db.Date
+  status         StudentFeeStatus @default(UNPAID)
+  assignedById   String
+
+  waivedAt     DateTime?
+  waivedById   String?
+  waiverReason String?
+
+  cancelledAt   DateTime?
+  cancelledById String?
+  cancelReason  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  school       School              @relation(fields: [schoolId], references: [id])
+  student      Student             @relation(fields: [studentId], references: [id])
+  academicYear AcademicYear        @relation(fields: [academicYearId], references: [id])
+  feeStructure FeeStructure?       @relation(fields: [feeStructureId], references: [id])
+  feeCategory  FeeCategory         @relation(fields: [feeCategoryId], references: [id])
+  assignedBy   User                @relation("StudentFeeAssignedBy", fields: [assignedById], references: [id])
+  waivedBy     User?               @relation("StudentFeeWaivedBy", fields: [waivedById], references: [id])
+  cancelledBy  User?               @relation("StudentFeeCancelledBy", fields: [cancelledById], references: [id])
+  allocations  PaymentAllocation[]
+
+  @@unique([studentId, feeStructureId])
+  @@index([schoolId])
+  @@index([studentId])
+  @@index([feeStructureId])
+  @@index([status])
+  @@map("student_fees")
+}
+
+// A single money receipt. Never edited or deleted once COMPLETED - only
+// ever transitions COMPLETED -> VOIDED (voidedAt/voidedById/voidReason set,
+// amount/receiptNumber untouched). `amount` is the total tendered;
+// PaymentAllocation records how it was split across one or more StudentFee
+// rows, always for exactly this student and this school (enforced in the
+// createPayment action, not the schema, since Prisma can't cross-check two
+// unrelated foreign keys declaratively).
+model Payment {
+  id            String        @id @default(cuid())
+  schoolId      String
+  studentId     String
+  receiptNumber String
+  amount        Decimal       @db.Decimal(10, 2)
+  method        PaymentMethod
+  paidAt        DateTime      @default(now())
+  status        PaymentStatus @default(COMPLETED)
+  notes         String?
+  receivedById  String
+  voidedAt      DateTime?
+  voidedById    String?
+  voidReason    String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  school      School              @relation(fields: [schoolId], references: [id])
+  student     Student             @relation(fields: [studentId], references: [id])
+  receivedBy  User                @relation("PaymentReceivedBy", fields: [receivedById], references: [id])
+  voidedBy    User?               @relation("PaymentVoidedBy", fields: [voidedById], references: [id])
+  allocations PaymentAllocation[]
+
+  @@unique([schoolId, receiptNumber])
+  @@index([schoolId])
+  @@index([studentId])
+  @@index([status])
+  @@map("payments")
+}
+
+// How much of a Payment went to a particular StudentFee. A Payment can cover
+// several fees at once; a StudentFee can be paid across several Payments
+// over time (partial payments). Rows are permanent - even a voided
+// Payment's allocations stay as history; balance calculation simply
+// excludes allocations whose Payment.status is VOIDED.
+model PaymentAllocation {
+  id           String   @id @default(cuid())
+  schoolId     String
+  paymentId    String
+  studentFeeId String
+  amount       Decimal  @db.Decimal(10, 2)
+  createdAt    DateTime @default(now())
+
+  school     School     @relation(fields: [schoolId], references: [id])
+  payment    Payment    @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  studentFee StudentFee @relation(fields: [studentFeeId], references: [id])
+
+  @@index([schoolId])
+  @@index([paymentId])
+  @@index([studentFeeId])
+  @@map("payment_allocations")
+}
+
+// The receipt-number counter, one row per (school, calendar year of
+// Payment.paidAt). Purely an atomically-incremented counter - the
+// composite (schoolId, year) IS its identity, never joined to or read for
+// anything but generating the next receipt number inside a payment's own
+// transaction. See createPayment in src/actions/fees/payments.ts: the
+// `UPDATE ... SET lastNumber = lastNumber + 1` this compiles to takes a
+// row lock, which is what makes concurrent receipt-number generation safe
+// without raw SQL or a distributed lock.
+model FeeReceiptSequence {
+  schoolId   String
+  year       Int
+  lastNumber Int      @default(0)
+  updatedAt  DateTime @updatedAt
+
+  school School @relation(fields: [schoolId], references: [id])
+
+  @@id([schoolId, year])
+  @@map("fee_receipt_sequences")
 }

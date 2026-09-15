@@ -30,14 +30,15 @@ export default async function GuardianChildDashboardPage({
 
   const base = `/portal/guardian/children/${studentId}`
   const actions: QuickAction[] = [
-    { href: `${base}/attendance`, label: t("nav.attendance"), icon: CalendarCheck },
-    { href: `${base}/results`, label: t("nav.results"), icon: Award },
+    { key: "attendance", href: `${base}/attendance`, label: t("nav.attendance"), icon: CalendarCheck },
+    { key: "results", href: `${base}/results`, label: t("nav.results"), icon: Award },
     {
+      key: "report-card",
       href: latestResult ? `${base}/results/${latestResult.examId}/report-card` : `${base}/results`,
       label: t("nav.reportCard"),
       icon: Printer,
     },
-    { href: `${base}/profile`, label: t("nav.profile"), icon: User },
+    { key: "profile", href: `${base}/profile`, label: t("nav.profile"), icon: User },
   ]
 
   return (

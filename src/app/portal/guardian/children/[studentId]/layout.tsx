@@ -26,6 +26,7 @@ export default async function GuardianChildLayout({
     { href: `${base}/profile`, label: t("nav.profile") },
     { href: `${base}/attendance`, label: t("nav.attendance") },
     { href: `${base}/results`, label: t("nav.results") },
+    { href: `${base}/fees`, label: t("nav.fees") },
   ]
 
   return (

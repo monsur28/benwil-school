@@ -41,7 +41,17 @@
     "library": "Library",
     "transport": "Transport",
     "reports": "Reports",
-    "settings": "Settings"
+    "settings": "Settings",
+    "groups": {
+      "overview": "Overview",
+      "people": "People",
+      "academics": "Academics",
+      "finance": "Finance",
+      "communication": "Communication",
+      "resources": "Resources",
+      "insights": "Insights",
+      "system": "System"
+    }
   },
   "auth": {
     "loginTitle": "Log in",
@@ -76,7 +86,9 @@
     "errors": {
       "invalidEmail": "Enter a valid email address.",
       "passwordRequired": "Password is required.",
-      "invalidForm": "Enter a valid email and password."
+      "invalidForm": "Enter a valid email and password.",
+      "tooManyAttempts": "Too many failed login attempts. Please try again in 5 minutes.",
+      "loginFailed": "Authentication failed or service is temporarily unavailable. Please verify your credentials."
     }
   },
   "dashboard": {
@@ -135,8 +147,196 @@
       "quickActionsTitle": "Rapid Operations",
       "quickActionsSubtitle": "Keyboard accelerated shortcuts for daily institutional administration",
       "allSystemsNominal": "All Systems Nominal",
-      "searchDirectory": "Search directory...",
-      "previewData": "Preview data"
+      "previewData": "Preview data",
+      "quickActionsDesc": {
+        "addStudent": "Admit student to roster",
+        "takeAttendance": "Daily roll call entry",
+        "manageCurriculum": "Class & subject structure",
+        "createExam": "Assessment routines",
+        "collectFee": "Accounts & student dues",
+        "createNotice": "Institutional bulletins"
+      },
+      "activePercent": "{percent}% Active",
+      "curriculumDelivery": "Curriculum Delivery",
+      "standardCurriculum": "Standard NC",
+      "sessionProgress": "Session Progress",
+      "milestones": {
+        "midTermTitle": "Mid-Term Assessment Window",
+        "midTermDesc": "Written & Practical examinations across Classes 1-10",
+        "ptmTitle": "Parent-Teacher Progress Reviews",
+        "ptmDesc": "Comprehensive academic evaluation distribution",
+        "scienceFairTitle": "Annual Science & Culture Fair",
+        "scienceFairDesc": "Inter-house exhibits and innovation showcases"
+      },
+      "collectionHealth": "Collection Health",
+      "collectionHealthOnTarget": "{health}% on target",
+      "fiscalYearLabel": "FY {year}",
+      "officialCommunications": "Official institutional communications",
+      "activeCountBadge": "{count} Active",
+      "bulletinItems": {
+        "attendanceTitle": "Digital Attendance Sheet Deployment",
+        "attendanceDesc": "Teachers are requested to verify daily section registers",
+        "examRoutineTitle": "First Term Examination Routine Finalized",
+        "examRoutineDesc": "Approved syllabus and seating arrangement released",
+        "maintenanceTitle": "Campus ICT & Network Maintenance",
+        "maintenanceDesc": "Scheduled routine maintenance window this Friday"
+      },
+      "relativeTime": {
+        "today": "Today",
+        "yesterday": "Yesterday",
+        "sep11": "Sep 11"
+      },
+      "hero": {
+        "greetingMorning": "Good morning",
+        "greetingAfternoon": "Good afternoon",
+        "greetingEvening": "Good evening",
+        "liveCampus": "Live Campus",
+        "subtitle": "Here's what's happening at {schoolName} on {date}.",
+        "academicSession": "Academic Session {year} • Term 1",
+        "allSystemsNominal": "All systems nominal",
+        "directory": "Directory",
+        "addStudent": "+ Add Student"
+      },
+      "kpi": {
+        "totalStudents": "Total students",
+        "active": "{count} active",
+        "studentsTrend": "+8.2% this term",
+        "acrossClasses": "Across {count} academic classes",
+        "todaysAttendance": "Today's attendance",
+        "open": "Open",
+        "checkedIn": "{count} checked in",
+        "registerPending": "Register pending",
+        "attendanceTrend": "+2.1% from yesterday",
+        "awaitingRollCall": "Awaiting roll call",
+        "dailyRollCallInProgress": "Daily roll call in progress",
+        "pendingClassSubmission": "Pending class submission",
+        "teachersAndStaff": "Teachers & staff",
+        "certified": "{count} certified",
+        "teachersTrend": "100% active roster",
+        "supportStaffMembers": "{count} support & admin members",
+        "feeCollection": "Fee collection",
+        "ofTarget": "{percent}% of target",
+        "feesTrend": "+12.4% this month",
+        "cashflowOnTrack": "Cashflow on track for term",
+        "details": "Details →"
+      },
+      "attendanceChart": {
+        "title": "Attendance Overview",
+        "description": "Campus presence and punctuality telemetry across school sessions",
+        "range7d": "7 Days",
+        "range30d": "30 Days",
+        "rangeTerm": "This Term",
+        "present": "Present %",
+        "late": "Late %",
+        "absent": "Absent %",
+        "presentLabel": "Present:",
+        "lateLabel": "Late:",
+        "absentLabel": "Absent:"
+      },
+      "distribution": {
+        "title": "Student Distribution",
+        "badge": "Wings",
+        "description": "Roster breakdown across educational wings",
+        "totalStudents": "Total Students",
+        "studentsCount": "{count} students ({percent}%)",
+        "primaryWing": "Primary (1–5)",
+        "secondaryWing": "Secondary (6–10)"
+      },
+      "feeAnalytics": {
+        "title": "Fee Collection Analytics",
+        "description": "Institutional revenue intake, targets & pending dues",
+        "billingDesk": "Billing Desk",
+        "collectionPace": "Collection Pace",
+        "ofTarget": "{percent}% of target",
+        "collected": "Collected",
+        "reconciled": "Reconciled",
+        "target": "Assigned",
+        "sessionTotal": "Collected + Outstanding",
+        "pending": "Pending",
+        "invoicesActive": "Invoices active",
+        "monthlyTrend": "Monthly Intake Trend (Lakhs)",
+        "monthsRange": "Jan – Sep 2026",
+        "intake": "Intake:",
+        "targetLabel": "Target:",
+        "lakhSuffix": "L"
+      },
+      "academicPerformance": {
+        "title": "Academic Performance",
+        "description": "Average exam mastery by class benchmark",
+        "results": "Results",
+        "avgScore": "Average Score:",
+        "benchmarkTarget": "Benchmark target: {benchmark}%",
+        "passingBenchmark": "Passing benchmark: 75%",
+        "highestClass": "Highest: Class 9 (87%)"
+      },
+      "quickActions": {
+        "title": "Quick Actions",
+        "subtitle": "Frequently used commands",
+        "addStudent": "Add Student",
+        "addStudentDesc": "Register new admission",
+        "takeAttendance": "Take Attendance",
+        "takeAttendanceDesc": "Daily roll call register",
+        "createExam": "Create Exam",
+        "createExamDesc": "Schedule assessment routine",
+        "collectFee": "Collect Fee",
+        "collectFeeDesc": "Record student payment",
+        "createNotice": "Create Notice",
+        "createNoticeDesc": "Publish school bulletin"
+      },
+      "activity": {
+        "title": "Recent Activity",
+        "description": "Real-time operational stream across administrative modules",
+        "auditLog": "Audit Log",
+        "studentAdmitted": "New student admitted",
+        "feeReceived": "Fee payment received",
+        "attendanceDone": "Attendance completed",
+        "examScheduled": "Exam scheduled",
+        "recently": "Recently",
+        "today": "Today",
+        "minutesAgo": "{count} minutes ago",
+        "hourAgo": "{count} hour ago",
+        "databaseStream": "Events streamed from school database",
+        "liveConnected": "Live feed connected",
+        "collectedFrom": "৳ {amount} collected • {student}",
+        "attendanceSummary": "{className} • {count} students recorded ({percent}% present)",
+        "examRoutineFinalized": "Mid-Term Assessment routine finalized for Classes 6–10"
+      },
+      "milestones": {
+        "title": "Upcoming Milestones",
+        "description": "Official calendar events and academic checkpoints",
+        "calendar": "Calendar",
+        "termCalendar": "Term 1 Calendar • Session 2026",
+        "activeEvents": "{count} active events",
+        "midTermTitle": "Mid-Term Examination",
+        "midTermDesc": "Assessment routine commences for Classes 6–10",
+        "badgeAcademic": "Academic",
+        "ptmTitle": "Parent-Teacher Conference",
+        "ptmDesc": "Primary & Secondary section performance review",
+        "badgeMeeting": "Meeting",
+        "scienceFairTitle": "Annual Science & Culture Fair",
+        "scienceFairDesc": "Campus exhibition and student project showcase",
+        "badgeCoCurricular": "Co-curricular",
+        "resultPubTitle": "Term 1 Result Publication",
+        "resultPubDesc": "Finalized transcript & report card distribution",
+        "badgeGrading": "Grading",
+        "sep": "SEP",
+        "oct": "OCT"
+      },
+      "healthIndex": {
+        "title": "Campus Health Index",
+        "description": "Operational status across all institutional departments",
+        "nominal": "Nominal",
+        "campusAttendance": "Campus Attendance",
+        "optimal": "Optimal",
+        "feeCollectionPace": "Fee Collection Pace",
+        "onTarget": "On Target",
+        "examResultPublication": "Exam Result Publication",
+        "finalized": "Finalized",
+        "facultyEngagement": "Faculty Engagement",
+        "active": "Active",
+        "calculatedAt": "Daily health score calculated at 08:00 AM",
+        "compositeScore": "Composite: 90.5/100"
+      }
     },
     "teacher": {
       "todaysClasses": "Today's Classes",
@@ -644,7 +844,8 @@
       "invalidGradePoint": "Grade point must be 0 or greater.",
       "overlappingRange": "This percentage range overlaps with an existing grade rule.",
       "alreadyFinalized": "This exam's results are already finalized.",
-      "alreadyDraft": "This exam's results are not finalized."
+      "alreadyDraft": "This exam's results are not finalized.",
+      "noActiveGradingScale": "An active grading scale with at least one grade rule is required to finalize results."
     }
   },
   "academics": {
@@ -742,6 +943,182 @@
       "subjectNotInClass": "This subject isn't assigned to this class yet. Add it from the class page first."
     }
   },
+  "fees": {
+    "title": "Fees & Accounts",
+    "subnav": {
+      "overview": "Overview",
+      "categories": "Categories",
+      "structures": "Fee Structures",
+      "student": "Student Fees",
+      "payments": "Payments",
+      "outstanding": "Outstanding Report",
+      "collections": "Collections Report"
+    },
+    "fields": {
+      "name": "Name",
+      "nameBn": "Bangla Name",
+      "description": "Description",
+      "category": "Fee Category",
+      "academicYear": "Academic Year",
+      "class": "Class",
+      "amount": "Amount",
+      "frequency": "Frequency",
+      "dueDate": "Due Date",
+      "status": "Status",
+      "student": "Student",
+      "paid": "Paid",
+      "balance": "Balance",
+      "receiptNumber": "Receipt No.",
+      "paymentDate": "Payment Date",
+      "paymentMethod": "Payment Method",
+      "receivedBy": "Received By",
+      "notes": "Notes",
+      "reason": "Reason",
+      "totalCharges": "Total Charges",
+      "totalPaid": "Total Paid",
+      "outstandingBalance": "Outstanding Balance"
+    },
+    "frequency": {
+      "ONE_TIME": "One Time",
+      "MONTHLY": "Monthly",
+      "QUARTERLY": "Quarterly",
+      "HALF_YEARLY": "Half-Yearly",
+      "ANNUAL": "Annual"
+    },
+    "method": {
+      "CASH": "Cash",
+      "BANK_TRANSFER": "Bank Transfer",
+      "CHEQUE": "Cheque",
+      "MOBILE_BANKING": "Mobile Banking",
+      "OTHER": "Other"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "UNPAID": "Unpaid",
+      "PARTIAL": "Partial",
+      "PAID": "Paid",
+      "WAIVED": "Waived",
+      "CANCELLED": "Cancelled",
+      "COMPLETED": "Completed",
+      "VOIDED": "Voided"
+    },
+    "actions": {
+      "label": "Actions",
+      "create": "Create",
+      "edit": "Edit",
+      "save": "Save",
+      "cancel": "Cancel",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "addCategory": "Add Category",
+      "addStructure": "Add Fee Structure",
+      "assignFee": "Assign Fee",
+      "assignToClass": "Assign to Class",
+      "recordPayment": "Record Payment",
+      "printReceipt": "Print Receipt",
+      "voidPayment": "Void Payment",
+      "waive": "Waive",
+      "cancelFee": "Cancel Fee",
+      "viewFees": "View Fees",
+      "view": "View",
+      "search": "Search"
+    },
+    "list": {
+      "empty": "No records found.",
+      "emptyStructures": "No fee structures yet.",
+      "emptyCategories": "No fee categories yet.",
+      "emptyFees": "No fees assigned yet.",
+      "emptyPayments": "No payments recorded yet.",
+      "filterAcademicYear": "All Academic Years",
+      "filterClass": "All Classes",
+      "filterCategory": "All Categories",
+      "filterMethod": "All Methods",
+      "filterStatus": "All Statuses",
+      "searchPlaceholder": "Search by name or admission number"
+    },
+    "filters": {
+      "from": "From",
+      "to": "To"
+    },
+    "dashboard": {
+      "totalOutstanding": "Total Outstanding",
+      "paymentsToday": "Payments Today",
+      "paymentsThisMonth": "Payments This Month",
+      "studentsWithOutstanding": "Students With Outstanding Fees"
+    },
+    "assign": {
+      "title": "Assign Fee",
+      "bulkTitle": "Assign to Class",
+      "bulkDescription": "Assigns this fee structure's charge to every active student in {className} for {academicYearName}.",
+      "eligibleCount": "{count} students will be charged",
+      "alreadyAssigned": "Already assigned",
+      "confirm": "Confirm Assignment",
+      "resultSummary": "Assigned to {createdCount} students ({skippedCount} already had this fee)."
+    },
+    "payment": {
+      "title": "Record Payment",
+      "outstandingFees": "Outstanding Fees",
+      "allocate": "Allocate",
+      "amountToPay": "Amount to Pay",
+      "totalAllocated": "Total Allocated",
+      "noOutstandingFees": "This student has no outstanding fees."
+    },
+    "receipt": {
+      "title": "Payment Receipt",
+      "voided": "This payment has been voided.",
+      "voidedOn": "Voided on {date} by {name}",
+      "voidReasonLabel": "Reason"
+    },
+    "void": {
+      "title": "Void Payment",
+      "description": "This keeps the original payment on record and marks it voided. This cannot be undone.",
+      "reasonLabel": "Reason for voiding"
+    },
+    "waiveCancel": {
+      "waiveTitle": "Waive Fee",
+      "cancelTitle": "Cancel Fee",
+      "reasonLabel": "Reason"
+    },
+    "reports": {
+      "outstandingTitle": "Outstanding Fees",
+      "collectionsTitle": "Payment Collections"
+    },
+    "profile": {
+      "summary": "Fee Summary",
+      "viewAll": "View All Fees"
+    },
+    "success": {
+      "categoryCreated": "Fee category created.",
+      "categoryUpdated": "Fee category updated.",
+      "structureCreated": "Fee structure created.",
+      "structureUpdated": "Fee structure updated.",
+      "feeAssigned": "Fee assigned.",
+      "paymentRecorded": "Payment recorded.",
+      "paymentVoided": "Payment voided.",
+      "feeWaived": "Fee waived.",
+      "feeCancelled": "Fee cancelled."
+    },
+    "errors": {
+      "invalidForm": "Please fix the highlighted fields.",
+      "notFound": "Record not found.",
+      "saveFailed": "Could not save. Please try again.",
+      "invalidSelection": "Please make a valid selection.",
+      "invalidAmount": "Enter a valid amount greater than zero.",
+      "reasonRequired": "A reason is required.",
+      "duplicateCategory": "A fee category with this name already exists.",
+      "duplicateStructure": "A fee structure with this name already exists for this class, year, and category.",
+      "alreadyAssigned": "This fee is already assigned to this student.",
+      "cannotWaiveOrCancel": "Only an unpaid fee with no payments can be waived or cancelled.",
+      "noAllocations": "Select at least one fee to allocate this payment to.",
+      "allocationExceedsPayment": "The total allocated amount cannot exceed the payment amount.",
+      "allocationExceedsBalance": "This allocation exceeds the fee's remaining balance.",
+      "invalidAllocation": "Each fee can only be allocated once per payment.",
+      "feeNotPayable": "This fee is waived or cancelled and cannot receive a payment.",
+      "balanceChanged": "This fee's balance just changed. Please review and try again.",
+      "alreadyVoided": "This payment is already voided."
+    }
+  },
   "portal": {
     "welcome": "Welcome",
     "nav": {
@@ -750,7 +1127,8 @@
       "attendance": "Attendance",
       "results": "Results",
       "reportCard": "Report Card",
-      "myChildren": "My Children"
+      "myChildren": "My Children",
+      "fees": "Fees"
     },
     "fields": {
       "roll": "Roll",
@@ -773,7 +1151,9 @@
       "noResultsTitle": "No Results",
       "noAttendance": "No attendance records yet.",
       "noChildren": "No children are linked to this account yet.",
-      "noChildrenTitle": "No Children"
+      "noChildrenTitle": "No Children",
+      "noFees": "No fees have been assigned yet.",
+      "noFeesTitle": "No Fees"
     },
     "account": {
       "cardTitle": "Portal Accounts",

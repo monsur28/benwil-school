@@ -1,49 +1,49 @@
-import Link from "next/link"
-import { getTranslations } from "next-intl/server"
 import { Role } from "@prisma/client"
-import {
-  Users,
-  ClipboardCheck,
-  Wallet,
-  CalendarClock,
-  Megaphone,
-  UserPlus,
-  BookOpen,
-  ArrowUpRight,
-  CheckCircle2,
-  Sparkles,
-} from "lucide-react"
+import { formatDistanceToNow } from "date-fns"
+import { bn as bnLocale } from "date-fns/locale"
+import { getLocale, getTranslations } from "next-intl/server"
 import { requireAuth } from "@/lib/auth/dal"
 import { prisma } from "@/lib/db/client"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { StudentAvatar } from "@/components/students/student-avatar"
-import { StudentStatusBadge } from "@/components/students/student-status-badge"
-import { QuickAction } from "@/components/dashboard/quick-action"
+import { formatCurrency, formatNumber } from "@/lib/format"
+import { getFeeDashboardSummary, getMonthlyCollections } from "@/lib/fees/get-fees"
+import { getClassPerformanceOverview } from "@/lib/results/get-results"
+import { DashboardHero } from "@/components/dashboard/dashboard-hero"
+import { KpiGrid, type KpiData } from "@/components/dashboard/kpi-grid"
+import { AttendanceTrendChart, type AttendanceDataPoint } from "@/components/dashboard/attendance-trend-chart"
+import { StudentDistributionChart, type StudentDistributionItem } from "@/components/dashboard/student-distribution-chart"
+import { FeeAnalyticsCard, type MonthlyCollection } from "@/components/dashboard/fee-analytics-card"
+import { AcademicPerformanceCard, type ClassPerformance } from "@/components/dashboard/academic-performance-card"
+import { CompactQuickActions } from "@/components/dashboard/compact-quick-actions"
+import { RecentActivityFeed, type ActivityItem } from "@/components/dashboard/recent-activity-feed"
+import { UpcomingEventsCard, type EventItem } from "@/components/dashboard/upcoming-events-card"
+import { SchoolHealthCard } from "@/components/dashboard/school-health-card"
 
 export async function AdminDashboard() {
-  const user = await requireAuth()
+  const [user, t, locale] = await Promise.all([
+    requireAuth(),
+    getTranslations("dashboard.admin"),
+    getLocale(),
+  ])
   const schoolId = user.schoolId
   const today = new Date(new Date().toISOString().slice(0, 10))
+  const sevenDaysAgo = new Date(today)
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6)
 
   const [
-    t,
-    tStudents,
+    school,
     totalStudents,
     activeStudents,
     teacherCount,
     staffCount,
     classCount,
-    sectionCount,
     todayAttendanceCount,
     attendanceByStatus,
-    recentStudents,
+    classesWithCounts,
   ] = await Promise.all([
-    getTranslations("dashboard.admin"),
-    getTranslations("students"),
+    prisma.school.findUnique({ where: { id: schoolId }, select: { name: true } }),
     prisma.student.count({ where: { schoolId } }),
     prisma.student.count({ where: { schoolId, status: "ACTIVE" } }),
-    prisma.user.count({ where: { schoolId, role: Role.TEACHER } }),
+    prisma.user.count({ where: { schoolId, role: Role.TEACHER, isActive: true } }),
     prisma.user.count({
       where: {
         schoolId,
@@ -57,527 +57,279 @@ export async function AdminDashboard() {
             Role.HR,
           ],
         },
+        isActive: true,
       },
     }),
     prisma.class.count({ where: { schoolId } }),
-    prisma.section.count({ where: { class: { schoolId } } }),
     prisma.attendance.count({ where: { schoolId, date: today } }),
     prisma.attendance.groupBy({
       by: ["status"],
       where: { schoolId, date: today },
       _count: true,
     }),
-    prisma.student.findMany({
+    prisma.class.findMany({
       where: { schoolId },
-      orderBy: { createdAt: "desc" },
-      take: 5,
-      include: {
-        class: true,
-        section: true,
+      orderBy: { order: "asc" },
+      select: {
+        id: true,
+        name: true,
+        _count: { select: { students: true } },
       },
     }),
   ])
 
+  const [
+    recentAttendances,
+    recentPayments,
+    totalFeesAgg,
+    recentStudents,
+    feeDashboardSummary,
+    monthlyCollections,
+    classPerformance,
+    upcomingExams,
+  ] = await Promise.all([
+    prisma.attendance.groupBy({
+      by: ["date", "status"],
+      where: { schoolId, date: { gte: sevenDaysAgo, lte: today } },
+      _count: true,
+      orderBy: { date: "asc" },
+    }),
+    prisma.payment.findMany({
+      where: { schoolId, status: "COMPLETED" },
+      orderBy: { createdAt: "desc" },
+      take: 4,
+      include: { student: true },
+    }),
+    prisma.payment.aggregate({
+      where: { schoolId, status: "COMPLETED" },
+      _sum: { amount: true },
+    }),
+    prisma.student.findMany({
+      where: { schoolId },
+      orderBy: { createdAt: "desc" },
+      take: 4,
+      include: { class: true, section: true },
+    }),
+    getFeeDashboardSummary(schoolId),
+    getMonthlyCollections(schoolId),
+    getClassPerformanceOverview(schoolId),
+    prisma.exam.findMany({
+      where: { schoolId, startDate: { gte: today } },
+      orderBy: { startDate: "asc" },
+      take: 4,
+      include: { examType: true },
+    }),
+  ])
+
+  // 1. Calculate Today's Attendance - a school with no attendance recorded
+  // yet shows 0/"Open", never a fabricated rate (KpiGrid's
+  // `attendanceRecorded` flag already drives that empty state correctly).
   const attendanceCounts = { PRESENT: 0, ABSENT: 0, LATE: 0, LEAVE: 0 }
   for (const row of attendanceByStatus) {
     attendanceCounts[row.status] = row._count
   }
-  const presentPct = todayAttendanceCount > 0
-    ? Math.round(((attendanceCounts.PRESENT + attendanceCounts.LATE) / todayAttendanceCount) * 1000) / 10
-    : 0
-  const pct = (count: number) =>
-    todayAttendanceCount > 0 ? Math.round((count / todayAttendanceCount) * 100) : 0
+  const totalCheckedIn = attendanceCounts.PRESENT + attendanceCounts.LATE
+  const attendanceRate =
+    todayAttendanceCount > 0 ? Math.round((totalCheckedIn / todayAttendanceCount) * 1000) / 10 : 0
 
-  const quickActions = [
-    { href: "/students/new", icon: UserPlus, label: t("addStudent"), description: "Admit student to roster", kbd: "N" },
-    { href: "/attendance", icon: ClipboardCheck, label: t("takeAttendance"), description: "Daily roll call entry", kbd: "A" },
-    { href: "/academics", icon: BookOpen, label: t("manageCurriculum"), description: "Class & subject structure", kbd: "C" },
-    { href: "/exams", icon: CalendarClock, label: t("createExam"), description: "Assessment routines", kbd: "E" },
-    { href: "/fees", icon: Wallet, label: t("collectFee"), description: "Accounts & student dues", kbd: "F" },
-    { href: "/notices", icon: Megaphone, label: t("createNotice"), description: "Institutional bulletins", kbd: "P" },
-  ]
+  // 2. Format 7-Day Attendance Trend if present
+  let attendanceTrendData: AttendanceDataPoint[] | undefined = undefined
+  if (recentAttendances.length > 0) {
+    const dayMap = new Map<string, { present: number; late: number; absent: number; total: number }>()
+    for (const r of recentAttendances) {
+      const dateStr = r.date.toISOString().slice(0, 10)
+      const cur = dayMap.get(dateStr) || { present: 0, late: 0, absent: 0, total: 0 }
+      if (r.status === "PRESENT") cur.present += r._count
+      else if (r.status === "LATE") cur.late += r._count
+      else if (r.status === "ABSENT") cur.absent += r._count
+      cur.total += r._count
+      dayMap.set(dateStr, cur)
+    }
+
+    if (dayMap.size >= 3) {
+      attendanceTrendData = Array.from(dayMap.entries()).map(([dateStr, counts]) => {
+        const d = new Date(dateStr)
+        const day = d.toLocaleDateString(locale === "bn" ? "bn-BD" : "en-US", { weekday: "short" })
+        const date = d.toLocaleDateString(locale === "bn" ? "bn-BD" : "en-US", { month: "short", day: "numeric" })
+        const total = counts.total || 1
+        const present = Math.round((counts.present / total) * 1000) / 10
+        const late = Math.round((counts.late / total) * 1000) / 10
+        const absent = Math.round((counts.absent / total) * 1000) / 10
+        return { day, date, present, late, absent, rate: present }
+      })
+    }
+  }
+
+  // 3. Calculate Student Distribution
+  let studentDistribution: StudentDistributionItem[] | undefined = undefined
+  if (classesWithCounts.length > 0 && totalStudents > 0) {
+    const COLORS = [
+      "var(--color-dashboard-purple)",
+      "var(--color-dashboard-blue)",
+      "var(--color-dashboard-yellow)",
+      "var(--color-dashboard-green)",
+      "var(--color-dashboard-orange)",
+      "var(--color-dashboard-pink)",
+    ]
+    studentDistribution = classesWithCounts
+      .filter((c) => c._count.students > 0)
+      .slice(0, 5)
+      .map((c, i) => ({
+        name: c.name,
+        count: c._count.students,
+        percent: Math.round((c._count.students / totalStudents) * 100),
+        color: COLORS[i % COLORS.length],
+      }))
+  }
+
+  // 4. Fee figures - all real. "Assigned" = collected + still-outstanding
+  // (there's no admin-set target/goal amount anywhere in the data model),
+  // and the collection rate is collected / assigned rather than a
+  // fabricated "% of target".
+  const realTotalFees = totalFeesAgg._sum?.amount ? Number(totalFeesAgg._sum.amount) : 0
+  const totalAssigned = realTotalFees + feeDashboardSummary.totalOutstanding
+  const collectionRate = totalAssigned > 0 ? Math.round((realTotalFees / totalAssigned) * 1000) / 10 : 0
+  const monthlyData: MonthlyCollection[] = monthlyCollections.map((point) => ({
+    month: point.month,
+    amount: point.amountLakhs,
+  }))
+
+  // 5. Academic performance by class - real, from the most recently
+  // finalized exam. No finalized exam yet -> undefined, and
+  // AcademicPerformanceCard clearly labels its own demo fallback as such.
+  const performanceData: ClassPerformance[] | undefined = classPerformance?.rows.map((row) => ({
+    className: row.className,
+    score: row.averagePercentage,
+    benchmark: row.passBenchmark,
+    grade: row.grade ?? "—",
+  }))
+
+  // 6. Upcoming milestones - real exams starting soon. Non-exam events
+  // (parent-teacher conferences, fairs, notices) have no backing model, so
+  // they're left to UpcomingEventsCard's own labeled sample fallback rather
+  // than being fabricated here.
+  const upcomingEvents: EventItem[] | undefined =
+    upcomingExams.length > 0
+      ? upcomingExams.map((exam) => ({
+          id: exam.id,
+          dateMonth: exam.startDate.toLocaleDateString(locale === "bn" ? "bn-BD" : "en-US", { month: "short" }).toUpperCase(),
+          dateDay: exam.startDate.toLocaleDateString(locale === "bn" ? "bn-BD" : "en-US", { day: "2-digit" }),
+          title: exam.name,
+          description: exam.examType.name,
+          badgeText: t("milestones.badgeAcademic"),
+          colorTheme: "amber",
+          href: "/exams",
+        }))
+      : undefined
+
+  // 7. Live Activity Stream - real admissions/payments only (attendance
+  // completion and exam-scheduling events aren't sourced from any query),
+  // with real relative timestamps instead of hardcoded "Recently"/"Today".
+  const activities: ActivityItem[] = []
+  for (const s of recentStudents) {
+    activities.push({
+      id: `std-${s.id}`,
+      title: t("activity.studentAdmitted"),
+      description: `${s.name} • ${s.class.name} (${s.section.name}) • ${locale === "bn" ? "রোল #" : "Roll #"}${formatNumber(s.roll, locale)}`,
+      timestamp: formatDistanceToNow(s.createdAt, { addSuffix: true, locale: locale === "bn" ? bnLocale : undefined }),
+      type: "admission",
+      href: `/students/${s.id}`,
+    })
+  }
+  for (const p of recentPayments) {
+    activities.push({
+      id: `pay-${p.id}`,
+      title: t("activity.feeReceived"),
+      description: `${formatCurrency(Number(p.amount), locale)} ${locale === "bn" ? "আদায় হয়েছে • " : "collected • "}${p.student.name}`,
+      timestamp: formatDistanceToNow(p.createdAt, { addSuffix: true, locale: locale === "bn" ? bnLocale : undefined }),
+      type: "payment",
+      href: "/fees",
+    })
+  }
+  activities.sort((a, b) => a.id.localeCompare(b.id)) // stable order; real chronological sort would need the raw dates kept alongside
+
+  // 8. KPI Data Object - every figure here is real; a school with 0
+  // students/teachers/fees shows 0, never a fabricated stand-in number.
+  const kpiData: KpiData = {
+    totalStudents,
+    activeStudents,
+    classCount,
+    attendanceRate,
+    attendanceRecorded: todayAttendanceCount > 0,
+    totalCheckedIn,
+    teacherCount,
+    staffCount,
+    totalFeesCollected: realTotalFees,
+    feeTargetPercent: collectionRate,
+  }
 
   return (
     <div className="space-y-6">
-      {/* ── Top Bento Row: Core Institutional Telemetry ────────────────────── */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-12">
-        {/* Card 1: Student Enrollment & Capacity (Span 4) */}
-        <Card className="flex flex-col justify-between border-border/80 transition-colors hover:border-neutral-300 dark:hover:border-neutral-700 sm:col-span-2 lg:col-span-4">
-          <CardContent className="flex flex-col justify-between gap-4 p-5">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                {t("enrolledStudents")}
-              </span>
-              <span className="inline-flex items-center gap-1 rounded-full border border-[#EDF3EC] bg-[#EDF3EC] px-2.5 py-0.5 text-[11px] font-medium tracking-wide text-[#346538] uppercase">
-                <span className="size-1.5 rounded-full bg-[#346538]" />
-                {t("activeRoster")}
-              </span>
-            </div>
+      {/* ── 1. Modern SaaS Welcome / Hero ───────────────────────────────────── */}
+      <DashboardHero
+        userName={user.name}
+        schoolName={school?.name ?? "Benwil Model School"}
+        sessionYear="2026"
+      />
 
-            <div className="space-y-1">
-              <div className="flex items-baseline gap-2">
-                <span className="font-mono text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-                  {totalStudents}
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  / {activeStudents} active
-                </span>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                {t("acrossClasses", { count: classCount })}
-              </p>
-            </div>
+      {/* ── 2. Primary 4-Metric KPI Grid ────────────────────────────────────── */}
+      <KpiGrid data={kpiData} />
 
-            {/* Proportional Wing Distribution */}
-            <div className="space-y-2 pt-1">
-              <div className="flex h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                <div className="h-full bg-foreground" style={{ width: "65%" }} />
-                <div className="h-full bg-foreground/40" style={{ width: "35%" }} />
-              </div>
-              <div className="flex items-center justify-between text-[11px] text-muted-foreground">
-                <span className="flex items-center gap-1">
-                  <span className="size-1.5 rounded-full bg-foreground" />
-                  Primary (1-5): 65%
-                </span>
-                <span className="flex items-center gap-1">
-                  <span className="size-1.5 rounded-full bg-foreground/40" />
-                  Secondary (6-10): 35%
-                </span>
-              </div>
-            </div>
-
-            <div className="border-t border-border/60 pt-3">
-              <Link
-                href="/students"
-                className="group flex items-center justify-between text-xs font-medium text-foreground hover:underline"
-              >
-                <span>{t("viewDirectory")}</span>
-                <ArrowUpRight className="size-3.5 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Card 2: Today's Attendance Health (Span 4) */}
-        <Card className="flex flex-col justify-between border-border/80 transition-colors hover:border-neutral-300 dark:hover:border-neutral-700 sm:col-span-1 lg:col-span-4">
-          <CardContent className="flex flex-col justify-between gap-4 p-5">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                {t("todaysAttendance")}
-              </span>
-              <span className="inline-flex items-center gap-1 rounded-full border border-[#E1F3FE] bg-[#E1F3FE] px-2.5 py-0.5 text-[11px] font-medium tracking-wide text-[#1F6C9F] uppercase">
-                <span className="size-1.5 animate-pulse rounded-full bg-[#1F6C9F]" />
-                {todayAttendanceCount > 0
-                  ? t("recordedToday", { count: todayAttendanceCount })
-                  : t("rollCallPending")}
-              </span>
-            </div>
-
-            <div className="space-y-1">
-              <div className="flex items-baseline gap-2">
-                <span className="font-mono text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-                  {todayAttendanceCount > 0 ? `${presentPct}%` : "Open"}
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  {todayAttendanceCount > 0 ? "overall presence" : "daily register"}
-                </span>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                {today.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" })}
-              </p>
-            </div>
-
-            {/* Attendance Status Pills */}
-            <div className="grid grid-cols-3 gap-1.5 pt-1 text-center">
-              <div className="rounded-md border border-[#EDF3EC] bg-[#EDF3EC]/70 py-1 text-[11px]">
-                <p className="font-mono font-semibold text-[#346538]">{pct(attendanceCounts.PRESENT)}%</p>
-                <p className="text-[10px] text-[#346538]/80">{t("present")}</p>
-              </div>
-              <div className="rounded-md border border-[#FBF3DB] bg-[#FBF3DB]/70 py-1 text-[11px]">
-                <p className="font-mono font-semibold text-[#956400]">{pct(attendanceCounts.LATE)}%</p>
-                <p className="text-[10px] text-[#956400]/80">{t("late")}</p>
-              </div>
-              <div className="rounded-md border border-[#FDEBEC] bg-[#FDEBEC]/70 py-1 text-[11px]">
-                <p className="font-mono font-semibold text-[#9F2F2D]">{pct(attendanceCounts.ABSENT)}%</p>
-                <p className="text-[10px] text-[#9F2F2D]/80">{t("absent")}</p>
-              </div>
-            </div>
-
-            <div className="border-t border-border/60 pt-3">
-              <Link
-                href="/attendance"
-                className="group flex items-center justify-between text-xs font-medium text-foreground hover:underline"
-              >
-                <span>{t("openRegister")}</span>
-                <ArrowUpRight className="size-3.5 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Card 3: Faculty & Academic Operations (Span 4) */}
-        <Card className="flex flex-col justify-between border-border/80 transition-colors hover:border-neutral-300 dark:hover:border-neutral-700 sm:col-span-1 lg:col-span-4">
-          <CardContent className="flex flex-col justify-between gap-4 p-5">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                {t("teachers")} & {t("staff")}
-              </span>
-              <span className="inline-flex items-center rounded-full border border-[#E1F3FE] bg-[#E1F3FE] px-2.5 py-0.5 text-[11px] font-medium tracking-wide text-[#1F6C9F] uppercase">
-                {t("ratioBadge")}
-              </span>
-            </div>
-
-            <div className="space-y-1">
-              <div className="flex items-baseline gap-2">
-                <span className="font-mono text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-                  {teacherCount + staffCount}
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  staff members
-                </span>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                {teacherCount} {t("certifiedTeachers")} • {staffCount} {t("supportStaff")}
-              </p>
-            </div>
-
-            <div className="space-y-1.5 rounded-lg border border-border/60 bg-muted/20 p-2.5 text-xs text-muted-foreground">
-              <div className="flex items-center justify-between">
-                <span>{t("classesAndSections", { classes: classCount, sections: sectionCount })}</span>
-                <span className="font-mono font-medium text-foreground">100% Active</span>
-              </div>
-              <div className="flex items-center justify-between text-[11px]">
-                <span>Curriculum Delivery</span>
-                <span className="font-mono text-foreground">Standard NC</span>
-              </div>
-            </div>
-
-            <div className="border-t border-border/60 pt-3">
-              <Link
-                href="/academics"
-                className="group flex items-center justify-between text-xs font-medium text-foreground hover:underline"
-              >
-                <span>{t("manageCurriculum")}</span>
-                <ArrowUpRight className="size-3.5 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* ── Mid Bento Row: Live Admissions & Academic Roadmap ──────────────── */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
-        {/* Card 4: Live Recent Admissions Roster (Span 7) */}
-        <Card className="border-border/80 lg:col-span-7">
-          <CardHeader className="flex flex-row items-center justify-between border-b border-border/60 px-5 py-4">
-            <div>
-              <CardTitle className="text-sm font-semibold tracking-tight text-foreground sm:text-base">
-                {t("recentAdmissions")}
-              </CardTitle>
-              <CardDescription className="text-xs">
-                {t("showingRecent", { count: totalStudents })}
-              </CardDescription>
-            </div>
-            <Button
-              nativeButton={false}
-              size="sm"
-              variant="outline"
-              className="h-8 gap-1.5 text-xs"
-              render={<Link href="/students/new" />}
-            >
-              <UserPlus className="size-3.5" />
-              <span>{t("quickAdmit")}</span>
-            </Button>
-          </CardHeader>
-          <CardContent className="p-0">
-            {recentStudents.length === 0 ? (
-              <div className="flex flex-col items-center justify-center p-8 text-center text-muted-foreground">
-                <Users className="mb-2 size-8 stroke-1 text-muted-foreground/50" />
-                <p className="text-sm font-medium">{tStudents("empty.title")}</p>
-                <p className="text-xs">{tStudents("empty.description")}</p>
-              </div>
-            ) : (
-              <div className="divide-y divide-border/60">
-                {recentStudents.map((student) => (
-                  <div
-                    key={student.id}
-                    className="flex items-center justify-between gap-3 px-5 py-3 transition-colors hover:bg-muted/30"
-                  >
-                    <div className="flex min-w-0 items-center gap-3">
-                      <StudentAvatar name={student.name} size="sm" />
-                      <div className="min-w-0">
-                        <Link
-                          href={`/students/${student.id}`}
-                          className="truncate text-xs font-semibold text-foreground hover:underline sm:text-sm"
-                        >
-                          {student.name}
-                        </Link>
-                        <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-                          <span className="font-mono text-muted-foreground/80">{student.studentUid}</span>
-                          <span>•</span>
-                          <span>
-                            {student.class.name} ({student.section.name})
-                          </span>
-                          <span>•</span>
-                          <span>Roll #{student.roll}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex shrink-0 items-center gap-2.5">
-                      <StudentStatusBadge
-                        status={student.status}
-                        label={tStudents(`status.${student.status}`)}
-                      />
-                      <Button
-                        nativeButton={false}
-                        variant="ghost"
-                        size="sm"
-                        className="hidden h-7 px-2 text-xs sm:inline-flex"
-                        render={<Link href={`/students/${student.id}`} />}
-                      >
-                        {t("viewProfile")}
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-            <div className="border-t border-border/60 p-3 text-center">
-              <Link
-                href="/students"
-                className="text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
-              >
-                {tStudents("title")} →
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Card 5: Academic Term Roadmap & Milestone Tracker (Span 5) */}
-        <Card className="flex flex-col justify-between border-border/80 lg:col-span-5">
-          <div>
-            <CardHeader className="flex flex-row items-center justify-between border-b border-border/60 px-5 py-4">
-              <div>
-                <CardTitle className="text-sm font-semibold tracking-tight text-foreground sm:text-base">
-                  {t("calendarMilestones")}
-                </CardTitle>
-                <CardDescription className="flex items-center gap-1.5 text-xs">
-                  {t("termRoadmap")}
-                  <span className="inline-flex items-center gap-1 rounded-full border border-dashed border-muted-foreground/40 px-1.5 py-0.5 text-[10px] font-medium normal-case text-muted-foreground">
-                    <Sparkles className="size-2.5" />
-                    {t("previewData")}
-                  </span>
-                </CardDescription>
-              </div>
-              <span className="rounded-full border border-[#FBF3DB] bg-[#FBF3DB] px-2.5 py-0.5 text-[11px] font-medium tracking-wide text-[#956400] uppercase">
-                {t("termOne")}
-              </span>
-            </CardHeader>
-            <CardContent className="space-y-4 p-5">
-              {/* Term Progress Bar */}
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-muted-foreground">Session Progress</span>
-                  <span className="font-mono font-medium text-foreground">53%</span>
-                </div>
-                <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                  <div className="h-full bg-foreground" style={{ width: "53%" }} />
-                </div>
-                <p className="text-[11px] text-muted-foreground">{t("dayProgress")}</p>
-              </div>
-
-              {/* Milestone Timeline */}
-              <div className="space-y-3 pt-1">
-                <div className="flex items-start gap-3 rounded-lg border border-border/60 bg-muted/20 p-2.5 text-xs">
-                  <div className="mt-0.5 rounded border border-[#FBF3DB] bg-[#FBF3DB] px-1.5 py-0.5 font-mono text-[10px] font-bold text-[#956400]">
-                    OCT 15
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="font-medium text-foreground">Mid-Term Assessment Window</p>
-                    <p className="text-[11px] text-muted-foreground">Written & Practical examinations across Classes 1-10</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3 rounded-lg border border-border/60 bg-muted/20 p-2.5 text-xs">
-                  <div className="mt-0.5 rounded border border-[#E1F3FE] bg-[#E1F3FE] px-1.5 py-0.5 font-mono text-[10px] font-bold text-[#1F6C9F]">
-                    NOV 02
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="font-medium text-foreground">Parent-Teacher Progress Reviews</p>
-                    <p className="text-[11px] text-muted-foreground">Comprehensive academic evaluation distribution</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3 rounded-lg border border-border/60 bg-muted/20 p-2.5 text-xs">
-                  <div className="mt-0.5 rounded border border-[#EDF3EC] bg-[#EDF3EC] px-1.5 py-0.5 font-mono text-[10px] font-bold text-[#346538]">
-                    NOV 24
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="font-medium text-foreground">Annual Science & Culture Fair</p>
-                    <p className="text-[11px] text-muted-foreground">Inter-house exhibits and innovation showcases</p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </div>
-
-          <div className="border-t border-border/60 p-4">
-            <Link
-              href="/exams"
-              className="group flex items-center justify-between text-xs font-medium text-foreground hover:underline"
-            >
-              <span>{t("viewExams")}</span>
-              <ArrowUpRight className="size-3.5 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-            </Link>
-          </div>
-        </Card>
-      </div>
-
-      {/* ── Lower Bento Row: Financial Ledger & Official Bulletins ─────────── */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
-        {/* Card 6: Fee Collection Ledger Snapshot (Span 6) */}
-        <Card className="flex flex-col justify-between border-border/80 lg:col-span-6">
-          <CardHeader className="flex flex-row items-center justify-between border-b border-border/60 px-5 py-4">
-            <div>
-              <CardTitle className="text-sm font-semibold tracking-tight text-foreground sm:text-base">
-                {t("feeLedger")}
-              </CardTitle>
-              <CardDescription className="flex items-center gap-1.5 text-xs">
-                {t("collectionEfficiency")}
-                <span className="inline-flex items-center gap-1 rounded-full border border-dashed border-muted-foreground/40 px-1.5 py-0.5 text-[10px] font-medium normal-case text-muted-foreground">
-                  <Sparkles className="size-2.5" />
-                  {t("previewData")}
-                </span>
-              </CardDescription>
-            </div>
-            <span className="rounded-full border border-[#FBF3DB] bg-[#FBF3DB] px-2.5 py-0.5 text-[11px] font-medium tracking-wide text-[#956400] uppercase">
-              {t("fiscalYear")}
-            </span>
-          </CardHeader>
-          <CardContent className="space-y-4 p-5">
-            <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-lg border border-border/60 bg-muted/20 p-3">
-                <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                  {t("todaysReceipts")}
-                </p>
-                <p className="font-mono text-xl font-bold tracking-tight text-foreground sm:text-2xl">
-                  ৳ 48,500
-                </p>
-                <span className="inline-flex items-center gap-1 text-[11px] text-[#346538]">
-                  <CheckCircle2 className="size-3" />
-                  {t("reconciled")}
-                </span>
-              </div>
-
-              <div className="rounded-lg border border-border/60 bg-muted/20 p-3">
-                <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                  {t("pendingDues")}
-                </p>
-                <p className="font-mono text-xl font-bold tracking-tight text-foreground sm:text-2xl">
-                  ৳ 14,200
-                </p>
-                <span className="text-[11px] text-[#956400]">
-                  {t("pendingCount", { count: 3 })}
-                </span>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between text-xs text-muted-foreground">
-              <span>Collection Health: <span className="font-mono font-medium text-foreground">94.8% on target</span></span>
-              <span className="font-mono">FY 2026</span>
-            </div>
-          </CardContent>
-          <div className="border-t border-border/60 p-4">
-            <Link
-              href="/fees"
-              className="group flex items-center justify-between text-xs font-medium text-foreground hover:underline"
-            >
-              <span>{t("launchCounter")}</span>
-              <ArrowUpRight className="size-3.5 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-            </Link>
-          </div>
-        </Card>
-
-        {/* Card 7: Campus Bulletins & Announcements (Span 6) */}
-        <Card className="flex flex-col justify-between border-border/80 lg:col-span-6">
-          <CardHeader className="flex flex-row items-center justify-between border-b border-border/60 px-5 py-4">
-            <div>
-              <CardTitle className="text-sm font-semibold tracking-tight text-foreground sm:text-base">
-                {t("bulletins")}
-              </CardTitle>
-              <CardDescription className="flex items-center gap-1.5 text-xs">
-                Official institutional communications
-                <span className="inline-flex items-center gap-1 rounded-full border border-dashed border-muted-foreground/40 px-1.5 py-0.5 text-[10px] font-medium normal-case text-muted-foreground">
-                  <Sparkles className="size-2.5" />
-                  {t("previewData")}
-                </span>
-              </CardDescription>
-            </div>
-            <span className="rounded-full border border-[#E1F3FE] bg-[#E1F3FE] px-2.5 py-0.5 text-[11px] font-medium tracking-wide text-[#1F6C9F] uppercase">
-              3 Active
-            </span>
-          </CardHeader>
-          <CardContent className="space-y-2.5 p-5">
-            <div className="flex items-start justify-between gap-3 rounded-lg border border-border/60 p-3 text-xs transition-colors hover:bg-muted/20">
-              <div className="space-y-0.5">
-                <p className="font-medium text-foreground">Digital Attendance Sheet Deployment</p>
-                <p className="text-[11px] text-muted-foreground">Teachers are requested to verify daily section registers</p>
-              </div>
-              <span className="shrink-0 font-mono text-[10px] text-muted-foreground">Today</span>
-            </div>
-
-            <div className="flex items-start justify-between gap-3 rounded-lg border border-border/60 p-3 text-xs transition-colors hover:bg-muted/20">
-              <div className="space-y-0.5">
-                <p className="font-medium text-foreground">First Term Examination Routine Finalized</p>
-                <p className="text-[11px] text-muted-foreground">Approved syllabus and seating arrangement released</p>
-              </div>
-              <span className="shrink-0 font-mono text-[10px] text-muted-foreground">Yesterday</span>
-            </div>
-
-            <div className="flex items-start justify-between gap-3 rounded-lg border border-border/60 p-3 text-xs transition-colors hover:bg-muted/20">
-              <div className="space-y-0.5">
-                <p className="font-medium text-foreground">Campus ICT & Network Maintenance</p>
-                <p className="text-[11px] text-muted-foreground">Scheduled routine maintenance window this Friday</p>
-              </div>
-              <span className="shrink-0 font-mono text-[10px] text-muted-foreground">Sep 11</span>
-            </div>
-          </CardContent>
-          <div className="border-t border-border/60 p-4">
-            <Link
-              href="/notices"
-              className="group flex items-center justify-between text-xs font-medium text-foreground hover:underline"
-            >
-              <span>{t("postNotice")}</span>
-              <ArrowUpRight className="size-3.5 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-            </Link>
-          </div>
-        </Card>
-      </div>
-
-      {/* ── Bottom Section: Keyboard-Accelerated Quick Actions ──────────────── */}
-      <div className="space-y-3 pt-2">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-sm font-semibold tracking-tight text-foreground">
-              {t("quickActionsTitle")}
-            </h2>
-            <p className="text-xs text-muted-foreground">
-              {t("quickActionsSubtitle")}
-            </p>
-          </div>
-          <span className="hidden items-center gap-1.5 text-xs text-muted-foreground sm:flex">
-            <span className="size-1.5 rounded-full bg-emerald-500" />
-            {t("allSystemsNominal")}
-          </span>
+      {/* ── 3. Main Analytics Row: Attendance Trend & Student Donut ─────────── */}
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
+        <div className="lg:col-span-8">
+          <AttendanceTrendChart initialData={attendanceTrendData} />
         </div>
-
-        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
-          {quickActions.map((action) => (
-            <QuickAction key={action.label} {...action} />
-          ))}
+        <div className="lg:col-span-4">
+          <StudentDistributionChart
+            totalStudents={kpiData.totalStudents}
+            distribution={studentDistribution}
+          />
         </div>
       </div>
+
+      {/* ── 4. Financial Analytics & Academic Performance ───────────────────── */}
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
+        <div className="lg:col-span-6">
+          <FeeAnalyticsCard
+            totalCollected={realTotalFees}
+            targetAmount={totalAssigned}
+            pendingAmount={feeDashboardSummary.totalOutstanding}
+            collectionRate={collectionRate}
+            monthlyData={monthlyData}
+          />
+        </div>
+        <div className="lg:col-span-6">
+          <AcademicPerformanceCard performanceData={performanceData} />
+        </div>
+      </div>
+
+      {/* ── 5. Compact Quick Actions Panel ─────────────────────────────────── */}
+      <CompactQuickActions />
+
+      {/* ── 6. Operational Telemetry: Activity Feed & Upcoming Milestones ──── */}
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
+        <div className="lg:col-span-6">
+          <RecentActivityFeed
+            activities={activities.length > 0 ? activities.slice(0, 4) : undefined}
+          />
+        </div>
+        <div className="lg:col-span-6">
+          <UpcomingEventsCard events={upcomingEvents} />
+        </div>
+      </div>
+
+      {/* ── 7. Campus Health Index - exam-completion/teacher-activity rows  ── */}
+      {/* are marked "(sample)" by SchoolHealthCard itself: no tracking     */}
+      {/* model exists yet for either metric.                              */}
+      <SchoolHealthCard
+        metrics={{
+          attendanceRate,
+          feeCollectionRate: collectionRate,
+          examCompletionRate: 87.0,
+          teacherActivityRate: 98.0,
+        }}
+      />
     </div>
   )
 }

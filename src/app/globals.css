@@ -7,9 +7,9 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-poppins), var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), monospace;
-  --font-heading: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-poppins), var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -26,6 +26,7 @@
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
+  --color-border-light: var(--border-light);
   --color-destructive: var(--destructive);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
@@ -39,6 +40,49 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+
+  /* Brand (design.md §32) - navy drives nav/headings/links; red drives
+     primary CTAs. Distinct from --primary/--foreground on purpose: not
+     every heading/link in the app is being repainted navy in this pass,
+     only the elements the spec explicitly calls out (sidebar active state,
+     brand marks). See src/components/shared/sidebar-nav.tsx. */
+  --color-brand-navy: var(--brand-navy);
+  --color-brand-navy-dark: var(--brand-navy-dark);
+  --color-brand-navy-light: var(--brand-navy-light);
+  --color-brand-red: var(--brand-red);
+  --color-brand-red-dark: var(--brand-red-dark);
+  --color-brand-red-light: var(--brand-red-light);
+
+  /* Semantic status colors (design.md colors.semantic) */
+  --color-success: var(--success);
+  --color-success-light: var(--success-light);
+  --color-warning: var(--warning);
+  --color-warning-light: var(--warning-light);
+  --color-danger: var(--danger);
+  --color-danger-light: var(--danger-light);
+  --color-info: var(--info);
+  --color-info-light: var(--info-light);
+
+  /* Dashboard data-visualization palette (design.md colors.dashboard) -
+     aliased onto --chart-1..5 too so the dormant shadcn ui/chart.tsx
+     wrapper and any future ChartConfig stay in sync automatically. */
+  --color-dashboard-purple: var(--dashboard-purple);
+  --color-dashboard-purple-light: var(--dashboard-purple-light);
+  --color-dashboard-blue: var(--dashboard-blue);
+  --color-dashboard-blue-light: var(--dashboard-blue-light);
+  --color-dashboard-yellow: var(--dashboard-yellow);
+  --color-dashboard-yellow-light: var(--dashboard-yellow-light);
+  --color-dashboard-green: var(--dashboard-green);
+  --color-dashboard-green-light: var(--dashboard-green-light);
+  --color-dashboard-orange: var(--dashboard-orange);
+  --color-dashboard-orange-light: var(--dashboard-orange-light);
+  --color-dashboard-pink: var(--dashboard-pink);
+  --color-dashboard-pink-light: var(--dashboard-pink-light);
+
+  --shadow-card: var(--shadow-card-value);
+  --shadow-elevated: var(--shadow-elevated-value);
+  --shadow-modal: var(--shadow-modal-value);
+
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -49,72 +93,149 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  /* design.md brand block */
+  --brand-navy: #18315a;
+  --brand-navy-dark: #102344;
+  --brand-navy-light: #eaf0f8;
+  --brand-red: #bb1f23;
+  --brand-red-dark: #92191d;
+  --brand-red-light: #fbeaec;
+
+  /* design.md colors.semantic */
+  --success: #20a66a;
+  --success-light: #e8f7f0;
+  --warning: #e9a23b;
+  --warning-light: #fff5e5;
+  --danger: #d64545;
+  --danger-light: #fcebec;
+  --info: #3b82d0;
+  --info-light: #eaf3fc;
+
+  /* design.md colors.dashboard */
+  --dashboard-purple: #7c6ff2;
+  --dashboard-purple-light: #eeecff;
+  --dashboard-blue: #4da3df;
+  --dashboard-blue-light: #eaf6fd;
+  --dashboard-yellow: #f4c84b;
+  --dashboard-yellow-light: #fff8df;
+  --dashboard-green: #55b98a;
+  --dashboard-green-light: #eaf8f1;
+  --dashboard-orange: #f29a55;
+  --dashboard-orange-light: #fff0e5;
+  --dashboard-pink: #e9789b;
+  --dashboard-pink-light: #fcebf1;
+
+  --border-light: #f0f2f5;
+
+  --shadow-card-value: 0 1px 3px rgba(16, 24, 40, 0.04);
+  --shadow-elevated-value: 0 8px 24px rgba(16, 24, 40, 0.08);
+  --shadow-modal-value: 0 20px 50px rgba(16, 24, 40, 0.15);
+
+  /* design.md colors.background/surface/text/border - the "minimal
+     structure" half of "minimal structure + colorful data" (design.md §1):
+     the neutral scale stays a clean cool-gray/white system, color is
+     reserved for --primary (CTAs) and the dashboard-* data palette. */
+  --background: #f6f7fb;
+  --foreground: #172033;
+  --card: #ffffff;
+  --card-foreground: #172033;
+  --popover: #ffffff;
+  --popover-foreground: #172033;
+  --primary: var(--brand-red);
+  --primary-foreground: #ffffff;
+  --secondary: #f0f2f5;
+  --secondary-foreground: #172033;
+  --muted: #f0f2f5;
+  --muted-foreground: #667085;
+  --accent: #f0f2f5;
+  --accent-foreground: #172033;
+  --destructive: var(--danger);
+  --border: #e8ebf0;
+  --input: #e8ebf0;
+  --ring: var(--brand-red);
+  --chart-1: var(--dashboard-purple);
+  --chart-2: var(--dashboard-blue);
+  --chart-3: var(--dashboard-yellow);
+  --chart-4: var(--dashboard-green);
+  --chart-5: var(--dashboard-orange);
+  --radius: 1rem;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #172033;
+  --sidebar-primary: var(--brand-navy);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: var(--brand-navy-light);
+  --sidebar-accent-foreground: var(--brand-navy);
+  --sidebar-border: #e8ebf0;
+  --sidebar-ring: var(--brand-red);
 }
 
 .dark {
+  --brand-navy: #3a5d99;
+  --brand-navy-dark: #18315a;
+  --brand-navy-light: oklch(0.269 0.03 258 / 40%);
+  --brand-red: #e35a5e;
+  --brand-red-dark: #bb1f23;
+  --brand-red-light: oklch(0.269 0.05 25 / 40%);
+
+  --success: #3ec98a;
+  --success-light: oklch(0.269 0.05 160 / 35%);
+  --warning: #f0b660;
+  --warning-light: oklch(0.269 0.05 80 / 35%);
+  --danger: #e57373;
+  --danger-light: oklch(0.269 0.06 25 / 35%);
+  --info: #6ba8e0;
+  --info-light: oklch(0.269 0.04 250 / 35%);
+
+  --dashboard-purple: #9d92f7;
+  --dashboard-purple-light: oklch(0.3 0.06 290 / 40%);
+  --dashboard-blue: #7cc0ea;
+  --dashboard-blue-light: oklch(0.3 0.05 240 / 40%);
+  --dashboard-yellow: #f7d876;
+  --dashboard-yellow-light: oklch(0.3 0.05 90 / 40%);
+  --dashboard-green: #7cd1a8;
+  --dashboard-green-light: oklch(0.3 0.05 155 / 40%);
+  --dashboard-orange: #f5b381;
+  --dashboard-orange-light: oklch(0.3 0.05 55 / 40%);
+  --dashboard-pink: #ef9cb6;
+  --dashboard-pink-light: oklch(0.3 0.05 0 / 40%);
+
+  --border-light: oklch(1 0 0 / 6%);
+
+  --shadow-card-value: 0 1px 3px rgba(0, 0, 0, 0.24);
+  --shadow-elevated-value: 0 8px 24px rgba(0, 0, 0, 0.36);
+  --shadow-modal-value: 0 20px 50px rgba(0, 0, 0, 0.5);
+
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.205 0 0);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
+  --primary: var(--brand-red);
+  --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.269 0 0);
   --secondary-foreground: oklch(0.985 0 0);
   --muted: oklch(0.269 0 0);
   --muted-foreground: oklch(0.708 0 0);
   --accent: oklch(0.269 0 0);
   --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
+  --destructive: var(--danger);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
+  --ring: var(--brand-red);
+  --chart-1: var(--dashboard-purple);
+  --chart-2: var(--dashboard-blue);
+  --chart-3: var(--dashboard-yellow);
+  --chart-4: var(--dashboard-green);
+  --chart-5: var(--dashboard-orange);
   --sidebar: oklch(0.205 0 0);
   --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary: var(--brand-navy);
   --sidebar-primary-foreground: oklch(0.985 0 0);
   --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-accent-foreground: var(--brand-navy);
   --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --sidebar-ring: var(--brand-red);
 }
 
 @layer base {

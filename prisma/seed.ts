@@ -20,6 +20,12 @@ const SEED_USERS: { name: string; email: string; role: Role }[] = [
 ]
 
 async function main() {
+  if (process.env.NODE_ENV === "production" && process.env.ALLOW_PROD_SEED !== "true") {
+    console.error("FATAL: Refusing to run dev seed script against production environment (NODE_ENV=production).")
+    console.error("Set ALLOW_PROD_SEED=true if you explicitly intend to seed dummy accounts into this environment.")
+    process.exit(1)
+  }
+
   const school = await prisma.school.upsert({
     where: { id: "seed-school" },
     update: {},
@@ -247,6 +253,93 @@ async function main() {
 
   console.log(
     `Seeded "${gradingScale.name}" with ${gradeRuleDefs.length} grade rules - this is example/test data, not an official grading standard. Adjust boundaries and grade points to your school's actual policy.`
+  )
+
+  // --- Phase 8 fixture: one fee category/structure, assigned to the      ---
+  // --- portal test student, with one partial test payment - so the Fees ---
+  // --- module has deterministic, non-empty data out of the box.         ---
+  const tuitionCategory = await prisma.feeCategory.upsert({
+    where: { schoolId_name: { schoolId: school.id, name: "Tuition Fee" } },
+    update: {},
+    create: { schoolId: school.id, name: "Tuition Fee", nameBn: "বেতন" },
+  })
+
+  const class5TuitionStructure = await prisma.feeStructure.upsert({
+    where: {
+      schoolId_academicYearId_classId_feeCategoryId_name: {
+        schoolId: school.id,
+        academicYearId: academicYear.id,
+        classId: class5.id,
+        feeCategoryId: tuitionCategory.id,
+        name: "Class 5 Tuition Fee",
+      },
+    },
+    update: {},
+    create: {
+      schoolId: school.id,
+      academicYearId: academicYear.id,
+      classId: class5.id,
+      feeCategoryId: tuitionCategory.id,
+      name: "Class 5 Tuition Fee",
+      nameBn: "পঞ্চম শ্রেণির বেতন",
+      amount: "1200.00",
+      frequency: "MONTHLY",
+    },
+  })
+
+  const accountantUser = await prisma.user.findFirstOrThrow({
+    where: { schoolId: school.id, email: "accountant@benwil.test" },
+  })
+
+  const linkedStudentFee = await prisma.studentFee.upsert({
+    where: { studentId_feeStructureId: { studentId: linkedStudent.id, feeStructureId: class5TuitionStructure.id } },
+    update: {},
+    create: {
+      schoolId: school.id,
+      studentId: linkedStudent.id,
+      academicYearId: academicYear.id,
+      feeStructureId: class5TuitionStructure.id,
+      feeCategoryId: tuitionCategory.id,
+      name: class5TuitionStructure.name,
+      amount: class5TuitionStructure.amount,
+      assignedById: accountantUser.id,
+    },
+  })
+
+  // A seed script has no logged-in session to call the createPayment server
+  // action with, so this mirrors its shape by hand: create the Payment +
+  // PaymentAllocation together, update the fee's cached status, and keep
+  // the receipt-number sequence in sync - guarded so re-running the seed
+  // never creates a second payment.
+  const existingSeedPayment = await prisma.payment.findFirst({
+    where: { schoolId: school.id, studentId: linkedStudent.id, receiptNumber: "RCPT-2026-000001" },
+  })
+  if (!existingSeedPayment) {
+    await prisma.$transaction(async (tx) => {
+      await tx.payment.create({
+        data: {
+          schoolId: school.id,
+          studentId: linkedStudent.id,
+          receiptNumber: "RCPT-2026-000001",
+          amount: "500.00",
+          method: "CASH",
+          receivedById: accountantUser.id,
+          allocations: {
+            create: [{ schoolId: school.id, studentFeeId: linkedStudentFee.id, amount: "500.00" }],
+          },
+        },
+      })
+      await tx.studentFee.update({ where: { id: linkedStudentFee.id }, data: { status: "PARTIAL" } })
+      await tx.feeReceiptSequence.upsert({
+        where: { schoolId_year: { schoolId: school.id, year: 2026 } },
+        update: {},
+        create: { schoolId: school.id, year: 2026, lastNumber: 1 },
+      })
+    })
+  }
+
+  console.log(
+    `Seeded fee category "${tuitionCategory.name}" and structure "${class5TuitionStructure.name}" (1200.00/month), assigned to ${linkedStudent.name} with one 500.00 test payment (receipt RCPT-2026-000001) - example/test data, not real billing.`
   )
 }
 

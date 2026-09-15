@@ -7,6 +7,15 @@ export function isUniqueConstraintError(
   return error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002"
 }
 
+// P2034: "Transaction failed due to a write conflict or a deadlock" - the
+// error Prisma surfaces when a Serializable transaction is aborted by
+// Postgres because a concurrent transaction committed a conflicting change
+// first. Expected and retriable, not a real failure - see createPayment in
+// src/actions/fees/payments.ts for the one place this is used today.
+export function isSerializationError(error: unknown): error is Prisma.PrismaClientKnownRequestError {
+  return error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2034"
+}
+
 // Prisma 7's driver adapters (see @prisma/adapter-pg) don't always populate
 // `error.meta.target` as a plain string array the way the old query engine
 // did — the pg adapter instead nests the underlying Postgres constraint name

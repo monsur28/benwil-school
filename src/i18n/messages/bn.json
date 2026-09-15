@@ -41,7 +41,17 @@
     "library": "লাইব্রেরি",
     "transport": "পরিবহন",
     "reports": "রিপোর্ট",
-    "settings": "সেটিংস"
+    "settings": "সেটিংস",
+    "groups": {
+      "overview": "সংক্ষিপ্ত বিবরণ",
+      "people": "ব্যক্তিবর্গ",
+      "academics": "একাডেমিক",
+      "finance": "অর্থায়ন",
+      "communication": "যোগাযোগ",
+      "resources": "সম্পদ ও সুবিধা",
+      "insights": "প্রতিবেদন ও বিশ্লেষণ",
+      "system": "সিস্টেম"
+    }
   },
   "auth": {
     "loginTitle": "লগ ইন",
@@ -76,7 +86,9 @@
     "errors": {
       "invalidEmail": "সঠিক ইমেইল ঠিকানা দিন।",
       "passwordRequired": "পাসওয়ার্ড আবশ্যক।",
-      "invalidForm": "সঠিক ইমেইল ও পাসওয়ার্ড দিন।"
+      "invalidForm": "সঠিক ইমেইল ও পাসওয়ার্ড দিন।",
+      "tooManyAttempts": "অতিরিক্ত অসফল লগইন প্রচেষ্টা। অনুগ্রহ করে ৫ মিনিট পর আবার চেষ্টা করুন।",
+      "loginFailed": "প্রমাণীকরণ ব্যর্থ হয়েছে বা সেবা সাময়িকভাবে অনুপলব্ধ। অনুগ্রহ করে আপনার তথ্য যাচাই করুন।"
     }
   },
   "dashboard": {
@@ -135,8 +147,196 @@
       "quickActionsTitle": "দ্রুত প্রাতিষ্ঠানিক কার্যক্রম",
       "quickActionsSubtitle": "দৈনন্দিন প্রশাসনিক কাজের কিবোর্ড শর্টকাট",
       "allSystemsNominal": "সিস্টেম স্বাভাবিক",
-      "searchDirectory": "ডাইরেক্টরি খুঁজুন...",
-      "previewData": "নমুনা তথ্য"
+      "previewData": "নমুনা তথ্য",
+      "quickActionsDesc": {
+        "addStudent": "তালিকায় শিক্ষার্থী ভর্তি",
+        "takeAttendance": "দৈনিক রোল কল এন্ট্রি",
+        "manageCurriculum": "শ্রেণি ও বিষয় কাঠামো",
+        "createExam": "মূল্যায়ন রুটিন",
+        "collectFee": "হিসাব ও শিক্ষার্থীর বকেয়া",
+        "createNotice": "প্রাতিষ্ঠানিক বিজ্ঞপ্তি"
+      },
+      "activePercent": "{percent}% সক্রিয়",
+      "curriculumDelivery": "পাঠ্যক্রম বিতরণ",
+      "standardCurriculum": "জাতীয় শিক্ষাক্রম",
+      "sessionProgress": "সেশন অগ্রগতি",
+      "milestones": {
+        "midTermTitle": "অর্ধ-বার্ষিক মূল্যায়ন পর্ব",
+        "midTermDesc": "১ম-১০ম শ্রেণির লিখিত ও ব্যবহারিক পরীক্ষা",
+        "ptmTitle": "অভিভাবক-শিক্ষক মূল্যায়ন সভা",
+        "ptmDesc": "সার্বিক একাডেমিক মূল্যায়ন রিপোর্ট বিতরণ",
+        "scienceFairTitle": "বার্ষিক বিজ্ঞান ও সাংস্কৃতিক মেলা",
+        "scienceFairDesc": "হাউস প্রদর্শনী ও উদ্ভাবনী উৎসব"
+      },
+      "collectionHealth": "আদায় স্থিতি",
+      "collectionHealthOnTarget": "{health}% লক্ষ্যমাত্রায়",
+      "fiscalYearLabel": "অর্থবছর {year}",
+      "officialCommunications": "অফিসিয়াল প্রাতিষ্ঠানিক বার্তা",
+      "activeCountBadge": "{count}টি সক্রিয়",
+      "bulletinItems": {
+        "attendanceTitle": "ডিজিটাল উপস্থিতি খাতা প্রস্তুতকরণ",
+        "attendanceDesc": "শিক্ষকদের দৈনিক উপস্থিতি রেজিস্টার যাচাই করার অনুরোধ",
+        "examRoutineTitle": "প্রথম সাময়িক পরীক্ষার রুটিন চূড়ান্ত",
+        "examRoutineDesc": "অনুমোদিত সিলেবাস ও আসন বিন্যাস প্রকাশিত",
+        "maintenanceTitle": "ক্যাম্পাস আইসিটি ও নেটওয়ার্ক রক্ষণাবেক্ষণ",
+        "maintenanceDesc": "চলতি শুক্রবার নির্ধারিত রুটিন রক্ষণাবেক্ষণ"
+      },
+      "relativeTime": {
+        "today": "আজ",
+        "yesterday": "গতকাল",
+        "sep11": "১১ সেপ্টেম্বর"
+      },
+      "hero": {
+        "greetingMorning": "শুভ সকাল",
+        "greetingAfternoon": "শুভ অপরাহ্ন",
+        "greetingEvening": "শুভ সন্ধ্যা",
+        "liveCampus": "লাইভ ক্যাম্পাস",
+        "subtitle": "আজ {date}-এ {schoolName}-এর সার্বিক কার্যক্রমের চিত্র।",
+        "academicSession": "শিক্ষাবর্ষ {year} • ১ম পর্ব",
+        "allSystemsNominal": "সকল সিস্টেম স্বাভাবিক",
+        "directory": "ডিরেক্টরি",
+        "addStudent": "+ শিক্ষার্থী ভর্তি"
+      },
+      "kpi": {
+        "totalStudents": "মোট শিক্ষার্থী",
+        "active": "{count} জন সক্রিয়",
+        "studentsTrend": "+৮.২% চলতি পর্বে",
+        "acrossClasses": "{count}টি শিক্ষা শ্রেণীতে",
+        "todaysAttendance": "আজকের উপস্থিতি",
+        "open": "উন্মুক্ত",
+        "checkedIn": "{count} জন উপস্থিত",
+        "registerPending": "হাজিরা অপেক্ষমাণ",
+        "attendanceTrend": "+২.১% গতকালের তুলনায়",
+        "awaitingRollCall": "রোল কলের অপেক্ষায়",
+        "dailyRollCallInProgress": "দৈনিক রোল কল প্রক্রিয়াধীন",
+        "pendingClassSubmission": "শ্রেণি জমাদানের অপেক্ষায়",
+        "teachersAndStaff": "শিক্ষক ও কর্মকর্তা",
+        "certified": "{count} জন অনুমোদিত",
+        "teachersTrend": "১০০% সক্রিয় তালিকা",
+        "supportStaffMembers": "{count} জন সহায়ক ও প্রশাসনিক কর্মী",
+        "feeCollection": "ফি আদায়",
+        "ofTarget": "লক্ষ্যমাত্রার {percent}%",
+        "feesTrend": "+১২.৪% চলতি মাসে",
+        "cashflowOnTrack": "চলতি পর্বের নগদ প্রবাহ লক্ষ্যমাত্রায়",
+        "details": "বিস্তারিত →"
+      },
+      "attendanceChart": {
+        "title": "উপস্থিতির সার্বিক চিত্র",
+        "description": "শ্রেণি অধিবেশন জুড়ে উপস্থিতি ও সময়ানুবর্তিতার চিত্র",
+        "range7d": "৭ দিন",
+        "range30d": "৩০ দিন",
+        "rangeTerm": "চলতি পর্ব",
+        "present": "উপস্থিত %",
+        "late": "দেরিতে %",
+        "absent": "অনুপস্থিত %",
+        "presentLabel": "উপস্থিত:",
+        "lateLabel": "দেরিতে:",
+        "absentLabel": "অনুপস্থিত:"
+      },
+      "distribution": {
+        "title": "শিক্ষার্থী বিন্যাস",
+        "badge": "শাখা",
+        "description": "শ্রেণি ও শিক্ষাস্তর ভিত্তিক শিক্ষার্থীর বিবরণ",
+        "totalStudents": "মোট শিক্ষার্থী",
+        "studentsCount": "{count} জন শিক্ষার্থী ({percent}%)",
+        "primaryWing": "প্রাথমিক (১–৫)",
+        "secondaryWing": "মাধ্যমিক (৬–১০)"
+      },
+      "feeAnalytics": {
+        "title": "ফি আদায় বিশ্লেষণ",
+        "description": "প্রতিষ্ঠানের আয়, লক্ষ্যমাত্রা ও বকেয়ার বিবরণ",
+        "billingDesk": "বিলিং ডেস্ক",
+        "collectionPace": "আদায়ের গতি",
+        "ofTarget": "লক্ষ্যমাত্রার {percent}%",
+        "collected": "আদায়কৃত",
+        "reconciled": "সমন্বিত",
+        "target": "নির্ধারিত মোট",
+        "sessionTotal": "আদায় + বকেয়া",
+        "pending": "বকেয়া",
+        "invoicesActive": "চালান সক্রিয়",
+        "monthlyTrend": "মাসিক আদায় প্রবাহ (লাখ)",
+        "monthsRange": "জানু – সেপ্টে ২০২৬",
+        "intake": "আদায়:",
+        "targetLabel": "লক্ষ্যমাত্রা:",
+        "lakhSuffix": "লাখ"
+      },
+      "academicPerformance": {
+        "title": "একাডেমিক ফলাফল",
+        "description": "শ্রেণিভিত্তিক বেঞ্চমার্কে গড় পরীক্ষার মূল্যায়ন",
+        "results": "ফলাফল",
+        "avgScore": "গড় নম্বর:",
+        "benchmarkTarget": "বেঞ্চমার্ক লক্ষ্যমাত্রা: {benchmark}%",
+        "passingBenchmark": "পাসিং বেঞ্চমার্ক: ৭৫%",
+        "highestClass": "সর্বোচ্চ: ৯ম শ্রেণি (৮৭%)"
+      },
+      "quickActions": {
+        "title": "দ্রুত কাজ",
+        "subtitle": "বহুল ব্যবহৃত নির্দেশনাসমূহ",
+        "addStudent": "শিক্ষার্থী যোগ করুন",
+        "addStudentDesc": "নতুন শিক্ষার্থী ভর্তি নিবন্ধন",
+        "takeAttendance": "উপস্থিতি নিন",
+        "takeAttendanceDesc": "দৈনিক রোল কল খাতা",
+        "createExam": "পরীক্ষা তৈরি করুন",
+        "createExamDesc": "মূল্যায়ন রুটিন তৈরি",
+        "collectFee": "ফি সংগ্রহ করুন",
+        "collectFeeDesc": "শিক্ষার্থীর ফি গ্রহণ",
+        "createNotice": "বিজ্ঞপ্তি দিন",
+        "createNoticeDesc": "বিদ্যালয়ের নোটিশ প্রকাশ"
+      },
+      "activity": {
+        "title": "সাম্প্রতিক কার্যক্রম",
+        "description": "প্রশাসনিক মডিউলসমূহের রিয়েল-টাইম কার্যক্রম",
+        "auditLog": "অডিট লগ",
+        "studentAdmitted": "নতুন শিক্ষার্থী ভর্তি হয়েছে",
+        "feeReceived": "ফি আদায় গৃহীত হয়েছে",
+        "attendanceDone": "উপস্থিতি সম্পন্ন হয়েছে",
+        "examScheduled": "পরীক্ষা নির্ধারিত হয়েছে",
+        "recently": "সম্প্রতি",
+        "today": "আজকে",
+        "minutesAgo": "{count} মিনিট আগে",
+        "hourAgo": "{count} ঘণ্টা আগে",
+        "databaseStream": "ডাটাবেজ থেকে সরাসরি হালনাগাদকৃত",
+        "liveConnected": "লাইভ ফিড যুক্ত",
+        "collectedFrom": "৳ {amount} আদায় হয়েছে • {student}",
+        "attendanceSummary": "{className} • {count} জন শিক্ষার্থীর হাজিরা গৃহীত ({percent}% উপস্থিত)",
+        "examRoutineFinalized": "৬ষ্ঠ-১০ম শ্রেণির মূল্যায়ন রুটিন চূড়ান্ত হয়েছে"
+      },
+      "milestones": {
+        "title": "আসন্ন মাইলফলক",
+        "description": "প্রাতিষ্ঠানিক ক্যালেন্ডার ও গুরুত্বপূর্ণ ইভেন্ট",
+        "calendar": "ক্যালেন্ডার",
+        "termCalendar": "১ম পর্বের ক্যালেন্ডার • সেশন ২০২৬",
+        "activeEvents": "{count}টি সক্রিয় ইভেন্ট",
+        "midTermTitle": "অর্ধ-বার্ষিক মূল্যায়ন পর্ব",
+        "midTermDesc": "৬ষ্ঠ-১০ম শ্রেণির মূল্যায়ন রুটিন শুরু",
+        "badgeAcademic": "একাডেমিক",
+        "ptmTitle": "অভিভাবক-শিক্ষক মূল্যায়ন সভা",
+        "ptmDesc": "প্রাথমিক ও মাধ্যমিক শাখার সার্বিক পর্যালোচনা",
+        "badgeMeeting": "সভা",
+        "scienceFairTitle": "বার্ষিক বিজ্ঞান ও সাংস্কৃতিক মেলা",
+        "scienceFairDesc": "ক্যাম্পাস প্রদর্শনী ও প্রকল্প উৎসব",
+        "badgeCoCurricular": "সহ-পাঠ্যক্রম",
+        "resultPubTitle": "১ম পর্বের ফলাফল প্রকাশ",
+        "resultPubDesc": "চূড়ান্ত ট্রান্সক্রিপ্ট ও রিপোর্ট কার্ড বিতরণ",
+        "badgeGrading": "ফলাফল",
+        "sep": "সেপ্টে",
+        "oct": "অক্টো"
+      },
+      "healthIndex": {
+        "title": "ক্যাম্পাস স্বাস্থ্য সূচক",
+        "description": "সকল প্রাতিষ্ঠানিক বিভাগের সার্বিক অবস্থা",
+        "nominal": "স্বাভাবিক",
+        "campusAttendance": "ক্যাম্পাস উপস্থিতি",
+        "optimal": "অনুকূল",
+        "feeCollectionPace": "ফি আদায়ের গতি",
+        "onTarget": "লক্ষ্যমাত্রায়",
+        "examResultPublication": "পরীক্ষার ফলাফল প্রকাশ",
+        "finalized": "চূড়ান্ত",
+        "facultyEngagement": "শিক্ষকদের সক্রিয়তা",
+        "active": "সক্রিয়",
+        "calculatedAt": "দৈনিক স্বাস্থ্য স্কোর সকাল ০৮:০০ টায় গণনাকৃত",
+        "compositeScore": "যৌথ স্কোর: ৯০.৫/১০০"
+      }
     },
     "teacher": {
       "todaysClasses": "আজকের ক্লাস",
@@ -644,7 +844,8 @@
       "invalidGradePoint": "গ্রেড পয়েন্ট ০ বা তার বেশি হতে হবে।",
       "overlappingRange": "এই শতকরা পরিসরটি একটি বিদ্যমান গ্রেড নিয়মের সাথে ওভারল্যাপ করছে।",
       "alreadyFinalized": "এই পরীক্ষার ফলাফল ইতিমধ্যে চূড়ান্ত করা হয়েছে।",
-      "alreadyDraft": "এই পরীক্ষার ফলাফল চূড়ান্ত করা হয়নি।"
+      "alreadyDraft": "এই পরীক্ষার ফলাফল চূড়ান্ত করা হয়নি।",
+      "noActiveGradingScale": "ফলাফল চূড়ান্ত করতে কমপক্ষে একটি নিয়মসহ একটি সক্রিয় গ্রেডিং স্কেল প্রয়োজন।"
     }
   },
   "academics": {
@@ -742,6 +943,182 @@
       "subjectNotInClass": "এই বিষয়টি এখনও এই শ্রেণিতে যুক্ত করা হয়নি। প্রথমে শ্রেণি পাতা থেকে যুক্ত করুন।"
     }
   },
+  "fees": {
+    "title": "ফি ও হিসাব",
+    "subnav": {
+      "overview": "ওভারভিউ",
+      "categories": "ক্যাটাগরি",
+      "structures": "ফি কাঠামো",
+      "student": "শিক্ষার্থীর ফি",
+      "payments": "পেমেন্ট",
+      "outstanding": "বকেয়া রিপোর্ট",
+      "collections": "কালেকশন রিপোর্ট"
+    },
+    "fields": {
+      "name": "নাম",
+      "nameBn": "বাংলা নাম",
+      "description": "বিবরণ",
+      "category": "ফি ক্যাটাগরি",
+      "academicYear": "শিক্ষাবর্ষ",
+      "class": "শ্রেণি",
+      "amount": "পরিমাণ",
+      "frequency": "ফ্রিকোয়েন্সি",
+      "dueDate": "শেষ তারিখ",
+      "status": "অবস্থা",
+      "student": "শিক্ষার্থী",
+      "paid": "পরিশোধিত",
+      "balance": "বাকি",
+      "receiptNumber": "রশিদ নং",
+      "paymentDate": "পেমেন্টের তারিখ",
+      "paymentMethod": "পেমেন্ট পদ্ধতি",
+      "receivedBy": "গ্রহণকারী",
+      "notes": "মন্তব্য",
+      "reason": "কারণ",
+      "totalCharges": "মোট চার্জ",
+      "totalPaid": "মোট পরিশোধিত",
+      "outstandingBalance": "বকেয়া ব্যালেন্স"
+    },
+    "frequency": {
+      "ONE_TIME": "একবার",
+      "MONTHLY": "মাসিক",
+      "QUARTERLY": "ত্রৈমাসিক",
+      "HALF_YEARLY": "ষান্মাসিক",
+      "ANNUAL": "বার্ষিক"
+    },
+    "method": {
+      "CASH": "নগদ",
+      "BANK_TRANSFER": "ব্যাংক ট্রান্সফার",
+      "CHEQUE": "চেক",
+      "MOBILE_BANKING": "মোবাইল ব্যাংকিং",
+      "OTHER": "অন্যান্য"
+    },
+    "status": {
+      "active": "সক্রিয়",
+      "inactive": "নিষ্ক্রিয়",
+      "UNPAID": "অপরিশোধিত",
+      "PARTIAL": "আংশিক",
+      "PAID": "পরিশোধিত",
+      "WAIVED": "মওকুফ",
+      "CANCELLED": "বাতিল",
+      "COMPLETED": "সম্পন্ন",
+      "VOIDED": "বাতিলকৃত"
+    },
+    "actions": {
+      "label": "কার্যক্রম",
+      "create": "তৈরি করুন",
+      "edit": "সম্পাদনা",
+      "save": "সংরক্ষণ",
+      "cancel": "বাতিল",
+      "activate": "সক্রিয় করুন",
+      "deactivate": "নিষ্ক্রিয় করুন",
+      "addCategory": "ক্যাটাগরি যোগ করুন",
+      "addStructure": "ফি কাঠামো যোগ করুন",
+      "assignFee": "ফি নির্ধারণ করুন",
+      "assignToClass": "শ্রেণিতে নির্ধারণ করুন",
+      "recordPayment": "পেমেন্ট রেকর্ড করুন",
+      "printReceipt": "রশিদ প্রিন্ট করুন",
+      "voidPayment": "পেমেন্ট বাতিল করুন",
+      "waive": "মওকুফ করুন",
+      "cancelFee": "ফি বাতিল করুন",
+      "viewFees": "ফি দেখুন",
+      "view": "দেখুন",
+      "search": "খুঁজুন"
+    },
+    "list": {
+      "empty": "কোনো তথ্য পাওয়া যায়নি।",
+      "emptyStructures": "এখনো কোনো ফি কাঠামো নেই।",
+      "emptyCategories": "এখনো কোনো ফি ক্যাটাগরি নেই।",
+      "emptyFees": "এখনো কোনো ফি নির্ধারণ করা হয়নি।",
+      "emptyPayments": "এখনো কোনো পেমেন্ট রেকর্ড করা হয়নি।",
+      "filterAcademicYear": "সব শিক্ষাবর্ষ",
+      "filterClass": "সব শ্রেণি",
+      "filterCategory": "সব ক্যাটাগরি",
+      "filterMethod": "সব পদ্ধতি",
+      "filterStatus": "সব অবস্থা",
+      "searchPlaceholder": "নাম বা ভর্তি নম্বর দিয়ে খুঁজুন"
+    },
+    "filters": {
+      "from": "শুরু",
+      "to": "শেষ"
+    },
+    "dashboard": {
+      "totalOutstanding": "মোট বকেয়া",
+      "paymentsToday": "আজকের পেমেন্ট",
+      "paymentsThisMonth": "এই মাসের পেমেন্ট",
+      "studentsWithOutstanding": "বকেয়া থাকা শিক্ষার্থী"
+    },
+    "assign": {
+      "title": "ফি নির্ধারণ করুন",
+      "bulkTitle": "শ্রেণিতে নির্ধারণ করুন",
+      "bulkDescription": "{academicYearName} শিক্ষাবর্ষে {className} শ্রেণির সব সক্রিয় শিক্ষার্থীকে এই ফি কাঠামোর চার্জ নির্ধারণ করা হবে।",
+      "eligibleCount": "{count} জন শিক্ষার্থীকে চার্জ করা হবে",
+      "alreadyAssigned": "ইতিমধ্যে নির্ধারিত",
+      "confirm": "নির্ধারণ নিশ্চিত করুন",
+      "resultSummary": "{createdCount} জন শিক্ষার্থীকে নির্ধারণ করা হয়েছে ({skippedCount} জনের ইতিমধ্যে এই ফি ছিল)।"
+    },
+    "payment": {
+      "title": "পেমেন্ট রেকর্ড করুন",
+      "outstandingFees": "বকেয়া ফি",
+      "allocate": "বরাদ্দ",
+      "amountToPay": "পরিশোধের পরিমাণ",
+      "totalAllocated": "মোট বরাদ্দকৃত",
+      "noOutstandingFees": "এই শিক্ষার্থীর কোনো বকেয়া ফি নেই।"
+    },
+    "receipt": {
+      "title": "পেমেন্ট রশিদ",
+      "voided": "এই পেমেন্টটি বাতিল করা হয়েছে।",
+      "voidedOn": "{date} তারিখে {name} কর্তৃক বাতিল করা হয়েছে",
+      "voidReasonLabel": "কারণ"
+    },
+    "void": {
+      "title": "পেমেন্ট বাতিল করুন",
+      "description": "মূল পেমেন্টটি রেকর্ডে থেকে যাবে এবং বাতিল হিসেবে চিহ্নিত হবে। এটি পূর্বাবস্থায় ফেরানো যাবে না।",
+      "reasonLabel": "বাতিলের কারণ"
+    },
+    "waiveCancel": {
+      "waiveTitle": "ফি মওকুফ করুন",
+      "cancelTitle": "ফি বাতিল করুন",
+      "reasonLabel": "কারণ"
+    },
+    "reports": {
+      "outstandingTitle": "বকেয়া ফি",
+      "collectionsTitle": "পেমেন্ট কালেকশন"
+    },
+    "profile": {
+      "summary": "ফি সারাংশ",
+      "viewAll": "সব ফি দেখুন"
+    },
+    "success": {
+      "categoryCreated": "ফি ক্যাটাগরি তৈরি হয়েছে।",
+      "categoryUpdated": "ফি ক্যাটাগরি আপডেট হয়েছে।",
+      "structureCreated": "ফি কাঠামো তৈরি হয়েছে।",
+      "structureUpdated": "ফি কাঠামো আপডেট হয়েছে।",
+      "feeAssigned": "ফি নির্ধারণ করা হয়েছে।",
+      "paymentRecorded": "পেমেন্ট রেকর্ড করা হয়েছে।",
+      "paymentVoided": "পেমেন্ট বাতিল করা হয়েছে।",
+      "feeWaived": "ফি মওকুফ করা হয়েছে।",
+      "feeCancelled": "ফি বাতিল করা হয়েছে।"
+    },
+    "errors": {
+      "invalidForm": "অনুগ্রহ করে চিহ্নিত ঘরগুলো ঠিক করুন।",
+      "notFound": "তথ্য পাওয়া যায়নি।",
+      "saveFailed": "সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।",
+      "invalidSelection": "একটি সঠিক নির্বাচন করুন।",
+      "invalidAmount": "শূন্যের বেশি একটি সঠিক পরিমাণ লিখুন।",
+      "reasonRequired": "একটি কারণ আবশ্যক।",
+      "duplicateCategory": "এই নামে একটি ফি ক্যাটাগরি ইতিমধ্যে আছে।",
+      "duplicateStructure": "এই শ্রেণি, বর্ষ ও ক্যাটাগরির জন্য এই নামে একটি ফি কাঠামো ইতিমধ্যে আছে।",
+      "alreadyAssigned": "এই ফি ইতিমধ্যে এই শিক্ষার্থীকে নির্ধারণ করা হয়েছে।",
+      "cannotWaiveOrCancel": "শুধুমাত্র অপরিশোধিত এবং কোনো পেমেন্ট নেই এমন ফি মওকুফ বা বাতিল করা যায়।",
+      "noAllocations": "এই পেমেন্ট বরাদ্দের জন্য অন্তত একটি ফি নির্বাচন করুন।",
+      "allocationExceedsPayment": "মোট বরাদ্দকৃত পরিমাণ পেমেন্টের পরিমাণের বেশি হতে পারবে না।",
+      "allocationExceedsBalance": "এই বরাদ্দ ফি'র বাকি ব্যালেন্সের চেয়ে বেশি।",
+      "invalidAllocation": "প্রতিটি ফি একটি পেমেন্টে শুধুমাত্র একবার বরাদ্দ করা যায়।",
+      "feeNotPayable": "এই ফি মওকুফ বা বাতিল করা হয়েছে, তাই পেমেন্ট গ্রহণ করা যাবে না।",
+      "balanceChanged": "এই ফি'র ব্যালেন্স পরিবর্তিত হয়েছে। আবার পরীক্ষা করে চেষ্টা করুন।",
+      "alreadyVoided": "এই পেমেন্টটি ইতিমধ্যে বাতিল করা হয়েছে।"
+    }
+  },
   "portal": {
     "welcome": "স্বাগতম",
     "nav": {
@@ -750,7 +1127,8 @@
       "attendance": "উপস্থিতি",
       "results": "ফলাফল",
       "reportCard": "রিপোর্ট কার্ড",
-      "myChildren": "আমার সন্তানরা"
+      "myChildren": "আমার সন্তানরা",
+      "fees": "ফি"
     },
     "fields": {
       "roll": "রোল",
@@ -773,7 +1151,9 @@
       "noResultsTitle": "কোনো ফলাফল নেই",
       "noAttendance": "এখনও কোনো উপস্থিতির তথ্য নেই।",
       "noChildren": "এই অ্যাকাউন্টের সাথে এখনও কোনো সন্তান যুক্ত নেই।",
-      "noChildrenTitle": "কোনো সন্তান নেই"
+      "noChildrenTitle": "কোনো সন্তান নেই",
+      "noFees": "এখনও কোনো ফি নির্ধারণ করা হয়নি।",
+      "noFeesTitle": "কোনো ফি নেই"
     },
     "account": {
       "cardTitle": "পোর্টাল অ্যাকাউন্ট",
