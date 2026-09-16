@@ -1,7 +1,12 @@
 import { getTranslations } from "next-intl/server"
 import type { AttendanceCounts } from "@/lib/attendance/get-attendance"
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+import { Panel, PanelHeader } from "@/components/shared/panel"
 
+/**
+ * Attendance at a glance: one headline percentage, then the four day counts
+ * as a divided strip. The percentage is the answer; the counts are the
+ * working, so they sit below it at a quarter of the size.
+ */
 export async function AttendanceSummaryCard({
   percentage,
   counts,
@@ -14,35 +19,32 @@ export async function AttendanceSummaryCard({
     getTranslations("attendance"),
   ])
 
+  const breakdown = [
+    { label: tAttendance("status.PRESENT"), value: counts.PRESENT, tone: "text-success" },
+    { label: tAttendance("status.ABSENT"), value: counts.ABSENT, tone: "text-danger" },
+    { label: tAttendance("status.LATE"), value: counts.LATE, tone: "text-warning" },
+    { label: tAttendance("status.LEAVE"), value: counts.LEAVE, tone: "text-muted-foreground" },
+  ]
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{t("cards.attendance")}</CardTitle>
-      </CardHeader>
-      <CardContent className="flex flex-wrap items-center gap-6">
-        <div>
-          <p className="text-3xl font-semibold tracking-tight">{percentage !== null ? `${percentage}%` : "—"}</p>
-          <p className="text-sm text-muted-foreground">{t("fields.attendancePercentage")}</p>
-        </div>
-        <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm">
-          <span>
-            <span className="text-muted-foreground">{tAttendance("status.PRESENT")}: </span>
-            <span className="font-semibold">{counts.PRESENT}</span>
-          </span>
-          <span>
-            <span className="text-muted-foreground">{tAttendance("status.ABSENT")}: </span>
-            <span className="font-semibold">{counts.ABSENT}</span>
-          </span>
-          <span>
-            <span className="text-muted-foreground">{tAttendance("status.LATE")}: </span>
-            <span className="font-semibold">{counts.LATE}</span>
-          </span>
-          <span>
-            <span className="text-muted-foreground">{tAttendance("status.LEAVE")}: </span>
-            <span className="font-semibold">{counts.LEAVE}</span>
-          </span>
-        </div>
-      </CardContent>
-    </Card>
+    <Panel className="h-full">
+      <PanelHeader title={t("cards.attendance")} />
+
+      <div className="px-4 py-5 sm:px-5">
+        <p className="metric text-[2.75rem] text-foreground">
+          {percentage !== null ? `${percentage}%` : "—"}
+        </p>
+        <p className="mt-1.5 text-[13px] text-muted-foreground">{t("fields.attendancePercentage")}</p>
+      </div>
+
+      <div className="mt-auto grid grid-cols-2 divide-x divide-y divide-border-light border-t border-border-light sm:grid-cols-4 sm:divide-y-0">
+        {breakdown.map((item) => (
+          <div key={item.label} className="px-4 py-3">
+            <span className="eyebrow block truncate">{item.label}</span>
+            <span className={`mt-1 block text-base font-bold tabular-nums ${item.tone}`}>{item.value}</span>
+          </div>
+        ))}
+      </div>
+    </Panel>
   )
 }

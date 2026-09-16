@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server"
 import { requireStudentIdentity } from "@/lib/portal/identity"
 import { getVisibleHomeworkForStudent } from "@/lib/homework/homework-visibility"
+import { PageHeader } from "@/components/shared/page-header"
 import { SharedHomeworkList } from "@/components/portal/shared-homework-list"
 
 export default async function StudentHomeworkPage() {
@@ -15,8 +16,8 @@ export default async function StudentHomeworkPage() {
   })
 
   return (
-    <div className="space-y-4">
-      <h1 className="font-heading text-xl font-bold tracking-tight">{t("title")}</h1>
+    <div className="space-y-6">
+      <PageHeader title={t("title")} />
       <SharedHomeworkList homework={homework} basePath="/portal/student/homework" />
     </div>
   )

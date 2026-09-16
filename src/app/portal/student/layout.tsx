@@ -11,7 +11,7 @@ export default async function StudentPortalLayout({ children }: { children: Reac
   const customNavGroups = [
     {
       titleKey: "nav.groups.overview",
-      title: t("nav.dashboard"),
+      title: t("nav.groups.overview"),
       items: [
         { href: "/portal/student", label: t("nav.dashboard"), icon: <LayoutDashboard className="size-4" /> },
         { href: "/portal/student/profile", label: t("nav.profile", { fallback: "Profile" }), icon: <User className="size-4" /> },

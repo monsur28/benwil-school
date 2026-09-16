@@ -1,9 +1,7 @@
 "use client"
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
 import { useTranslations } from "next-intl"
-import { cn } from "cn"
+import { SubNav } from "@/components/shared/sub-nav"
 
 const LINKS = [
   { href: "/academics/years", labelKey: "years.title" },
@@ -14,27 +12,6 @@ const LINKS = [
 
 export function AcademicsSubNav() {
   const t = useTranslations("academics")
-  const pathname = usePathname()
 
-  return (
-    <nav className="flex flex-wrap gap-1 border-b pb-2">
-      {LINKS.map((link) => {
-        const isActive = pathname.startsWith(link.href)
-        return (
-          <Link
-            key={link.href}
-            href={link.href}
-            className={cn(
-              "rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
-              isActive
-                ? "bg-muted text-foreground"
-                : "text-muted-foreground hover:bg-muted hover:text-foreground"
-            )}
-          >
-            {t(link.labelKey)}
-          </Link>
-        )
-      })}
-    </nav>
-  )
+  return <SubNav links={LINKS.map((link) => ({ href: link.href, label: t(link.labelKey) }))} />
 }

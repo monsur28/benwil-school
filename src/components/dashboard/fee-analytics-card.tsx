@@ -1,10 +1,9 @@
 "use client"
 
-import Link from "next/link"
 import { useLocale, useTranslations } from "next-intl"
 import { BarChart, Bar, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts"
-import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { ArrowUpRight, CheckCircle2, Clock } from "lucide-react"
+import { Panel, PanelHeader } from "@/components/shared/panel"
+import { CheckCircle2, Clock } from "lucide-react"
 import { formatLakh, formatNumber } from "@/lib/format"
 
 export interface MonthlyCollection {
@@ -47,72 +46,69 @@ export function FeeAnalyticsCard({
   const lakhSuffix = t("lakhSuffix")
 
   return (
-    <Card className="flex flex-col justify-between rounded-2xl border border-border/70 bg-card p-5 shadow-[0_10px_30px_rgba(25,49,90,0.05)]">
-      <CardHeader className="p-0 pb-3">
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="text-base font-semibold tracking-tight text-foreground">
-              {t("title")}
-            </CardTitle>
-            <CardDescription className="text-xs text-muted-foreground">
-              {t("description")}
-            </CardDescription>
-          </div>
+    <Panel>
+      <PanelHeader
+        title={t("title")}
+        description={t("description")}
+        href="/fees"
+        hrefLabel={t("billingDesk")}
+      />
 
-          <Link
-            href="/fees"
-            className="group flex items-center gap-1 text-xs font-semibold text-brand-navy hover:underline"
-          >
-            <span>{t("billingDesk")}</span>
-            <ArrowUpRight className="size-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-          </Link>
+      {/* The three figures that matter, as a divided band — the same visual
+          grammar as the KPI row at the top of the dashboard, so finance reads
+          as "more of the same kind of fact", not as a new dialect. */}
+      <div className="grid divide-y divide-border-light border-b border-border-light sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+        <div className="px-4 py-4 sm:px-5">
+          <span className="eyebrow">{t("collected")}</span>
+          <p className="metric mt-2 text-xl text-success">
+            {currencySymbol} {formatLakh(totalCollected, locale, lakhSuffix)}
+          </p>
+          <span className="mt-1.5 inline-flex items-center gap-1 text-[11px] text-success">
+            <CheckCircle2 className="size-3" />
+            {t("reconciled")}
+          </span>
         </div>
-      </CardHeader>
-
-      {/* Progress & Quick Stats Grid */}
-      <div className="space-y-3">
-        <div className="space-y-1.5">
-          <div className="flex items-center justify-between text-xs">
-            <span className="font-medium text-muted-foreground">{t("collectionPace")}</span>
-            <span className="font-mono font-bold text-foreground">
-              {t("ofTarget", { percent: formatNumber(collectionRate, locale) })}
-            </span>
-          </div>
-          <div className="h-2 w-full overflow-hidden rounded-full bg-muted/60">
-            <div
-              className="h-full rounded-full bg-gradient-to-r from-warning to-success transition-all duration-500"
-              style={{ width: `${Math.min(collectionRate, 100)}%` }}
-            />
-          </div>
+        <div className="px-4 py-4 sm:px-5">
+          <span className="eyebrow">{t("target")}</span>
+          <p className="metric mt-2 text-xl text-foreground">
+            {currencySymbol} {formatLakh(targetAmount, locale, lakhSuffix)}
+          </p>
+          <span className="mt-1.5 block text-[11px] text-muted-foreground">{t("sessionTotal")}</span>
         </div>
-
-        <div className="grid grid-cols-1 divide-y divide-border/65 border-y border-border/65 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
-          <div className="py-3 sm:px-3 sm:first:pl-0">
-            <span className="text-[10px] font-bold tracking-[0.08em] text-muted-foreground uppercase">{t("collected")}</span>
-            <p className="mt-1 font-mono text-base font-bold tracking-tight text-success sm:text-lg">{currencySymbol} {formatLakh(totalCollected, locale, lakhSuffix)}</p>
-            <span className="mt-1 inline-flex items-center gap-1 text-[10px] text-success"><CheckCircle2 className="size-3" />{t("reconciled")}</span>
-          </div>
-          <div className="py-3 sm:px-3">
-            <span className="text-[10px] font-bold tracking-[0.08em] text-muted-foreground uppercase">{t("target")}</span>
-            <p className="mt-1 font-mono text-base font-bold tracking-tight text-foreground sm:text-lg">{currencySymbol} {formatLakh(targetAmount, locale, lakhSuffix)}</p>
-            <span className="mt-1 block text-[10px] text-muted-foreground">{t("sessionTotal")}</span>
-          </div>
-          <div className="py-3 sm:px-3 sm:last:pr-0">
-            <span className="text-[10px] font-bold tracking-[0.08em] text-muted-foreground uppercase">{t("pending")}</span>
-            <p className="mt-1 font-mono text-base font-bold tracking-tight text-warning sm:text-lg">{currencySymbol} {formatLakh(pendingAmount, locale, lakhSuffix)}</p>
-            <span className="mt-1 inline-flex items-center gap-1 text-[10px] text-warning"><Clock className="size-3" />{t("invoicesActive")}</span>
-          </div>
+        <div className="px-4 py-4 sm:px-5">
+          <span className="eyebrow">{t("pending")}</span>
+          <p className="metric mt-2 text-xl text-warning">
+            {currencySymbol} {formatLakh(pendingAmount, locale, lakhSuffix)}
+          </p>
+          <span className="mt-1.5 inline-flex items-center gap-1 text-[11px] text-warning">
+            <Clock className="size-3" />
+            {t("invoicesActive")}
+          </span>
         </div>
       </div>
 
-      {/* Monthly Cashflow Bar Chart */}
-      <div className="mt-4 border-t border-border/50 pt-4">
-        <div className="flex items-center justify-between pb-2 text-xs">
-          <span className="font-medium text-muted-foreground">{t("monthlyTrend")}</span>
-          <span className="font-mono text-[11px] text-muted-foreground">{t("monthsRange")}</span>
+      <div className="border-b border-border-light px-4 py-4 sm:px-5">
+        <div className="flex items-baseline justify-between gap-3 text-[13px]">
+          <span className="font-medium text-muted-foreground">{t("collectionPace")}</span>
+          <span className="font-semibold tabular-nums text-foreground">
+            {t("ofTarget", { percent: formatNumber(collectionRate, locale) })}
+          </span>
+        </div>
+        <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+          <div
+            className="h-full rounded-full bg-success"
+            style={{ width: `${Math.min(collectionRate, 100)}%` }}
+          />
+        </div>
+      </div>
+
+      <div className="px-4 pb-4 pt-4 sm:px-5">
+        <div className="flex items-baseline justify-between pb-3 text-xs">
+          <span className="eyebrow">{t("monthlyTrend")}</span>
+          <span className="text-[11px] tabular-nums text-muted-foreground">{t("monthsRange")}</span>
         </div>
 
-        <div className="h-32 w-full">
+        <div className="h-40 w-full min-w-0">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={monthlyData} margin={{ top: 5, right: 5, left: -25, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" className="text-border/40" />
@@ -134,13 +130,13 @@ export function FeeAnalyticsCard({
                   if (!active || !payload || !payload.length) return null
                   const d = payload[0].payload as MonthlyCollection
                   return (
-                    <div className="rounded-xl border border-border bg-card p-2.5 shadow-md">
+                    <div className="rounded-xl border border-border bg-popover p-3 shadow-pop">
                       <p className="text-xs font-semibold text-foreground">{d.month} 2026</p>
-                      <p className="font-mono text-xs text-dashboard-blue">
+                      <p className="text-xs tabular-nums text-dashboard-blue">
                         {t("intake")} {currencySymbol}{formatNumber(d.amount, locale)}{lakhSuffix}
                       </p>
                       {d.target !== undefined && (
-                        <p className="font-mono text-[11px] text-muted-foreground">
+                        <p className="text-[11px] tabular-nums text-muted-foreground">
                           {t("targetLabel")} {currencySymbol}{formatNumber(d.target, locale)}{lakhSuffix}
                         </p>
                       )}
@@ -153,7 +149,7 @@ export function FeeAnalyticsCard({
                 {monthlyData.map((point, index) => (
                   <Cell
                     key={point.month}
-                    fill={index === monthlyData.length - 1 ? "var(--color-brand-red)" : "var(--color-dashboard-blue)"}
+                    fill={index === monthlyData.length - 1 ? "var(--color-primary)" : "var(--color-dashboard-blue)"}
                   />
                 ))}
               </Bar>
@@ -161,6 +157,6 @@ export function FeeAnalyticsCard({
           </ResponsiveContainer>
         </div>
       </div>
-    </Card>
+    </Panel>
   )
 }

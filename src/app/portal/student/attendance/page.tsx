@@ -1,6 +1,9 @@
+import { getTranslations } from "next-intl/server"
 import { requireStudentIdentity } from "@/lib/portal/identity"
 import { prisma } from "@/lib/db/client"
 import { getStudentAttendanceSummary } from "@/lib/attendance/get-attendance"
+import { PageHeader } from "@/components/shared/page-header"
+import { FilterBar } from "@/components/shared/filter-bar"
 import { AttendanceSummaryCard } from "@/components/portal/attendance-summary-card"
 import { AttendanceRecentList } from "@/components/portal/attendance-recent-list"
 import { AttendanceFilters } from "@/components/portal/attendance-filters"
@@ -11,6 +14,7 @@ export default async function StudentAttendancePage({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
   const { student } = await requireStudentIdentity()
+  const t = await getTranslations("portal")
   const params = await searchParams
 
   const getParam = (key: string) => {
@@ -34,8 +38,11 @@ export default async function StudentAttendancePage({
   ])
 
   return (
-    <div className="space-y-4">
-      <AttendanceFilters academicYears={academicYears} />
+    <div className="space-y-6">
+      <PageHeader title={t("nav.attendance")} />
+      <FilterBar>
+        <AttendanceFilters academicYears={academicYears} />
+      </FilterBar>
       <AttendanceSummaryCard percentage={summary.percentage} counts={summary.counts} />
       <AttendanceRecentList records={summary.recent} />
     </div>

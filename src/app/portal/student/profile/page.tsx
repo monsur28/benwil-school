@@ -2,11 +2,16 @@ import { getLocale, getTranslations } from "next-intl/server"
 import { requireStudentIdentity } from "@/lib/portal/identity"
 import { prisma } from "@/lib/db/client"
 import { InfoRow } from "@/components/students/info-row"
+import { PageHeader } from "@/components/shared/page-header"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 
 export default async function StudentProfilePage() {
   const { student } = await requireStudentIdentity()
-  const [t, locale] = await Promise.all([getTranslations("students"), getLocale()])
+  const [t, tPortal, locale] = await Promise.all([
+    getTranslations("students"),
+    getTranslations("portal"),
+    getLocale(),
+  ])
 
   const guardians = await prisma.studentGuardian.findMany({
     where: { studentId: student.id },
@@ -16,7 +21,10 @@ export default async function StudentProfilePage() {
   const dateFormatter = new Intl.DateTimeFormat(locale, { year: "numeric", month: "long", day: "numeric" })
 
   return (
-    <div className="grid grid-cols-1 gap-4">
+    <div className="space-y-6">
+      <PageHeader title={tPortal("nav.profile")} />
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
       <Card>
         <CardHeader>
           <CardTitle>{t("profile.basicInformation")}</CardTitle>
@@ -56,6 +64,7 @@ export default async function StudentProfilePage() {
           ))}
         </CardContent>
       </Card>
+      </div>
     </div>
   )
 }

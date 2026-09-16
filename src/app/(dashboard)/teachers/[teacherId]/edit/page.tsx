@@ -36,7 +36,7 @@ export default async function EditTeacherPage({
   if (!teacher) notFound()
 
   return (
-    <div className="max-w-2xl space-y-6">
+    <div className="mx-auto w-full max-w-3xl space-y-6">
       <PageHeader title={t("actions.editTeacher")} />
       <TeacherForm teacher={teacher} />
     </div>

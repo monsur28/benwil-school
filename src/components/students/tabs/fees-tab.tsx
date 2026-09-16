@@ -43,7 +43,7 @@ export async function FeesTab({ studentId, schoolId }: { studentId: string; scho
         </Card>
       </div>
 
-      <div className="rounded-lg border">
+      <div className="panel overflow-hidden">
         <table className="w-full text-sm">
           <tbody>
             {recentFees.map((fee) => (

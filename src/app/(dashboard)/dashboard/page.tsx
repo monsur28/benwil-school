@@ -1,4 +1,4 @@
-import { getTranslations } from "next-intl/server"
+import { getLocale, getTranslations } from "next-intl/server"
 import { Role } from "@prisma/client"
 import { Calendar } from "lucide-react"
 import { requireAuth } from "@/lib/auth/dal"
@@ -25,12 +25,13 @@ function DashboardContent({ role }: { role: Role }) {
 
 export default async function DashboardPage() {
   const user = await requireAuth()
-  const [t, tRoles] = await Promise.all([
+  const [t, tRoles, locale] = await Promise.all([
     getTranslations("common"),
     getTranslations("roles"),
+    getLocale(),
   ])
 
-  const todayFormatted = new Intl.DateTimeFormat("en-US", {
+  const todayFormatted = new Intl.DateTimeFormat(locale === "bn" ? "bn-BD" : "en-US", {
     weekday: "short",
     month: "short",
     day: "numeric",
@@ -50,35 +51,33 @@ export default async function DashboardPage() {
   ])
 
   return (
-    <div className="space-y-6">
-      {/* Header for non-admin faculty and staff roles */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between border-b border-border/50 pb-5">
-        <div className="space-y-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <h1 className="font-heading text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+    <div className="space-y-8">
+      {/* Greeting band for non-admin faculty and staff roles. Matches the
+          admin dashboard's opener: context line, name, then a fading rule —
+          no card, so the page starts with the person, not with chrome. */}
+      <header className="flex flex-col gap-5">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between sm:gap-6">
+          <div className="min-w-0">
+            <p className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[11px] font-semibold uppercase tracking-[0.13em] text-muted-foreground">
+              <span className="inline-flex items-center gap-1.5">
+                <Calendar className="size-3.5" />
+                {todayFormatted}
+              </span>
+              <span aria-hidden="true" className="text-border-strong">/</span>
+              <span>{tRoles(user.role)}</span>
+            </p>
+            <h1 className="mt-3 font-heading text-[2rem] font-bold leading-[1.08] tracking-[-0.035em] text-foreground sm:text-[2.5rem]">
               {t("welcomeBack")}, {user.name}
             </h1>
-            <span className="rounded-full border border-border/60 bg-muted/40 px-2 py-0.5 text-[11px] font-medium tracking-wide uppercase text-muted-foreground">
-              {tRoles(user.role)}
-            </span>
+            <p className="mt-3 text-[15px] text-muted-foreground">
+              {activeAcademicYear
+                ? `${identity.schoolName} · ${t("academicSession", { year: activeAcademicYear.name })}`
+                : identity.schoolName}
+            </p>
           </div>
-          <p className="text-xs text-muted-foreground sm:text-sm">
-            {activeAcademicYear ? `${identity.schoolName} • ${t("academicSession", { year: activeAcademicYear.name })}` : identity.schoolName}
-          </p>
         </div>
-
-        <div className="flex items-center gap-2">
-          <div className="hidden items-center gap-2 rounded-lg border border-border/70 bg-card px-3 py-1.5 text-xs text-muted-foreground shadow-2xs md:flex">
-            <span className="size-1.5 animate-pulse rounded-full bg-success" />
-            <Calendar className="size-3.5 text-muted-foreground" />
-            <span className="font-mono">{todayFormatted}</span>
-          </div>
-
-          <span className="inline-flex items-center rounded-lg border border-primary/20 bg-primary/10 px-2.5 py-1.5 text-xs font-semibold tracking-wide text-primary uppercase">
-            Term 1 • 2026
-          </span>
-        </div>
-      </div>
+        <div className="rule-fade h-px w-full" aria-hidden="true" />
+      </header>
 
       <DashboardContent role={user.role} />
     </div>

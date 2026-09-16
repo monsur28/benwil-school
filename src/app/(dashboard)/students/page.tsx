@@ -5,7 +5,10 @@ import { requireRole } from "@/lib/auth/dal"
 import { prisma } from "@/lib/db/client"
 import { getRolesForHref } from "@/lib/permissions/nav"
 import { STATUS_OPTIONS } from "@/lib/students/options"
+import { PageHeader } from "@/components/shared/page-header"
 import { EmptyState } from "@/components/shared/empty-state"
+import { FilterBar } from "@/components/shared/filter-bar"
+import { DataPanel, RecordTable, PaginationBar } from "@/components/shared/data-panel"
 import { StudentFilters } from "@/components/students/student-filters"
 import { StudentAvatar } from "@/components/students/student-avatar"
 import { StudentStatusBadge } from "@/components/students/student-status-badge"
@@ -79,125 +82,144 @@ export default async function StudentsPage({
   }
 
   return (
-    <div className="space-y-5">
-      <header className="flex flex-col gap-4 border-b border-border/75 pb-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-brand-red">People</p>
-          <h1 className="mt-1 font-heading text-2xl font-bold tracking-tight text-foreground sm:text-3xl">{t("title")}</h1>
-        </div>
-        {canManage && (
-          <Button nativeButton={false} className="h-10 rounded-lg shadow-[0_8px_18px_rgba(201,35,43,0.2)]" render={<Link href="/students/new" />}>
-            <UserPlus className="size-4" />
-            {t("addStudent")}
-          </Button>
-        )}
-      </header>
+    <div className="space-y-6">
+      <PageHeader
+        eyebrow={t("eyebrow")}
+        title={t("title")}
+        description={t("description")}
+        actions={
+          canManage && (
+            <Button nativeButton={false} render={<Link href="/students/new" />}>
+              <UserPlus className="size-4" />
+              {t("addStudent")}
+            </Button>
+          )
+        }
+      />
 
-      <div className="rounded-2xl border border-border/75 bg-card p-3 shadow-[0_8px_22px_rgba(25,49,90,0.04)]">
+      <FilterBar>
         <StudentFilters classes={classes} sections={sections} />
-      </div>
+      </FilterBar>
 
       {students.length === 0 ? (
         <EmptyState
           icon={Users}
           title={hasFilters ? t("empty.noResultsTitle") : t("empty.title")}
           description={hasFilters ? t("empty.noResultsDescription") : t("empty.description")}
+          action={
+            !hasFilters &&
+            canManage && (
+              <Button nativeButton={false} render={<Link href="/students/new" />}>
+                <UserPlus className="size-4" />
+                {t("addStudent")}
+              </Button>
+            )
+          }
         />
       ) : (
-        <section className="overflow-hidden rounded-2xl border border-border/75 bg-card shadow-[0_10px_28px_rgba(25,49,90,0.055)]">
-          <div className="flex items-center justify-between border-b border-border/75 bg-muted/30 px-4 py-3 sm:px-5">
-            <div className="flex items-baseline gap-2">
-              <h2 className="text-sm font-bold text-foreground">{t("title")}</h2>
-              <span className="font-mono text-xs font-semibold text-muted-foreground tabular-nums">{total}</span>
-            </div>
-          </div>
-          <Table>
-            <TableHeader className="bg-muted/20">
-              <TableRow className="hover:bg-transparent">
-                <TableHead className="h-9 px-4 text-[10px] font-bold uppercase tracking-[0.09em] text-muted-foreground sm:px-5">{t("table.student")}</TableHead>
-                <TableHead className="h-9 text-[10px] font-bold uppercase tracking-[0.09em] text-muted-foreground">{t("table.admissionNo")}</TableHead>
-                <TableHead className="h-9 text-[10px] font-bold uppercase tracking-[0.09em] text-muted-foreground">{t("table.class")}</TableHead>
-                <TableHead className="h-9 text-[10px] font-bold uppercase tracking-[0.09em] text-muted-foreground">{t("table.section")}</TableHead>
-                <TableHead className="h-9 text-[10px] font-bold uppercase tracking-[0.09em] text-muted-foreground">{t("table.roll")}</TableHead>
-                <TableHead className="h-9 text-[10px] font-bold uppercase tracking-[0.09em] text-muted-foreground">{t("table.guardian")}</TableHead>
-                <TableHead className="h-9 text-[10px] font-bold uppercase tracking-[0.09em] text-muted-foreground">{t("table.phone")}</TableHead>
-                <TableHead className="h-9 text-[10px] font-bold uppercase tracking-[0.09em] text-muted-foreground">{t("table.status")}</TableHead>
-                <TableHead className="h-9 pr-4 text-right text-[10px] font-bold uppercase tracking-[0.09em] text-muted-foreground sm:pr-5">{t("table.actions")}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {students.map((student) => {
-                const primaryGuardian = student.guardians[0]?.guardian
-                return (
-                  <TableRow key={student.id} className="group/row h-[68px] hover:bg-brand-navy/[0.025]">
-                    <TableCell className="px-4 sm:px-5">
-                      <Link href={`/students/${student.id}`} className="flex items-center gap-3">
-                        <StudentAvatar name={student.name} size="sm" />
-                        <div className="min-w-0">
-                          <p className="truncate text-sm font-semibold text-foreground">{student.name}</p>
-                          <p className="truncate text-xs text-muted-foreground">{student.studentUid}</p>
-                        </div>
-                      </Link>
-                    </TableCell>
-                    <TableCell className="font-mono text-xs font-medium tabular-nums">{student.admissionNumber}</TableCell>
-                    <TableCell>{student.class.name}</TableCell>
-                    <TableCell>{student.section.name}</TableCell>
-                    <TableCell className="font-mono text-sm font-semibold tabular-nums">{student.roll}</TableCell>
-                    <TableCell>{primaryGuardian?.name ?? "-"}</TableCell>
-                    <TableCell className="font-mono text-xs tabular-nums">{primaryGuardian?.phone ?? "-"}</TableCell>
-                    <TableCell>
-                      <StudentStatusBadge status={student.status} label={t(`status.${student.status}`)} />
-                    </TableCell>
-                    <TableCell className="pr-4 text-right sm:pr-5">
-                      <div className="flex justify-end gap-1 opacity-75 transition-opacity group-hover/row:opacity-100">
-                        <Button
-                          nativeButton={false}
-                          variant="ghost"
-                          size="icon-sm"
-                          aria-label={t("table.view")}
-                          title={t("table.view")}
-                          className="text-muted-foreground hover:bg-brand-navy-light hover:text-brand-navy"
-                          render={<Link href={`/students/${student.id}`} />}
-                        >
-                          <Eye className="size-3.5" strokeWidth={2} />
-                        </Button>
-                        {canManage && (
+        <DataPanel
+          title={t("title")}
+          count={total}
+          footer={
+            <PaginationBar
+              label={t("pagination.pageInfo", { page, totalPages })}
+              previousHref={page > 1 ? pageHref(page - 1) : undefined}
+              nextHref={page < totalPages ? pageHref(page + 1) : undefined}
+              previousLabel={t("pagination.previous")}
+              nextLabel={t("pagination.next")}
+            />
+          }
+        >
+          {/* One table, two layouts: a register on desktop, a stacked card
+              per student below `md` (see `.table-cards`). */}
+          <RecordTable>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t("table.student")}</TableHead>
+                  <TableHead>{t("table.admissionNo")}</TableHead>
+                  <TableHead>{t("table.class")}</TableHead>
+                  <TableHead>{t("table.roll")}</TableHead>
+                  <TableHead>{t("table.guardian")}</TableHead>
+                  <TableHead>{t("table.status")}</TableHead>
+                  <TableHead className="text-right">{t("table.actions")}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {students.map((student) => {
+                  const primaryGuardian = student.guardians[0]?.guardian
+                  return (
+                    <TableRow key={student.id} className="group/row">
+                      <TableCell data-cell="primary" className="py-3">
+                        <Link href={`/students/${student.id}`} className="flex items-center gap-3">
+                          <StudentAvatar name={student.name} size="sm" />
+                          <span className="min-w-0">
+                            <span className="block truncate text-[13.5px] font-semibold text-foreground">
+                              {student.name}
+                            </span>
+                            <span className="block truncate text-xs text-muted-foreground">
+                              {student.studentUid}
+                            </span>
+                          </span>
+                        </Link>
+                      </TableCell>
+                      <TableCell
+                        data-label={t("table.admissionNo")}
+                        className="text-[13px] tabular-nums text-muted-foreground"
+                      >
+                        {student.admissionNumber}
+                      </TableCell>
+                      <TableCell data-label={t("table.class")} className="font-medium">
+                        {student.class.name}
+                        <span className="text-muted-foreground"> · {student.section.name}</span>
+                      </TableCell>
+                      <TableCell data-label={t("table.roll")} className="font-semibold tabular-nums">
+                        {student.roll}
+                      </TableCell>
+                      <TableCell data-label={t("table.guardian")}>
+                        <span className="block max-w-44 truncate">{primaryGuardian?.name ?? "—"}</span>
+                        <span className="block text-xs tabular-nums text-muted-foreground">
+                          {primaryGuardian?.phone ?? "—"}
+                        </span>
+                      </TableCell>
+                      <TableCell data-label={t("table.status")}>
+                        <StudentStatusBadge status={student.status} label={t(`status.${student.status}`)} />
+                      </TableCell>
+                      <TableCell data-cell="actions" className="text-right">
+                        {/* Row actions stay visible on touch devices and simply
+                            gain emphasis on hover for pointer users. */}
+                        <div className="flex gap-1 opacity-70 transition-opacity group-hover/row:opacity-100 md:justify-end">
                           <Button
                             nativeButton={false}
                             variant="ghost"
                             size="icon-sm"
-                            aria-label={t("table.edit")}
-                            title={t("table.edit")}
-                            className="text-muted-foreground hover:bg-amber-50 hover:text-amber-700"
-                            render={<Link href={`/students/${student.id}/edit`} />}
+                            aria-label={t("table.view")}
+                            title={t("table.view")}
+                            render={<Link href={`/students/${student.id}`} />}
                           >
-                            <Pencil className="size-3.5" strokeWidth={2} />
+                            <Eye className="size-4" />
                           </Button>
-                        )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                )
-              })}
-            </TableBody>
-          </Table>
-
-          <div className="flex items-center justify-between border-t border-border/75 bg-muted/20 px-4 py-3 text-sm text-muted-foreground sm:px-5">
-            <span>{t("pagination.pageInfo", { page, totalPages })}</span>
-            <div className="flex gap-2">
-              {page <= 1 ? (
-                <Button variant="outline" size="sm" disabled>{t("pagination.previous")}</Button>
-              ) : (
-                <Button nativeButton={false} variant="outline" size="sm" render={<Link href={pageHref(page - 1)} />}>{t("pagination.previous")}</Button>
-              )}
-              {page >= totalPages ? (
-                <Button variant="outline" size="sm" disabled>{t("pagination.next")}</Button>
-              ) : (
-                <Button nativeButton={false} variant="outline" size="sm" render={<Link href={pageHref(page + 1)} />}>{t("pagination.next")}</Button>
-              )}
-            </div>
-          </div>
-        </section>
+                          {canManage && (
+                            <Button
+                              nativeButton={false}
+                              variant="ghost"
+                              size="icon-sm"
+                              aria-label={t("table.edit")}
+                              title={t("table.edit")}
+                              render={<Link href={`/students/${student.id}/edit`} />}
+                            >
+                              <Pencil className="size-4" />
+                            </Button>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )
+                })}
+              </TableBody>
+            </Table>
+          </RecordTable>
+        </DataPanel>
       )}
     </div>
   )

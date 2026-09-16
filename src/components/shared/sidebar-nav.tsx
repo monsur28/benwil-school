@@ -11,6 +11,17 @@ interface SidebarNavProps {
   onNavigate?: () => void
 }
 
+/**
+ * The navigation rail's link list.
+ *
+ * Active-state resolution is unchanged from the previous implementation: the
+ * dashboard matches exactly, every other entry matches itself or a descendant
+ * path unless a more specific sibling entry already claims that path.
+ *
+ * Visually the item is now a solid "current page" chip — the inverse of the
+ * rail surface — which reads instantly at a glance and needs no accent bar,
+ * arrow or weight change to be findable.
+ */
 export function SidebarNav({ groups, items, onNavigate }: SidebarNavProps) {
   const pathname = usePathname()
   const allHrefs = (groups ? groups.flatMap((group) => group.items) : (items ?? [])).map((item) => item.href)
@@ -31,14 +42,19 @@ export function SidebarNav({ groups, items, onNavigate }: SidebarNavProps) {
         onClick={onNavigate}
         aria-current={isActive ? "page" : undefined}
         className={cn(
-          "group relative flex h-8 items-center gap-2.5 rounded-lg px-2.5 text-[11px] font-medium outline-none transition-[background-color,color,transform] duration-200 focus-visible:ring-2 focus-visible:ring-sidebar-primary/80 focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar active:scale-[0.98]",
+          "group relative flex h-9 items-center gap-3 rounded-lg px-3 text-[13px] outline-none transition-colors duration-150",
+          "focus-visible:ring-2 focus-visible:ring-sidebar-ring focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar",
           isActive
-            ? "bg-sidebar-accent text-sidebar-accent-foreground font-semibold shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06)]"
-            : "text-sidebar-foreground/70 hover:bg-sidebar-accent/45 hover:text-sidebar-foreground"
+            ? "bg-sidebar-primary font-semibold text-sidebar-primary-foreground shadow-card"
+            : "font-medium text-sidebar-muted hover:bg-sidebar-accent hover:text-sidebar-foreground"
         )}
       >
-        {isActive && <span className="absolute inset-y-2 left-0 w-0.5 rounded-r-full bg-brand-red" />}
-        <span className={cn("flex size-4 shrink-0 items-center justify-center", isActive ? "text-sidebar-primary" : "text-sidebar-foreground/45 group-hover:text-sidebar-foreground/85")}>
+        <span
+          className={cn(
+            "flex size-4 shrink-0 items-center justify-center transition-colors",
+            isActive ? "text-sidebar-primary-foreground" : "text-sidebar-muted group-hover:text-sidebar-foreground"
+          )}
+        >
           {item.icon}
         </span>
         <span className="truncate">{item.label}</span>
@@ -48,14 +64,13 @@ export function SidebarNav({ groups, items, onNavigate }: SidebarNavProps) {
 
   if (groups?.length) {
     return (
-      <nav aria-label="Main navigation" className="flex flex-col gap-3 px-3 py-3">
+      <nav aria-label="Main navigation" className="flex flex-col gap-6 px-3 py-4">
         {groups.map((group, index) => (
-          <section key={group.titleKey || index} className="space-y-1">
+          <section key={group.titleKey || index}>
             {group.title && (
-              <div className="flex items-center gap-2 px-2.5 pb-1 pt-0.5">
-                <span className="text-[9px] font-bold uppercase tracking-[0.12em] text-sidebar-foreground/35">{group.title}</span>
-                <span className="h-px flex-1 bg-sidebar-border/45" />
-              </div>
+              <h2 className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-sidebar-muted/70">
+                {group.title}
+              </h2>
             )}
             <div className="flex flex-col gap-0.5">{group.items.map(renderItem)}</div>
           </section>
@@ -64,5 +79,9 @@ export function SidebarNav({ groups, items, onNavigate }: SidebarNavProps) {
     )
   }
 
-  return <nav aria-label="Main navigation" className="flex flex-col gap-0.5 px-3 py-3">{(items ?? []).map(renderItem)}</nav>
+  return (
+    <nav aria-label="Main navigation" className="flex flex-col gap-0.5 px-3 py-4">
+      {(items ?? []).map(renderItem)}
+    </nav>
+  )
 }

@@ -11,7 +11,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts"
-import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Panel, PanelHeader } from "@/components/shared/panel"
 import { cn } from "cn"
 import { formatNumber } from "@/lib/format"
 
@@ -63,78 +63,61 @@ export function AttendanceTrendChart({ initialData }: AttendanceTrendChartProps)
         ? DEFAULT_30_DAYS
         : DEFAULT_TERM
 
+  const ranges = [
+    { id: "7d" as const, label: t("range7d") },
+    { id: "30d" as const, label: t("range30d") },
+    { id: "term" as const, label: t("rangeTerm") },
+  ]
+
   return (
-    <Card className="rounded-xl border border-border/60 bg-card p-4 shadow-xs">
-      <CardHeader className="p-0 pb-3">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <CardTitle className="text-base font-semibold tracking-tight text-foreground">
-              {t("title")}
-            </CardTitle>
-            <CardDescription className="text-xs text-muted-foreground">
-              {t("description")}
-            </CardDescription>
+    <Panel className="h-full">
+      <PanelHeader
+        title={t("title")}
+        description={t("description")}
+        action={
+          <div
+            role="group"
+            aria-label={t("title")}
+            className="flex items-center gap-0.5 rounded-lg border border-border-light bg-muted p-0.5"
+          >
+            {ranges.map((range) => (
+              <button
+                key={range.id}
+                type="button"
+                aria-pressed={timeRange === range.id}
+                onClick={() => setTimeRange(range.id)}
+                className={cn(
+                  "rounded-md px-2.5 py-1 text-[11px] font-medium transition-colors",
+                  timeRange === range.id
+                    ? "bg-card font-semibold text-foreground shadow-card"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                {range.label}
+              </button>
+            ))}
           </div>
+        }
+      />
 
-          <div className="flex items-center gap-1 rounded-xl border border-border/60 bg-muted/40 p-0.5">
-            <button
-              type="button"
-              onClick={() => setTimeRange("7d")}
-              className={cn(
-                "rounded-lg px-2.5 py-1 text-xs font-medium transition-all",
-                timeRange === "7d"
-                  ? "bg-background text-foreground font-semibold shadow-2xs"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              {t("range7d")}
-            </button>
-            <button
-              type="button"
-              onClick={() => setTimeRange("30d")}
-              className={cn(
-                "rounded-lg px-2.5 py-1 text-xs font-medium transition-all",
-                timeRange === "30d"
-                  ? "bg-background text-foreground font-semibold shadow-2xs"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              {t("range30d")}
-            </button>
-            <button
-              type="button"
-              onClick={() => setTimeRange("term")}
-              className={cn(
-                "rounded-lg px-2.5 py-1 text-xs font-medium transition-all",
-                timeRange === "term"
-                  ? "bg-background text-foreground font-semibold shadow-2xs"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              {t("rangeTerm")}
-            </button>
-          </div>
-        </div>
-      </CardHeader>
-
-      {/* Modern Legend */}
-      <div className="flex flex-wrap items-center gap-3 py-1 text-xs">
-        <div className="flex items-center gap-1.5">
-          <span className="size-2 rounded-full bg-dashboard-green" />
+      {/* Legend — stated once, above the plot, so the series colours never
+          need to be re-explained inside the chart. */}
+      <div className="flex flex-wrap items-center gap-4 px-4 pt-4 text-xs sm:px-5">
+        <span className="flex items-center gap-1.5">
+          <span className="h-0.5 w-3 rounded-full bg-dashboard-green" />
           <span className="font-medium text-foreground">{t("present")}</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <span className="size-2 rounded-full bg-dashboard-yellow" />
-          <span className="font-medium text-muted-foreground">{t("late")}</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <span className="size-2 rounded-full bg-danger" />
-          <span className="font-medium text-muted-foreground">{t("absent")}</span>
-        </div>
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="h-0.5 w-3 rounded-full bg-dashboard-yellow" />
+          <span className="text-muted-foreground">{t("late")}</span>
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="h-0.5 w-3 rounded-full bg-danger" />
+          <span className="text-muted-foreground">{t("absent")}</span>
+        </span>
       </div>
 
-      {/* Chart Canvas */}
-      <div className="h-52 w-full pt-2">
+      <div className="h-60 w-full min-w-0 px-1 pb-4 pt-3 sm:px-2">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
             <defs>
@@ -168,20 +151,20 @@ export function AttendanceTrendChart({ initialData }: AttendanceTrendChartProps)
                 if (!active || !payload || !payload.length) return null
                 const d = payload[0].payload as AttendanceDataPoint
                 return (
-                  <div className="rounded-xl border border-border bg-card p-3 shadow-md">
+                  <div className="rounded-xl border border-border bg-popover p-3 shadow-pop">
                     <p className="text-xs font-semibold text-foreground">{d.date}</p>
                     <div className="mt-2 space-y-1 text-xs">
-                      <div className="flex items-center justify-between gap-3 text-dashboard-green">
+                      <div className="flex items-center justify-between gap-5 text-dashboard-green">
                         <span>{t("presentLabel")}</span>
-                        <span className="font-mono font-bold">{formatNumber(d.present, locale)}%</span>
+                        <span className="font-semibold tabular-nums">{formatNumber(d.present, locale)}%</span>
                       </div>
-                      <div className="flex items-center justify-between gap-3 text-dashboard-yellow">
+                      <div className="flex items-center justify-between gap-5 text-dashboard-yellow">
                         <span>{t("lateLabel")}</span>
-                        <span className="font-mono font-semibold">{formatNumber(d.late, locale)}%</span>
+                        <span className="font-semibold tabular-nums">{formatNumber(d.late, locale)}%</span>
                       </div>
-                      <div className="flex items-center justify-between gap-3 text-danger">
+                      <div className="flex items-center justify-between gap-5 text-danger">
                         <span>{t("absentLabel")}</span>
-                        <span className="font-mono font-semibold">{formatNumber(d.absent, locale)}%</span>
+                        <span className="font-semibold tabular-nums">{formatNumber(d.absent, locale)}%</span>
                       </div>
                     </div>
                   </div>
@@ -207,6 +190,6 @@ export function AttendanceTrendChart({ initialData }: AttendanceTrendChartProps)
           </AreaChart>
         </ResponsiveContainer>
       </div>
-    </Card>
+    </Panel>
   )
 }

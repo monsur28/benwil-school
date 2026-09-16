@@ -8,6 +8,7 @@ import { getAdminNoticeList } from "@/lib/notices/notice-visibility"
 import { formatDateTime, pickLocalized } from "@/lib/format"
 import { PageHeader } from "@/components/shared/page-header"
 import { EmptyState } from "@/components/shared/empty-state"
+import { FilterBar } from "@/components/shared/filter-bar"
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { NoticesSubNav } from "@/components/notices/notices-subnav"
@@ -69,7 +70,9 @@ export default async function NoticesPage({
       />
 
       <NoticesSubNav />
-      <NoticeFilters categories={categories} />
+      <FilterBar>
+        <NoticeFilters categories={categories} />
+      </FilterBar>
 
       {notices.length === 0 ? (
         <EmptyState icon={Megaphone} title={t("list.empty")} />

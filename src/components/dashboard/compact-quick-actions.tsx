@@ -2,102 +2,55 @@
 
 import Link from "next/link"
 import { useTranslations } from "next-intl"
-import { UserPlus, ClipboardCheck, CalendarClock, Wallet, Megaphone, ArrowRight } from "lucide-react"
-import { Card } from "@/components/ui/card"
-import { cn } from "cn"
+import { UserPlus, ClipboardCheck, CalendarClock, Wallet, Megaphone, ArrowUpRight } from "lucide-react"
 
+const ACTIONS = [
+  { href: "/students/new", key: "addStudent", icon: UserPlus },
+  { href: "/attendance", key: "takeAttendance", icon: ClipboardCheck },
+  { href: "/exams", key: "createExam", icon: CalendarClock },
+  { href: "/fees", key: "collectFee", icon: Wallet },
+  { href: "/notices", key: "createNotice", icon: Megaphone },
+] as const
+
+/**
+ * The five things staff start most often.
+ *
+ * Presented as a single row of quiet chips sitting directly on the canvas —
+ * not five more cards. They are shortcuts, so they read at the weight of
+ * navigation, below the metrics and above the analysis.
+ */
 export function CompactQuickActions() {
   const t = useTranslations("dashboard.admin.quickActions")
 
-  const actions = [
-    {
-      href: "/students/new",
-      label: t("addStudent"),
-      description: t("addStudentDesc"),
-      icon: UserPlus,
-      colorClass: "bg-dashboard-purple-light text-dashboard-purple group-hover:bg-dashboard-purple group-hover:text-white",
-      borderHover: "hover:border-dashboard-purple/30",
-    },
-    {
-      href: "/attendance",
-      label: t("takeAttendance"),
-      description: t("takeAttendanceDesc"),
-      icon: ClipboardCheck,
-      colorClass: "bg-dashboard-blue-light text-dashboard-blue group-hover:bg-dashboard-blue group-hover:text-white",
-      borderHover: "hover:border-dashboard-blue/30",
-    },
-    {
-      href: "/exams",
-      label: t("createExam"),
-      description: t("createExamDesc"),
-      icon: CalendarClock,
-      colorClass: "bg-dashboard-orange-light text-dashboard-orange group-hover:bg-dashboard-orange group-hover:text-white",
-      borderHover: "hover:border-dashboard-orange/30",
-    },
-    {
-      href: "/fees",
-      label: t("collectFee"),
-      description: t("collectFeeDesc"),
-      icon: Wallet,
-      colorClass: "bg-dashboard-green-light text-dashboard-green group-hover:bg-dashboard-green group-hover:text-white",
-      borderHover: "hover:border-dashboard-green/30",
-    },
-    {
-      href: "/notices",
-      label: t("createNotice"),
-      description: t("createNoticeDesc"),
-      icon: Megaphone,
-      colorClass: "bg-dashboard-pink-light text-dashboard-pink group-hover:bg-dashboard-pink group-hover:text-white",
-      borderHover: "hover:border-dashboard-pink/30",
-    },
-  ]
-
   return (
-    <div className="space-y-2.5">
-      <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold tracking-tight text-foreground">
-          {t("title")}
-        </h2>
+    <section aria-label={t("title")} className="flex flex-col gap-3">
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <h2 className="eyebrow">{t("title")}</h2>
         <span className="text-xs text-muted-foreground">{t("subtitle")}</span>
       </div>
 
-      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-5">
-        {actions.map((action) => (
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
+        {ACTIONS.map((action) => (
           <Link
             key={action.href}
             href={action.href}
-            className="group block rounded-xl focus:outline-none"
+            className="group flex items-center gap-3 rounded-xl border border-border bg-card px-3.5 py-3 transition-colors hover:border-border-strong hover:bg-subtle"
           >
-            <Card
-              className={cn(
-                "flex h-full flex-col justify-between rounded-xl border border-border/60 bg-card p-3 transition-all duration-150 hover:shadow-xs",
-                action.borderHover
-              )}
-            >
-              <div className="flex items-center justify-between">
-                <div
-                  className={cn(
-                    "flex size-7 items-center justify-center rounded-lg transition-colors duration-150",
-                    action.colorClass
-                  )}
-                >
-                  <action.icon className="size-3.5" />
-                </div>
-                <ArrowRight className="size-3 text-muted-foreground/40 transition-transform duration-150 group-hover:translate-x-0.5 group-hover:text-foreground" />
-              </div>
-
-              <div className="mt-3">
-                <p className="text-xs font-semibold tracking-tight text-foreground">
-                  {action.label}
-                </p>
-                <p className="truncate text-[11px] text-muted-foreground">
-                  {action.description}
-                </p>
-              </div>
-            </Card>
+            <action.icon className="size-4 shrink-0 text-muted-foreground transition-colors group-hover:text-primary" />
+            {/* Two-up on a phone leaves no room for a caption, so the label
+                gets the whole chip there and the description returns at sm. */}
+            <span className="min-w-0 flex-1">
+              <span className="block text-[13px] font-semibold leading-snug text-foreground">
+                {t(action.key)}
+              </span>
+              <span className="mt-0.5 hidden truncate text-[11px] text-muted-foreground sm:block">
+                {t(`${action.key}Desc`)}
+              </span>
+            </span>
+            <ArrowUpRight className="size-3.5 shrink-0 text-muted-foreground/0 transition-all group-hover:text-muted-foreground" />
           </Link>
         ))}
       </div>
-    </div>
+    </section>
   )
 }

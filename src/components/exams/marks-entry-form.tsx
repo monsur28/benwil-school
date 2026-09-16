@@ -95,7 +95,7 @@ export function MarksEntryForm({ examScheduleId, sectionId, fullMarks, roster }:
 
   return (
     <div className="space-y-4">
-      <div className="rounded-lg border">
+      <div className="panel overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>

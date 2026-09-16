@@ -3,7 +3,8 @@ import { getTranslations, getLocale } from "next-intl/server"
 import { NotebookPen } from "lucide-react"
 import type { HomeworkListItem } from "@/lib/homework/get-homework"
 import { formatDate, pickLocalized } from "@/lib/format"
-import { Card } from "@/components/ui/card"
+import { Panel, PanelHeader } from "@/components/shared/panel"
+import { EmptyState } from "@/components/shared/empty-state"
 
 export async function PortalHomeworkWidget({
   homework,
@@ -19,40 +20,47 @@ export async function PortalHomeworkWidget({
   ])
 
   return (
-    <Card className="p-6 h-full flex flex-col bg-card">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-bold text-foreground">{t("portal.upcomingTitle")}</h3>
-        <Link href={viewAllHref} className="shrink-0 whitespace-nowrap text-sm text-info hover:underline">
-          {t("actions.viewAll")}
-        </Link>
-      </div>
+    <Panel className="h-full">
+      <PanelHeader
+        title={t("portal.upcomingTitle")}
+        href={viewAllHref}
+        hrefLabel={t("actions.viewAll")}
+      />
 
-      <div className="flex-1 overflow-y-auto pr-2 -mr-2 space-y-4">
-        {homework.length === 0 ? (
-          <p className="text-sm text-muted-foreground">{tPortal("empty.noHomework")}</p>
-        ) : (
-          homework.map((item) => (
-            <Link
-              key={item.id}
-              href={`${viewAllHref}/${item.id}`}
-              className="flex items-start gap-4 p-3 rounded-lg border border-border hover:bg-muted transition-colors group"
-            >
-              <div className="bg-warning/15 text-warning rounded-full p-2 mt-1 group-hover:bg-warning group-hover:text-white transition-colors">
-                <NotebookPen className="w-5 h-5" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h4 className="text-sm font-semibold text-foreground truncate">{item.title}</h4>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {pickLocalized(item.subject.name, item.subject.nameBn, locale)}
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {t("portal.dueOn", { date: formatDate(item.dueDate, locale) })}
-                </p>
-              </div>
-            </Link>
-          ))
-        )}
-      </div>
-    </Card>
+      {homework.length === 0 ? (
+        <EmptyState
+          inset
+          icon={NotebookPen}
+          title={tPortal("empty.noHomeworkTitle")}
+          description={tPortal("empty.noHomework")}
+        />
+      ) : (
+        <ul className="divide-y divide-border-light">
+          {homework.map((item) => (
+            <li key={item.id}>
+              <Link
+                href={`${viewAllHref}/${item.id}`}
+                className="flex items-start justify-between gap-4 px-4 py-3.5 transition-colors hover:bg-subtle sm:px-5"
+              >
+                <span className="min-w-0">
+                  <span className="block truncate text-[13.5px] font-semibold text-foreground">{item.title}</span>
+                  <span className="mt-0.5 block truncate text-xs text-muted-foreground">
+                    {pickLocalized(item.subject.name, item.subject.nameBn, locale)}
+                  </span>
+                </span>
+                {/* The due date is why a student opens this list, so it is the
+                    one thing held right and given its own micro-label. */}
+                <span className="shrink-0 text-right">
+                  <span className="eyebrow block">{t("portal.dueLabel")}</span>
+                  <span className="mt-0.5 block text-xs font-semibold tabular-nums text-foreground">
+                    {formatDate(item.dueDate, locale)}
+                  </span>
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+    </Panel>
   )
 }

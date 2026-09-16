@@ -1,5 +1,4 @@
 import type { LucideIcon } from "lucide-react"
-import { Card, CardContent } from "@/components/ui/card"
 import { cn } from "cn"
 
 export interface StatCardProps {
@@ -15,6 +14,15 @@ export interface StatCardProps {
   className?: string
 }
 
+/**
+ * A standalone metric tile, for grids where the surrounding rhythm is a
+ * regular grid rather than the divided `StatRow` band (teacher dashboard,
+ * module summaries).
+ *
+ * Number-forward, with the label as a micro-caption above it. A metric with
+ * no value yet shows an em dash plus the "coming soon" caption — never a
+ * placeholder figure that could be mistaken for real data.
+ */
 export function StatCard({
   icon: Icon,
   label,
@@ -28,59 +36,54 @@ export function StatCard({
   className,
 }: StatCardProps) {
   const tagStyles = {
-    green: "bg-success/10 text-success border-success/20",
-    blue: "bg-info/10 text-info border-info/20",
-    yellow: "bg-warning/10 text-warning border-warning/20",
-    red: "bg-destructive/10 text-destructive border-destructive/20",
+    green: "border-success-border bg-success-light text-success",
+    blue: "border-info-border bg-info-light text-info",
+    yellow: "border-warning-border bg-warning-light text-warning",
+    red: "border-danger-border bg-danger-light text-danger",
   }[tagColor]
 
   return (
-    <Card className={cn("transition-all duration-200 hover:border-foreground/20", className)}>
-      <CardContent className="flex flex-col justify-between gap-3 p-4 sm:p-5">
-        <div className="flex items-center justify-between gap-2">
-          <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-            {label}
-          </span>
-          <div className="flex items-center gap-1.5">
-            {tag && (
-              <span className={cn("rounded-full border px-2 py-0.5 text-[10px] font-medium tracking-wide uppercase", tagStyles)}>
-                {tag}
-              </span>
-            )}
-            <div className="flex size-7 items-center justify-center rounded-md border border-border/60 bg-muted/30 text-muted-foreground">
-              <Icon className="size-3.5" />
-            </div>
-          </div>
-        </div>
-
-        <div className="space-y-1">
-          {value !== undefined ? (
-            <p className="font-mono text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-              {value}
-            </p>
-          ) : (
-            <p className="text-2xl font-semibold tracking-tight text-muted-foreground/40">—</p>
-          )}
-
-          <div className="flex items-center gap-2 pt-0.5 text-xs">
-            {change && (
-              <span
-                className={cn(
-                  "font-mono font-medium",
-                  changeType === "positive" && "text-success",
-                  changeType === "negative" && "text-destructive",
-                  changeType === "neutral" && "text-muted-foreground"
-                )}
-              >
-                {change}
-              </span>
-            )}
-            <span className="truncate text-muted-foreground">
-              {description || placeholder}
+    <div className={cn("panel flex flex-col justify-between gap-4 px-4 py-4 sm:px-5", className)}>
+      <div className="flex items-start justify-between gap-2">
+        <span className="eyebrow min-w-0 truncate">{label}</span>
+        <div className="flex shrink-0 items-center gap-1.5">
+          {tag && (
+            <span
+              className={cn(
+                "rounded-md border px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
+                tagStyles
+              )}
+            >
+              {tag}
             </span>
-          </div>
+          )}
+          <Icon className="size-4 text-muted-foreground" />
         </div>
-      </CardContent>
-    </Card>
+      </div>
+
+      <div>
+        {value !== undefined ? (
+          <p className="metric text-[1.75rem] text-foreground">{value}</p>
+        ) : (
+          <p className="metric text-[1.75rem] text-muted-foreground/40">—</p>
+        )}
+
+        <div className="mt-2 flex items-center gap-2 text-xs">
+          {change && (
+            <span
+              className={cn(
+                "font-semibold tabular-nums",
+                changeType === "positive" && "text-success",
+                changeType === "negative" && "text-danger",
+                changeType === "neutral" && "text-muted-foreground"
+              )}
+            >
+              {change}
+            </span>
+          )}
+          <span className="truncate text-muted-foreground">{description || placeholder}</span>
+        </div>
+      </div>
+    </div>
   )
 }

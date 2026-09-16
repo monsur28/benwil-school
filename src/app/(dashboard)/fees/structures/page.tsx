@@ -35,7 +35,7 @@ export default async function FeeStructuresPage() {
       {structures.length === 0 ? (
         <EmptyState icon={Wallet} title={t("list.emptyStructures")} />
       ) : (
-        <div className="rounded-lg border">
+        <div className="panel overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow>

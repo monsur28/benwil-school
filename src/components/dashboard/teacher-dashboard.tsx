@@ -8,7 +8,7 @@ import { getPendingReviewCountForTeacher } from "@/lib/homework/get-homework-sub
 import { StatCard } from "@/components/dashboard/stat-card"
 import { QuickAction } from "@/components/dashboard/quick-action"
 import { PortalHomeworkWidget } from "@/components/portal/portal-homework-widget"
-import { Card } from "@/components/ui/card"
+import { Panel, PanelHeader } from "@/components/shared/panel"
 
 export async function TeacherDashboard() {
   const [user, t, tCommon] = await Promise.all([
@@ -86,7 +86,7 @@ export async function TeacherDashboard() {
   ]
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => (
           <StatCard
@@ -100,29 +100,33 @@ export async function TeacherDashboard() {
         ))}
       </div>
 
-      {classSections.size > 0 && (
-        <Card className="p-4 sm:p-5">
-          <h3 className="text-sm font-bold text-foreground">{t("myClasses")}</h3>
-          <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {[...classSections.values()].map((cs) => (
-              <div key={`${cs.className}-${cs.sectionName}`} className="rounded-lg border border-border p-3">
-                <p className="font-semibold text-foreground">
-                  {cs.className} {cs.sectionName}
-                </p>
-                <p className="truncate text-xs text-muted-foreground">{cs.subjects.join(", ")}</p>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {t("students", { count: studentCountBySection.get(cs.sectionId) ?? 0 })}
-                </p>
-              </div>
-            ))}
-          </div>
-        </Card>
-      )}
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
         {quickActions.map((action) => (
           <QuickAction key={action.label} {...action} />
         ))}
       </div>
+
+      {classSections.size > 0 && (
+        <Panel>
+          <PanelHeader title={t("myClasses")} />
+          {/* One entry per class+section, with the subjects taught there —
+              the teacher's own slice of the timetable, not the school's. */}
+          <div className="grid grid-cols-1 divide-y divide-border-light sm:grid-cols-2 sm:divide-x lg:grid-cols-3">
+            {[...classSections.values()].map((cs) => (
+              <div key={`${cs.className}-${cs.sectionName}`} className="px-4 py-4 sm:px-5">
+                <p className="font-heading text-base font-bold tracking-[-0.015em] text-foreground">
+                  {cs.className} {cs.sectionName}
+                </p>
+                <p className="mt-1 truncate text-[13px] text-muted-foreground">{cs.subjects.join(", ")}</p>
+                <p className="mt-2 text-xs font-medium tabular-nums text-muted-foreground">
+                  {t("students", { count: studentCountBySection.get(cs.sectionId) ?? 0 })}
+                </p>
+              </div>
+            ))}
+          </div>
+        </Panel>
+      )}
+
       <PortalHomeworkWidget homework={homework} viewAllHref="/homework" />
     </div>
   )

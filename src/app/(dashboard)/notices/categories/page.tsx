@@ -28,7 +28,7 @@ export default async function NoticeCategoriesPage() {
       {categories.length === 0 ? (
         <EmptyState icon={Megaphone} title={t("list.emptyCategories")} />
       ) : (
-        <div className="rounded-lg border">
+        <div className="panel overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow>

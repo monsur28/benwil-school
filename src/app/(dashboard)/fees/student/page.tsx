@@ -45,7 +45,7 @@ export default async function FeesStudentSearchPage({
       {q && students.length === 0 && <EmptyState icon={Users} title={t("list.empty")} />}
 
       {students.length > 0 && (
-        <div className="rounded-lg border">
+        <div className="panel overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow>

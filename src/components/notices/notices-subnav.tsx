@@ -1,36 +1,19 @@
 "use client"
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
 import { useTranslations } from "next-intl"
-import { cn } from "cn"
+import { SubNav } from "@/components/shared/sub-nav"
 
 const LINKS = [
-  { href: "/notices", labelKey: "subnav.notices" },
+  { href: "/notices", labelKey: "subnav.notices", exact: true },
   { href: "/notices/categories", labelKey: "subnav.categories" },
 ]
 
 export function NoticesSubNav() {
   const t = useTranslations("notices")
-  const pathname = usePathname()
 
   return (
-    <nav className="flex flex-wrap gap-1 border-b pb-2">
-      {LINKS.map((link) => {
-        const isActive = link.href === "/notices" ? pathname === "/notices" : pathname.startsWith(link.href)
-        return (
-          <Link
-            key={link.href}
-            href={link.href}
-            className={cn(
-              "rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
-              isActive ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"
-            )}
-          >
-            {t(link.labelKey)}
-          </Link>
-        )
-      })}
-    </nav>
+    <SubNav
+      links={LINKS.map((link) => ({ href: link.href, label: t(link.labelKey), exact: link.exact }))}
+    />
   )
 }

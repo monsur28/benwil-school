@@ -69,10 +69,14 @@ export async function getRootBrandingVariables(): Promise<Record<string, string>
 
   const primary = safeHex(branding.primaryColor)
   const secondary = safeHex(branding.secondaryColor)
-  const sidebar = safeHex(branding.sidebarColor) ?? primary
+  const sidebar = safeHex(branding.sidebarColor)
 
   if (primary) vars["--brand-navy"] = primary
   if (secondary) vars["--brand-red"] = secondary
+  // Only injected when a school has explicitly picked a rail colour. Left
+  // alone, globals.css derives the rail from --brand-navy (a deepened ink
+  // mix), so setting just the primary colour still re-themes the rail - but
+  // as a deliberate dark surface rather than a flat wash of the brand hue.
   if (sidebar) vars["--sidebar"] = sidebar
 
   return vars

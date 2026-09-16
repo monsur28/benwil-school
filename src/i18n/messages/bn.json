@@ -22,11 +22,14 @@
       "noNotifications": "No new notifications",
       "noNotificationsDescription": "You're all caught up.",
       "establishedYear": "প্রতিষ্ঠিত {year}",
-      "session": "সেশন {year}"
+      "session": "সেশন {year}",
+      "openNavigation": "নেভিগেশন খুলুন",
+      "searchDirectory": "ডিরেক্টরি খুঁজুন"
     },
     "academicSession": "শিক্ষাবর্ষ {year}",
     "online": "অনলাইন",
-    "allModulesNominal": "সকল একাডেমিক মডিউল সচল"
+    "allModulesNominal": "সকল একাডেমিক মডিউল সচল",
+    "skipToContent": "কন্টেন্টে যান"
   },
   "roles": {
     "SUPER_ADMIN": "সুপার অ্যাডমিন",
@@ -393,7 +396,7 @@
   },
   "students": {
     "title": "শিক্ষার্থী",
-    "addStudent": "+ শিক্ষার্থী যোগ করুন",
+    "addStudent": "শিক্ষার্থী যোগ করুন",
     "searchLabel": "খুঁজুন",
     "searchPlaceholder": "নাম, ভর্তি নম্বর, শিক্ষার্থী আইডি বা অভিভাবকের ফোন নম্বর দিয়ে খুঁজুন",
     "filters": {
@@ -572,7 +575,9 @@
       }
     },
     "notFoundTitle": "শিক্ষার্থী পাওয়া যায়নি",
-    "notFoundDescription": "এই শিক্ষার্থীকে সরিয়ে ফেলা হতে পারে, অথবা লিংকটি ভুল।"
+    "notFoundDescription": "এই শিক্ষার্থীকে সরিয়ে ফেলা হতে পারে, অথবা লিংকটি ভুল।",
+    "eyebrow": "ব্যক্তিবর্গ",
+    "description": "শিক্ষার্থী ভর্তি, প্রোফাইল, অভিভাবক এবং একাডেমিক তথ্য পরিচালনা করুন।"
   },
   "attendance": {
     "title": "উপস্থিতি",
@@ -1401,7 +1406,8 @@
       "dueOn": "Due {date}",
       "yourSubmission": "Your Submission",
       "submissionPlaceholder": "Type your answer here...",
-      "childSubmission": "Child's Submission"
+      "childSubmission": "Child's Submission",
+      "dueLabel": "শেষ তারিখ"
     },
     "success": {
       "categoryCreated": "Category created.",
@@ -1575,7 +1581,8 @@
       "emailTaken": "This email is already in use.",
       "employeeIdTaken": "This employee ID is already in use.",
       "saveFailed": "Something went wrong. Please try again."
-    }
+    },
+    "eyebrow": "কর্মী"
   },
   "settings": {
     "title": "সেটিংস",

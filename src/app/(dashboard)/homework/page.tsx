@@ -9,6 +9,7 @@ import { getHomeworkList } from "@/lib/homework/get-homework"
 import { formatDate, pickLocalized } from "@/lib/format"
 import { PageHeader } from "@/components/shared/page-header"
 import { EmptyState } from "@/components/shared/empty-state"
+import { FilterBar } from "@/components/shared/filter-bar"
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { HomeworkFilters } from "@/components/homework/homework-filters"
@@ -85,7 +86,9 @@ export default async function HomeworkPage({
       />
 
       <HomeworkSubNav showCategories={user.role !== Role.TEACHER} />
-      <HomeworkFilters classes={classes} sections={sections} subjects={subjects} />
+      <FilterBar>
+        <HomeworkFilters classes={classes} sections={sections} subjects={subjects} />
+      </FilterBar>
 
       {homework.length === 0 ? (
         <EmptyState icon={NotebookPen} title={t("list.empty")} />
