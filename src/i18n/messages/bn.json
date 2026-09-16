@@ -17,11 +17,16 @@
     "pageNotFound": "পাতাটি পাওয়া যায়নি",
     "pageNotFoundDescription": "আপনি যে পাতাটি খুঁজছেন তা নেই।",
     "header": {
-      "academicSession": "শিক্ষাবর্ষ",
-      "notifications": "বিজ্ঞপ্তি",
-      "noNotifications": "কোনো নতুন বিজ্ঞপ্তি নেই",
-      "noNotificationsDescription": "আপনি সব দেখে ফেলেছেন।"
-    }
+      "academicSession": "Academic Session",
+      "notifications": "Notifications",
+      "noNotifications": "No new notifications",
+      "noNotificationsDescription": "You're all caught up.",
+      "establishedYear": "প্রতিষ্ঠিত {year}",
+      "session": "সেশন {year}"
+    },
+    "academicSession": "শিক্ষাবর্ষ {year}",
+    "online": "অনলাইন",
+    "allModulesNominal": "সকল একাডেমিক মডিউল সচল"
   },
   "roles": {
     "SUPER_ADMIN": "সুপার অ্যাডমিন",
@@ -57,7 +62,10 @@
       "resources": "সম্পদ ও সুবিধা",
       "insights": "প্রতিবেদন ও বিশ্লেষণ",
       "system": "সিস্টেম"
-    }
+    },
+    "profile": "Profile",
+    "reportCard": "Report Card",
+    "myChildren": "My Children"
   },
   "auth": {
     "loginTitle": "লগ ইন",
@@ -107,7 +115,20 @@
       "pendingFees": "বকেয়া ফি",
       "upcomingExams": "আসন্ন পরীক্ষা",
       "recentNotices": "সাম্প্রতিক নোটিশ",
-      "quickActions": "দ্রুত কাজ",
+      "quickActions": {
+        "title": "দ্রুত কাজ",
+        "subtitle": "বহুল ব্যবহৃত নির্দেশনাসমূহ",
+        "addStudent": "শিক্ষার্থী যোগ করুন",
+        "addStudentDesc": "নতুন শিক্ষার্থী ভর্তি নিবন্ধন",
+        "takeAttendance": "উপস্থিতি নিন",
+        "takeAttendanceDesc": "দৈনিক রোল কল খাতা",
+        "createExam": "পরীক্ষা তৈরি করুন",
+        "createExamDesc": "মূল্যায়ন রুটিন তৈরি",
+        "collectFee": "ফি সংগ্রহ করুন",
+        "collectFeeDesc": "শিক্ষার্থীর ফি গ্রহণ",
+        "createNotice": "বিজ্ঞপ্তি দিন",
+        "createNoticeDesc": "বিদ্যালয়ের নোটিশ প্রকাশ"
+      },
       "addStudent": "শিক্ষার্থী যোগ করুন",
       "takeAttendance": "উপস্থিতি নিন",
       "createExam": "পরীক্ষা তৈরি করুন",
@@ -167,12 +188,25 @@
       "standardCurriculum": "জাতীয় শিক্ষাক্রম",
       "sessionProgress": "সেশন অগ্রগতি",
       "milestones": {
+        "title": "আসন্ন মাইলফলক",
+        "description": "প্রাতিষ্ঠানিক ক্যালেন্ডার ও গুরুত্বপূর্ণ ইভেন্ট",
+        "calendar": "ক্যালেন্ডার",
+        "termCalendar": "১ম পর্বের ক্যালেন্ডার • সেশন ২০২৬",
+        "activeEvents": "{count}টি সক্রিয় ইভেন্ট",
         "midTermTitle": "অর্ধ-বার্ষিক মূল্যায়ন পর্ব",
-        "midTermDesc": "১ম-১০ম শ্রেণির লিখিত ও ব্যবহারিক পরীক্ষা",
+        "midTermDesc": "৬ষ্ঠ-১০ম শ্রেণির মূল্যায়ন রুটিন শুরু",
+        "badgeAcademic": "একাডেমিক",
         "ptmTitle": "অভিভাবক-শিক্ষক মূল্যায়ন সভা",
-        "ptmDesc": "সার্বিক একাডেমিক মূল্যায়ন রিপোর্ট বিতরণ",
+        "ptmDesc": "প্রাথমিক ও মাধ্যমিক শাখার সার্বিক পর্যালোচনা",
+        "badgeMeeting": "সভা",
         "scienceFairTitle": "বার্ষিক বিজ্ঞান ও সাংস্কৃতিক মেলা",
-        "scienceFairDesc": "হাউস প্রদর্শনী ও উদ্ভাবনী উৎসব"
+        "scienceFairDesc": "ক্যাম্পাস প্রদর্শনী ও প্রকল্প উৎসব",
+        "badgeCoCurricular": "সহ-পাঠ্যক্রম",
+        "resultPubTitle": "১ম পর্বের ফলাফল প্রকাশ",
+        "resultPubDesc": "চূড়ান্ত ট্রান্সক্রিপ্ট ও রিপোর্ট কার্ড বিতরণ",
+        "badgeGrading": "ফলাফল",
+        "sep": "সেপ্টে",
+        "oct": "অক্টো"
       },
       "collectionHealth": "আদায় স্থিতি",
       "collectionHealthOnTarget": "{health}% লক্ষ্যমাত্রায়",
@@ -198,7 +232,7 @@
         "greetingEvening": "শুভ সন্ধ্যা",
         "liveCampus": "লাইভ ক্যাম্পাস",
         "subtitle": "আজ {date}-এ {schoolName}-এর সার্বিক কার্যক্রমের চিত্র।",
-        "academicSession": "শিক্ষাবর্ষ {year} • ১ম পর্ব",
+        "academicSession": "শিক্ষাবর্ষ {year}",
         "allSystemsNominal": "সকল সিস্টেম স্বাভাবিক",
         "directory": "ডিরেক্টরি",
         "addStudent": "+ শিক্ষার্থী ভর্তি"
@@ -275,20 +309,6 @@
         "passingBenchmark": "পাসিং বেঞ্চমার্ক: ৭৫%",
         "highestClass": "সর্বোচ্চ: ৯ম শ্রেণি (৮৭%)"
       },
-      "quickActions": {
-        "title": "দ্রুত কাজ",
-        "subtitle": "বহুল ব্যবহৃত নির্দেশনাসমূহ",
-        "addStudent": "শিক্ষার্থী যোগ করুন",
-        "addStudentDesc": "নতুন শিক্ষার্থী ভর্তি নিবন্ধন",
-        "takeAttendance": "উপস্থিতি নিন",
-        "takeAttendanceDesc": "দৈনিক রোল কল খাতা",
-        "createExam": "পরীক্ষা তৈরি করুন",
-        "createExamDesc": "মূল্যায়ন রুটিন তৈরি",
-        "collectFee": "ফি সংগ্রহ করুন",
-        "collectFeeDesc": "শিক্ষার্থীর ফি গ্রহণ",
-        "createNotice": "বিজ্ঞপ্তি দিন",
-        "createNoticeDesc": "বিদ্যালয়ের নোটিশ প্রকাশ"
-      },
       "activity": {
         "title": "সাম্প্রতিক কার্যক্রম",
         "description": "প্রশাসনিক মডিউলসমূহের রিয়েল-টাইম কার্যক্রম",
@@ -303,30 +323,9 @@
         "hourAgo": "{count} ঘণ্টা আগে",
         "databaseStream": "ডাটাবেজ থেকে সরাসরি হালনাগাদকৃত",
         "liveConnected": "লাইভ ফিড যুক্ত",
-        "collectedFrom": "৳ {amount} আদায় হয়েছে • {student}",
+        "collectedFrom": "৳ {amount} collected • {student}",
         "attendanceSummary": "{className} • {count} জন শিক্ষার্থীর হাজিরা গৃহীত ({percent}% উপস্থিত)",
         "examRoutineFinalized": "৬ষ্ঠ-১০ম শ্রেণির মূল্যায়ন রুটিন চূড়ান্ত হয়েছে"
-      },
-      "milestones": {
-        "title": "আসন্ন মাইলফলক",
-        "description": "প্রাতিষ্ঠানিক ক্যালেন্ডার ও গুরুত্বপূর্ণ ইভেন্ট",
-        "calendar": "ক্যালেন্ডার",
-        "termCalendar": "১ম পর্বের ক্যালেন্ডার • সেশন ২০২৬",
-        "activeEvents": "{count}টি সক্রিয় ইভেন্ট",
-        "midTermTitle": "অর্ধ-বার্ষিক মূল্যায়ন পর্ব",
-        "midTermDesc": "৬ষ্ঠ-১০ম শ্রেণির মূল্যায়ন রুটিন শুরু",
-        "badgeAcademic": "একাডেমিক",
-        "ptmTitle": "অভিভাবক-শিক্ষক মূল্যায়ন সভা",
-        "ptmDesc": "প্রাথমিক ও মাধ্যমিক শাখার সার্বিক পর্যালোচনা",
-        "badgeMeeting": "সভা",
-        "scienceFairTitle": "বার্ষিক বিজ্ঞান ও সাংস্কৃতিক মেলা",
-        "scienceFairDesc": "ক্যাম্পাস প্রদর্শনী ও প্রকল্প উৎসব",
-        "badgeCoCurricular": "সহ-পাঠ্যক্রম",
-        "resultPubTitle": "১ম পর্বের ফলাফল প্রকাশ",
-        "resultPubDesc": "চূড়ান্ত ট্রান্সক্রিপ্ট ও রিপোর্ট কার্ড বিতরণ",
-        "badgeGrading": "ফলাফল",
-        "sep": "সেপ্টে",
-        "oct": "অক্টো"
       },
       "healthIndex": {
         "title": "ক্যাম্পাস স্বাস্থ্য সূচক",
@@ -344,18 +343,18 @@
         "compositeScore": "যৌথ স্কোর: ৯০.৫/১০০"
       },
       "notices": {
-        "title": "সাম্প্রতিক নোটিশ",
-        "description": "সর্বশেষ প্রাতিষ্ঠানিক ঘোষণা ও বুলেটিন",
-        "viewAll": "সব দেখুন",
-        "footer": "স্কুল প্রশাসন কর্তৃক প্রকাশিত",
-        "sampleBadge": "নমুনা তথ্য",
-        "emergencyTitle": "জরুরি স্কুল বন্ধ",
-        "emergencyScope": "সমগ্র স্কুল",
-        "ptmTitle": "অভিভাবক-শিক্ষক সভা",
-        "ptmScope": "অভিভাবকবৃন্দ",
-        "examRoutineTitle": "মধ্যবর্তী পরীক্ষার রুটিন",
-        "examRoutineScope": "৬ষ্ঠ–১০ম শ্রেণি",
-        "today": "আজ"
+        "title": "Recent Notices",
+        "description": "Latest institutional bulletins and announcements",
+        "viewAll": "View all",
+        "footer": "Posted by school administration",
+        "sampleBadge": "Sample data",
+        "emergencyTitle": "Emergency School Closure",
+        "emergencyScope": "School-wide",
+        "ptmTitle": "Parent Teacher Meeting",
+        "ptmScope": "Guardians",
+        "examRoutineTitle": "Mid-Term Examination Routine",
+        "examRoutineScope": "Classes 6-10",
+        "today": "Today"
       }
     },
     "teacher": {
@@ -364,7 +363,11 @@
       "myStudents": "আমার শিক্ষার্থী",
       "homework": "বাড়ির কাজ",
       "upcomingExams": "আসন্ন পরীক্ষা",
-      "pendingMarks": "বাকি নম্বর"
+      "pendingMarks": "বাকি নম্বর",
+      "pendingMarksCaption": "Submissions awaiting review",
+      "myClasses": "My Classes",
+      "students": "{count} students",
+      "noClasses": "No classes assigned yet."
     },
     "student": {
       "todaysRoutine": "আজকের রুটিন",
@@ -881,7 +884,8 @@
       "subject": "বিষয়",
       "teacher": "শিক্ষক",
       "sections": "শাখাসমূহ",
-      "students": "শিক্ষার্থী"
+      "students": "শিক্ষার্থী",
+      "academicYear": "Academic Year"
     },
     "status": {
       "active": "সক্রিয়",
@@ -927,7 +931,9 @@
       "description": "একটি শ্রেণি, শাখা ও বিষয়ে শিক্ষক নিয়োগ করুন।",
       "addTitle": "শিক্ষক নিয়োগ করুন",
       "empty": "এখনও কোনো শিক্ষক নিয়োগ করা হয়নি।",
-      "noSubjectsForClass": "এই শ্রেণিতে এখনও কোনো বিষয় যুক্ত করা হয়নি। প্রথমে শ্রেণি পাতা থেকে একটি যোগ করুন।"
+      "noSubjectsForClass": "এই শ্রেণিতে এখনও কোনো বিষয় যুক্ত করা হয়নি। প্রথমে শ্রেণি পাতা থেকে একটি যোগ করুন।",
+      "viewAll": "View all assignments",
+      "allYears": "All academic years"
     },
     "classDetail": {
       "backToClasses": "শ্রেণিতে ফিরে যান",
@@ -1139,184 +1145,6 @@
       "alreadyVoided": "এই পেমেন্টটি ইতিমধ্যে বাতিল করা হয়েছে।"
     }
   },
-  "notices": {
-    "title": "নোটিশ",
-    "subnav": {
-      "notices": "নোটিশ",
-      "categories": "বিভাগ"
-    },
-    "fields": {
-      "name": "নাম",
-      "nameBn": "বাংলা নাম",
-      "title": "শিরোনাম",
-      "titleBn": "বাংলা শিরোনাম",
-      "content": "বিষয়বস্তু",
-      "contentBn": "বাংলা বিষয়বস্তু",
-      "category": "বিভাগ",
-      "audience": "দর্শক",
-      "class": "শ্রেণি",
-      "section": "শাখা",
-      "publishAt": "প্রকাশের তারিখ ও সময়",
-      "expiresAt": "মেয়াদ শেষের তারিখ ও সময় (ঐচ্ছিক)",
-      "status": "অবস্থা",
-      "createdBy": "তৈরি করেছেন",
-      "updatedBy": "হালনাগাদ করেছেন"
-    },
-    "audience": {
-      "ALL": "সবাই",
-      "STUDENTS": "শিক্ষার্থীরা",
-      "GUARDIANS": "অভিভাবকরা",
-      "CLASS": "একটি শ্রেণি",
-      "SECTION": "একটি শ্রেণি শাখা"
-    },
-    "status": {
-      "DRAFT": "খসড়া",
-      "PUBLISHED": "প্রকাশিত",
-      "ARCHIVED": "সংরক্ষণাগারভুক্ত",
-      "active": "সক্রিয়",
-      "inactive": "নিষ্ক্রিয়"
-    },
-    "actions": {
-      "label": "কার্যক্রম",
-      "newNotice": "নতুন নোটিশ",
-      "edit": "সম্পাদনা",
-      "save": "সংরক্ষণ",
-      "cancel": "বাতিল",
-      "saveDraft": "খসড়া সংরক্ষণ করুন",
-      "publish": "প্রকাশ করুন",
-      "archive": "সংরক্ষণাগারভুক্ত করুন",
-      "addCategory": "বিভাগ যোগ করুন",
-      "activate": "সক্রিয় করুন",
-      "deactivate": "নিষ্ক্রিয় করুন",
-      "viewAll": "সব দেখুন",
-      "search": "অনুসন্ধান"
-    },
-    "list": {
-      "empty": "এখনও কোনো নোটিশ নেই।",
-      "emptyCategories": "এখনও কোনো নোটিশ বিভাগ নেই।",
-      "filterStatus": "সব অবস্থা",
-      "filterCategory": "সব বিভাগ",
-      "searchPlaceholder": "শিরোনাম দিয়ে অনুসন্ধান করুন"
-    },
-    "pagination": {
-      "previous": "পূর্ববর্তী",
-      "next": "পরবর্তী",
-      "pageInfo": "পৃষ্ঠা {page} এর {totalPages}"
-    },
-    "portal": {
-      "recentTitle": "সাম্প্রতিক নোটিশ",
-      "backToList": "নোটিশে ফিরে যান",
-      "publishedOn": "প্রকাশিত {date}"
-    },
-    "success": {
-      "categoryCreated": "বিভাগ তৈরি হয়েছে।",
-      "categoryUpdated": "বিভাগ হালনাগাদ হয়েছে।",
-      "draftSaved": "নোটিশ খসড়া হিসেবে সংরক্ষিত হয়েছে।",
-      "noticeUpdated": "নোটিশ হালনাগাদ হয়েছে।",
-      "published": "নোটিশ প্রকাশিত হয়েছে।",
-      "archived": "নোটিশ সংরক্ষণাগারভুক্ত হয়েছে।"
-    },
-    "errors": {
-      "invalidForm": "ফর্মটি পরীক্ষা করে আবার চেষ্টা করুন।",
-      "notFound": "নোটিশ পাওয়া যায়নি।",
-      "saveFailed": "সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।",
-      "duplicateCategory": "এই নামে একটি নোটিশ বিভাগ ইতিমধ্যে রয়েছে।",
-      "nameRequired": "নাম আবশ্যক।",
-      "invalidSelection": "একটি বৈধ নির্বাচন করুন।",
-      "titleRequired": "শিরোনাম আবশ্যক।",
-      "contentRequired": "বিষয়বস্তু আবশ্যক।",
-      "dateRequired": "এই তারিখটি আবশ্যক।",
-      "invalidDate": "একটি বৈধ তারিখ ও সময় দিন।",
-      "invalidDateRange": "মেয়াদ শেষের তারিখ অবশ্যই প্রকাশের তারিখের পরে হতে হবে।",
-      "classRequired": "এই দর্শকদের জন্য একটি শ্রেণি নির্বাচন করুন।",
-      "sectionRequired": "এই দর্শকদের জন্য একটি শ্রেণি ও শাখা নির্বাচন করুন।"
-    }
-  },
-  "homework": {
-    "title": "বাড়ির কাজ",
-    "subnav": {
-      "homework": "বাড়ির কাজ",
-      "categories": "বিভাগ"
-    },
-    "fields": {
-      "name": "নাম",
-      "description": "বিবরণ",
-      "title": "শিরোনাম",
-      "instructions": "নির্দেশনা",
-      "category": "বিভাগ",
-      "teacher": "শিক্ষক",
-      "class": "শ্রেণি",
-      "section": "শাখা",
-      "subject": "বিষয়",
-      "assignedDate": "নির্ধারণের তারিখ",
-      "dueDate": "জমার তারিখ",
-      "status": "অবস্থা",
-      "createdBy": "তৈরি করেছেন"
-    },
-    "status": {
-      "DRAFT": "খসড়া",
-      "PUBLISHED": "প্রকাশিত",
-      "active": "সক্রিয়",
-      "inactive": "নিষ্ক্রিয়"
-    },
-    "actions": {
-      "label": "কার্যক্রম",
-      "createHomework": "বাড়ির কাজ তৈরি করুন",
-      "editHomework": "বাড়ির কাজ সম্পাদনা করুন",
-      "details": "বাড়ির কাজের বিবরণ",
-      "back": "ফিরে যান",
-      "edit": "সম্পাদনা",
-      "save": "সংরক্ষণ",
-      "cancel": "বাতিল",
-      "saveDraft": "খসড়া সংরক্ষণ করুন",
-      "publish": "প্রকাশ করুন",
-      "addCategory": "বিভাগ যোগ করুন",
-      "activate": "সক্রিয় করুন",
-      "deactivate": "নিষ্ক্রিয় করুন",
-      "viewAll": "সব দেখুন",
-      "search": "অনুসন্ধান"
-    },
-    "list": {
-      "empty": "কোনো বাড়ির কাজ পাওয়া যায়নি।",
-      "emptyCategories": "এখনও কোনো বাড়ির কাজ বিভাগ নেই।",
-      "filterStatus": "সব অবস্থা",
-      "filterClass": "সব শ্রেণি",
-      "filterSection": "সব শাখা",
-      "filterSubject": "সব বিষয়",
-      "searchPlaceholder": "শিরোনাম দিয়ে অনুসন্ধান করুন"
-    },
-    "pagination": {
-      "previous": "পূর্ববর্তী",
-      "next": "পরবর্তী",
-      "pageInfo": "পৃষ্ঠা {page} এর {totalPages}"
-    },
-    "portal": {
-      "upcomingTitle": "আসন্ন বাড়ির কাজ",
-      "assignedOn": "নির্ধারিত {date}",
-      "dueOn": "জমার তারিখ {date}"
-    },
-    "success": {
-      "categoryCreated": "বিভাগ তৈরি হয়েছে।",
-      "categoryUpdated": "বিভাগ হালনাগাদ হয়েছে।",
-      "draftSaved": "বাড়ির কাজ খসড়া হিসেবে সংরক্ষিত হয়েছে।",
-      "homeworkUpdated": "বাড়ির কাজ হালনাগাদ হয়েছে।",
-      "published": "বাড়ির কাজ প্রকাশিত হয়েছে।"
-    },
-    "errors": {
-      "invalidForm": "ফর্মটি পরীক্ষা করে আবার চেষ্টা করুন।",
-      "notFound": "বাড়ির কাজ পাওয়া যায়নি।",
-      "saveFailed": "সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।",
-      "duplicateCategory": "এই নামে একটি বাড়ির কাজ বিভাগ ইতিমধ্যে রয়েছে।",
-      "notAssigned": "আপনি এই শ্রেণি, শাখা ও বিষয় পড়ানোর জন্য নিযুক্ত নন।",
-      "nameRequired": "নাম আবশ্যক।",
-      "invalidSelection": "একটি বৈধ নির্বাচন করুন।",
-      "titleRequired": "শিরোনাম আবশ্যক।",
-      "instructionsRequired": "নির্দেশনা আবশ্যক।",
-      "dateRequired": "এই তারিখটি আবশ্যক।",
-      "invalidDate": "একটি বৈধ তারিখ দিন।",
-      "invalidDateRange": "নির্ধারিত তারিখের আগে জমার তারিখ হতে পারবে না।"
-    }
-  },
   "portal": {
     "welcome": "স্বাগতম",
     "nav": {
@@ -1327,8 +1155,8 @@
       "reportCard": "রিপোর্ট কার্ড",
       "myChildren": "আমার সন্তানরা",
       "fees": "ফি",
-      "notices": "নোটিশ",
-      "homework": "বাড়ির কাজ"
+      "notices": "Notices",
+      "homework": "Homework"
     },
     "fields": {
       "roll": "রোল",
@@ -1354,10 +1182,10 @@
       "noChildrenTitle": "কোনো সন্তান নেই",
       "noFees": "এখনও কোনো ফি নির্ধারণ করা হয়নি।",
       "noFeesTitle": "কোনো ফি নেই",
-      "noNotices": "স্কুলের ঘোষণাগুলো এখানে প্রদর্শিত হবে।",
-      "noNoticesTitle": "কোনো নোটিশ নেই",
-      "noHomework": "কোনো আসন্ন বাড়ির কাজ নেই।",
-      "noHomeworkTitle": "কোনো বাড়ির কাজ নেই"
+      "noNotices": "School announcements will appear here.",
+      "noNoticesTitle": "No Notices",
+      "noHomework": "No upcoming homework.",
+      "noHomeworkTitle": "No Homework"
     },
     "account": {
       "cardTitle": "পোর্টাল অ্যাকাউন্ট",
@@ -1385,6 +1213,488 @@
       "alreadyLinked": "এই রেকর্ডটি ইতিমধ্যে একটি পোর্টাল অ্যাকাউন্টের সাথে যুক্ত।",
       "emailTaken": "এই ইমেইলটি ইতিমধ্যে ব্যবহৃত হচ্ছে।",
       "saveFailed": "কিছু একটা ভুল হয়েছে। আবার চেষ্টা করুন।"
+    },
+    "comingSoon": {
+      "badge": "Coming Soon",
+      "classRoutine": {
+        "title": "Class Routine",
+        "description": "Your weekly class timetable will appear here."
+      },
+      "holidayCalendar": {
+        "title": "Holiday Calendar",
+        "description": "School holidays and important dates will appear here."
+      },
+      "syllabus": {
+        "title": "Syllabus",
+        "description": "Subject-wise syllabus progress will appear here."
+      },
+      "onlineClasses": {
+        "title": "Online Recorded Classes",
+        "description": "Recorded class videos will appear here."
+      }
+    }
+  },
+  "notices": {
+    "title": "Notices",
+    "subnav": {
+      "notices": "Notices",
+      "categories": "Categories"
+    },
+    "fields": {
+      "name": "Name",
+      "nameBn": "Bangla Name",
+      "title": "Title",
+      "titleBn": "Bangla Title",
+      "content": "Content",
+      "contentBn": "Bangla Content",
+      "category": "Category",
+      "audience": "Audience",
+      "class": "Class",
+      "section": "Section",
+      "publishAt": "Publish Date & Time",
+      "expiresAt": "Expiry Date & Time (optional)",
+      "status": "Status",
+      "createdBy": "Created By",
+      "updatedBy": "Updated By"
+    },
+    "audience": {
+      "ALL": "Everyone",
+      "STUDENTS": "Students",
+      "GUARDIANS": "Guardians",
+      "CLASS": "A Class",
+      "SECTION": "A Class Section"
+    },
+    "status": {
+      "DRAFT": "Draft",
+      "PUBLISHED": "Published",
+      "ARCHIVED": "Archived",
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "actions": {
+      "label": "Actions",
+      "newNotice": "New Notice",
+      "edit": "Edit",
+      "save": "Save",
+      "cancel": "Cancel",
+      "saveDraft": "Save Draft",
+      "publish": "Publish",
+      "archive": "Archive",
+      "addCategory": "Add Category",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "viewAll": "View all",
+      "search": "Search"
+    },
+    "list": {
+      "empty": "No notices yet.",
+      "emptyCategories": "No notice categories yet.",
+      "filterStatus": "All Statuses",
+      "filterCategory": "All Categories",
+      "searchPlaceholder": "Search by title"
+    },
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next",
+      "pageInfo": "Page {page} of {totalPages}"
+    },
+    "portal": {
+      "recentTitle": "Recent Notices",
+      "backToList": "Back to notices",
+      "publishedOn": "Published {date}"
+    },
+    "success": {
+      "categoryCreated": "Category created.",
+      "categoryUpdated": "Category updated.",
+      "draftSaved": "Notice saved as draft.",
+      "noticeUpdated": "Notice updated.",
+      "published": "Notice published.",
+      "archived": "Notice archived."
+    },
+    "errors": {
+      "invalidForm": "Please check the form and try again.",
+      "notFound": "Notice not found.",
+      "saveFailed": "Could not save. Please try again.",
+      "duplicateCategory": "A notice category with this name already exists.",
+      "nameRequired": "Name is required.",
+      "invalidSelection": "Please make a valid selection.",
+      "titleRequired": "Title is required.",
+      "contentRequired": "Content is required.",
+      "dateRequired": "This date is required.",
+      "invalidDate": "Enter a valid date and time.",
+      "invalidDateRange": "The expiry must be after the publish date.",
+      "classRequired": "Select a class for this audience.",
+      "sectionRequired": "Select a class and section for this audience."
+    }
+  },
+  "homework": {
+    "title": "Homework",
+    "subnav": {
+      "homework": "Homework",
+      "categories": "Categories"
+    },
+    "fields": {
+      "name": "Name",
+      "description": "Description",
+      "title": "Title",
+      "instructions": "Instructions",
+      "category": "Category",
+      "teacher": "Teacher",
+      "class": "Class",
+      "section": "Section",
+      "subject": "Subject",
+      "assignedDate": "Assigned Date",
+      "dueDate": "Due Date",
+      "status": "Status",
+      "createdBy": "Created By",
+      "maxMarks": "Maximum Marks",
+      "maxMarksPlaceholder": "e.g. 10",
+      "teacherFeedback": "Teacher Feedback",
+      "submissionContent": "Your Answer",
+      "attachment": "Attachment (optional)",
+      "currentAttachment": "Current file"
+    },
+    "status": {
+      "DRAFT": "Draft",
+      "PUBLISHED": "Published",
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "actions": {
+      "label": "Actions",
+      "createHomework": "Create Homework",
+      "editHomework": "Edit Homework",
+      "details": "Homework Details",
+      "back": "Back",
+      "edit": "Edit",
+      "save": "Save",
+      "cancel": "Cancel",
+      "saveDraft": "Save Draft",
+      "publish": "Publish",
+      "addCategory": "Add Category",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "viewAll": "View all",
+      "search": "Search",
+      "submitHomework": "Submit Homework",
+      "editSubmission": "Edit Submission",
+      "submit": "Submit",
+      "saving": "Saving..."
+    },
+    "list": {
+      "empty": "No homework found.",
+      "emptyCategories": "No homework categories yet.",
+      "filterStatus": "All Statuses",
+      "filterClass": "All Classes",
+      "filterSection": "All Sections",
+      "filterSubject": "All Subjects",
+      "searchPlaceholder": "Search by title"
+    },
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next",
+      "pageInfo": "Page {page} of {totalPages}"
+    },
+    "portal": {
+      "upcomingTitle": "Upcoming Homework",
+      "assignedOn": "Assigned {date}",
+      "dueOn": "Due {date}",
+      "yourSubmission": "Your Submission",
+      "submissionPlaceholder": "Type your answer here...",
+      "childSubmission": "Child's Submission"
+    },
+    "success": {
+      "categoryCreated": "Category created.",
+      "categoryUpdated": "Category updated.",
+      "draftSaved": "Homework saved as draft.",
+      "homeworkUpdated": "Homework updated.",
+      "published": "Homework published.",
+      "submitted": "Homework submitted."
+    },
+    "errors": {
+      "invalidForm": "Please check the form and try again.",
+      "notFound": "Homework not found.",
+      "saveFailed": "Could not save. Please try again.",
+      "duplicateCategory": "A homework category with this name already exists.",
+      "notAssigned": "You are not assigned to teach this class, section, and subject.",
+      "nameRequired": "Name is required.",
+      "invalidSelection": "Please make a valid selection.",
+      "titleRequired": "Title is required.",
+      "instructionsRequired": "Instructions are required.",
+      "dateRequired": "This date is required.",
+      "invalidDate": "Enter a valid date.",
+      "invalidDateRange": "The due date cannot be earlier than the assigned date.",
+      "maxMarksInvalid": "Enter a valid number between 1 and 1000.",
+      "marksInvalid": "Marks must be a valid non-negative number.",
+      "marksExceedsMax": "Marks cannot exceed the maximum of {max}.",
+      "contentTooLong": "Your answer is too long.",
+      "submissionEmpty": "Please provide an answer or attach a file.",
+      "gradeTooLong": "Grade is too long.",
+      "feedbackTooLong": "Feedback is too long.",
+      "reviewEmpty": "Provide marks, a grade, or feedback.",
+      "submissionClosed": "The submission deadline for this homework has passed.",
+      "failedSubmit": "Could not submit your homework. Please try again.",
+      "fileTooLarge": "File is too large. Maximum size is 10MB.",
+      "fileTypeNotAllowed": "This file type is not allowed.",
+      "invalidStudent": "This student is not part of this homework's class."
+    },
+    "submissions": {
+      "title": "Submissions",
+      "summary": "Summary",
+      "totalStudents": "Total Students",
+      "submitted": "Submitted",
+      "reviewed": "Reviewed",
+      "pending": "Pending Review",
+      "late": "Late",
+      "lateBadge": "Late",
+      "notSubmitted": "Not Submitted",
+      "empty": "No submissions found.",
+      "status": {
+        "SUBMITTED": "Submitted",
+        "REVIEWED": "Reviewed"
+      },
+      "table": {
+        "student": "Student",
+        "status": "Status",
+        "submittedAt": "Submitted At",
+        "actions": "Actions"
+      }
+    },
+    "review": {
+      "title": "Review Submission",
+      "back": "Back to Homework",
+      "studentSubmission": "Student Submission",
+      "teacherFeedback": "Teacher Feedback",
+      "feedbackPlaceholder": "Provide textual feedback for the student...",
+      "marks": "Marks",
+      "marksPlaceholder": "Enter marks (e.g. 90)",
+      "grade": "Grade",
+      "gradePlaceholder": "Enter grade (e.g. A+)",
+      "save": "Save Feedback",
+      "saving": "Saving...",
+      "success": "Feedback saved successfully.",
+      "notSubmitted": "Student has not submitted yet.",
+      "viewAttachment": "View attachment"
+    }
+  },
+  "teachers": {
+    "title": "Teachers & Staff",
+    "description": "Manage teaching staff, assignments and academic responsibilities.",
+    "searchPlaceholder": "Search name, employee ID, email or phone",
+    "sections": {
+      "basic": "Basic Information",
+      "employment": "Employment",
+      "academic": "Academic"
+    },
+    "fields": {
+      "teacher": "Teacher",
+      "name": "Full Name",
+      "email": "Email",
+      "password": "Password",
+      "phone": "Phone",
+      "address": "Address",
+      "employeeId": "Employee ID",
+      "designation": "Designation",
+      "designationPlaceholder": "e.g. Senior Teacher",
+      "department": "Department",
+      "joiningDate": "Joining Date",
+      "employmentType": "Employment Type",
+      "employmentTypePlaceholder": "e.g. Full-time",
+      "qualifications": "Qualifications",
+      "specialization": "Specialization",
+      "assignments": "Assignments",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "filters": {
+      "allStatuses": "All statuses",
+      "allDepartments": "All departments",
+      "filter": "Filter"
+    },
+    "list": {
+      "empty": "No teachers found",
+      "emptyDescription": "Adjust the filters or add a teacher to begin.",
+      "unassigned": "Unassigned",
+      "assignmentsCount": "{count} assignments"
+    },
+    "summary": {
+      "total": "Total Teachers",
+      "active": "Active",
+      "inactive": "Inactive",
+      "unassigned": "Unassigned"
+    },
+    "actions": {
+      "addTeacher": "Add Teacher",
+      "editTeacher": "Edit Teacher",
+      "view": "View",
+      "edit": "Edit",
+      "manageAssignments": "Manage Assignments",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "save": "Save",
+      "saving": "Saving...",
+      "create": "Create Teacher"
+    },
+    "confirm": {
+      "deactivate": "Deactivate this teacher? This will prevent new academic assignments but preserve all historical records."
+    },
+    "profile": {
+      "noEmployeeId": "No employee ID",
+      "noPhone": "No phone recorded",
+      "assignedClasses": "Assigned Classes",
+      "assignedSubjects": "Assigned Subjects",
+      "totalAssignments": "Assignments",
+      "employment": "Employment",
+      "noAssignments": "No assignments yet.",
+      "classTeacher": "Class teacher",
+      "legacy": "Legacy",
+      "department": "Department",
+      "qualifications": "Qualifications",
+      "specialization": "Specialization"
+    },
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next",
+      "pageInfo": "Page {page} of {totalPages}"
+    },
+    "success": {
+      "created": "Teacher account created.",
+      "activated": "Teacher activated.",
+      "deactivated": "Teacher deactivated."
+    },
+    "errors": {
+      "invalidForm": "Please check the form and try again.",
+      "nameRequired": "Name is required.",
+      "invalidEmail": "Enter a valid email address.",
+      "passwordTooShort": "Password must be at least 8 characters.",
+      "notFound": "Teacher not found.",
+      "emailTaken": "This email is already in use.",
+      "employeeIdTaken": "This employee ID is already in use.",
+      "saveFailed": "Something went wrong. Please try again."
+    }
+  },
+  "settings": {
+    "title": "সেটিংস",
+    "description": "আপনার বিদ্যালয়ের পরিচয়, ব্র্যান্ডিং এবং সিস্টেম পছন্দ পরিচালনা করুন।",
+    "school": {
+      "title": "স্কুল প্র৏ফাইল",
+      "description": "বিদ্যালয়ের পরিচয়, যোগাযোগের তথ্য এবং ঠিকানা পরিচালনা করুন।",
+      "sections": {
+        "basic": "মৌলিক তথ্য",
+        "administration": "পরিচালনা",
+        "contact": "যোগাযোগ",
+        "address": "ঠিকানা"
+      }
+    },
+    "branding": {
+      "title": "ব্র্যান্ডিং",
+      "description": "লোগো, রঙ, ফ্যাভিকন এবং এপ্লিকেশনের রূপ পরিচালনা করুন।",
+      "sectionDescription": "সেভ করার পর পরিবর্তন সঙ্গে সম্পূর্ণ এপ্লিকেশন জুড়ে প্রযোগ হয়।",
+      "logo": "স্কুল লোগো",
+      "logoRecommended": "পরামর্শ: 512×512, স্সচ্ছ PNG",
+      "favicon": "ফ্যাভিকন",
+      "faviconRecommended": "পরামর্শ: 32×32 বা 48×48 PNG",
+      "loginLogo": "লগইন লোগো",
+      "loginBackground": "লগইন পটভূমি",
+      "loginBackgroundRecommended": "পরামর্শ: 1920×1080",
+      "primaryColor": "প্রাথমিক রঙ",
+      "secondaryColor": "দ্বিতীয় রঙ",
+      "sidebarColor": "সাইডবার রঙ",
+      "accentColor": "অ্যাক্সেন্ট রঙ",
+      "preview": "প্রিভিউ",
+      "previewPrimaryButton": "প্রাথমিক বাটন",
+      "previewSecondaryButton": "দ্বিতীয়",
+      "loginTitle": "লগইন শিরোনাম",
+      "loginTitleDefault": "স্বাগতম",
+      "loginSubtitle": "লগইন সাবটাইটেল",
+      "loginSubtitleDefault": "আপনার অ্যাকাউন্টে প্রবেশ করতে লগইন করুন",
+      "loginDescription": "লগইন বর্ণনা",
+      "loginFooterText": "লগইন ফুটার টেক্সট",
+      "loginFooterDefault": "© 2026 আপনার বিদ্যালয়। সকল স্বত্ব সংরক্ষিত।"
+    },
+    "loginExperience": {
+      "title": "লগইন অভিজ্ঞতা",
+      "description": "সাইন-ইন পাতা কাস্টমাইজ করুন।"
+    },
+    "system": {
+      "title": "সিস্টেম পছন্দ",
+      "description": "ভাষা, সময় অঞ্চল, মুদ্রা এবং ফরম্যাট।",
+      "defaultLanguage": "ডিফল্ট ভাষা",
+      "useApplicationDefault": "অ্যাপ্লিকেশনের ডিফল্ট ব্যবহার করুন",
+      "languages": {
+        "en": "ইংরেজি",
+        "bn": "বাংলা"
+      },
+      "timezone": "সময় অঞ্চল",
+      "currency": "মুদ্রা",
+      "dateFormat": "তারিখের ফরম্যাট",
+      "timeFormat": "সময়ের ফরম্যাট",
+      "timeFormat12h": "১২ ঘন্টা",
+      "timeFormat24h": "২৪ ঘন্টা",
+      "weekStartsOn": "সপ্তাহ শুরু হয়",
+      "workingDays": "বিদ্যালয় কার্যদিবস",
+      "pageSize": "ডিফল্ট পেজ আকার",
+      "weekdays": {
+        "sunday": "রবিবার",
+        "monday": "সোমবার",
+        "tuesday": "মঙ্গলবার",
+        "wednesday": "বুধবার",
+        "thursday": "বৃহস্পতিবার",
+        "friday": "শুক্রবার",
+        "saturday": "শনিবার"
+      }
+    },
+    "fields": {
+      "schoolName": "বিদ্যালয়ের নাম",
+      "shortName": "সংক্ষিপ্ত নাম",
+      "schoolCode": "স্কুল কোড",
+      "motto": "নীতিবাক্য",
+      "description": "বর্ণনা",
+      "establishedYear": "প্রতিষ্ঠার বছর",
+      "principalName": "অধ্যক্ষের নাম",
+      "email": "ইমেইল",
+      "phone": "ফোন",
+      "alternatePhone": "বিকল্প ফোন",
+      "website": "ওয়েবসাইট",
+      "address": "ঠিকানা",
+      "city": "শহর",
+      "country": "দেশ",
+      "postalCode": "পোস্ট কোড"
+    },
+    "actions": {
+      "saving": "সামস্যহিক হচ্ছে...",
+      "saveChanges": "পরিবর্তন সংরক্ষণ করুন",
+      "upload": "আপলোড",
+      "replace": "পরিবর্তন",
+      "remove": "মুছে ফেলুন"
+    },
+    "success": {
+      "saved": "সেটিংস সংরক্ষিত হয়েছে।",
+      "imageUploaded": "ছবি আপলোড হয়েছে।",
+      "imageRemoved": "ছবি মুছে ফেলা হয়েছে।"
+    },
+    "errors": {
+      "invalidForm": "অনুগ্রহ করে চিহ্নিত ঘরগুলো পরীক্ষা করুন।",
+      "saveFailed": "সেটিংস সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।",
+      "unsupportedImageType": "এই ফাইল প্রকারটি সমর্থিত নয়।",
+      "imageTooLarge": "এই ফাইলটি খুব বড়।",
+      "nameRequired": "বিদ্যালয়ের নাম আবশ্যক।",
+      "invalidEmail": "সঠিক ইমেইল ঠিকানা দিন।",
+      "invalidUrl": "সঠিক URL দিন।",
+      "invalidColor": "#RRGGBB রূপে রঙ দিন।",
+      "invalidYear": "সঠিক বছর দিন।",
+      "invalidTimezone": "সঠিক সময় অঞ্চল দিন (যেমন Asia/Dhaka)।",
+      "invalidCurrency": "সঠিক মুদ্রা নির্বাচন করুন।",
+      "invalidLanguage": "সঠিক ভাষা নির্বাচন করুন।",
+      "invalidDateFormat": "সঠিক তারিখের ফরম্যাট নির্বাচন করুন।",
+      "invalidTimeFormat": "সঠিক সময়ের ফরম্যাট নির্বাচন করুন।",
+      "invalidWeekStart": "সঠিক দিন নির্বাচন করুন।",
+      "invalidWorkingDay": "সঠিক কার্যদিবস নির্বাচন করুন।",
+      "invalidPageSize": "৫ থেকে ২০০ এর মধ্যে একটি পেজ আকার দিন।"
     }
   }
 }

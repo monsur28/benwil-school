@@ -53,7 +53,7 @@ export async function createHomework(input: unknown): Promise<ActionResult<{ id:
   const relationError = await assertHomeworkRelations(user.schoolId, parsed.data, t)
   if (relationError) return { success: false, error: relationError }
 
-  const access = await checkHomeworkWriteAccess(user, parsed.data.classId, parsed.data.sectionId, parsed.data.subjectId)
+  const access = await checkHomeworkWriteAccess(user, parsed.data.academicYearId, parsed.data.classId, parsed.data.sectionId, parsed.data.subjectId)
   if (!access.ok) return { success: false, error: t("errors.notAssigned") }
 
   // A teacher's own homework is always attributed to their own session,
@@ -113,7 +113,7 @@ export async function updateHomework(input: unknown): Promise<ActionResult> {
   const relationError = await assertHomeworkRelations(user.schoolId, parsed.data, t)
   if (relationError) return { success: false, error: relationError }
 
-  const access = await checkHomeworkWriteAccess(user, parsed.data.classId, parsed.data.sectionId, parsed.data.subjectId)
+  const access = await checkHomeworkWriteAccess(user, parsed.data.academicYearId, parsed.data.classId, parsed.data.sectionId, parsed.data.subjectId)
   if (!access.ok) return { success: false, error: t("errors.notAssigned") }
 
   // Status is deliberately untouched here - an ordinary edit never
@@ -146,7 +146,7 @@ export async function publishHomework(id: string): Promise<ActionResult> {
 
   const existing = await prisma.homework.findFirst({
     where: { id, schoolId: user.schoolId, status: "DRAFT" },
-    select: { id: true, teacherId: true, classId: true, sectionId: true, subjectId: true },
+    select: { id: true, teacherId: true, academicYearId: true, classId: true, sectionId: true, subjectId: true },
   })
   if (!existing) return { success: false, error: t("errors.notFound") }
 
@@ -154,7 +154,7 @@ export async function publishHomework(id: string): Promise<ActionResult> {
   if (!ownership.ok) return { success: false, error: t("errors.notAssigned") }
 
   if (user.role === Role.TEACHER) {
-    const access = await checkHomeworkWriteAccess(user, existing.classId, existing.sectionId, existing.subjectId)
+    const access = await checkHomeworkWriteAccess(user, existing.academicYearId, existing.classId, existing.sectionId, existing.subjectId)
     if (!access.ok) return { success: false, error: t("errors.notAssigned") }
   }
 

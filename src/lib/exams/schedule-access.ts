@@ -61,6 +61,7 @@ export async function checkScheduleAccess(
     }
     const allowed = await isTeacherAssignedToSubjectInSection(
       user.userId,
+      schedule.exam.academicYearId,
       schedule.classId,
       sectionId,
       schedule.subjectId

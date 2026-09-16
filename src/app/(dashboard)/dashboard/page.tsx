@@ -2,6 +2,8 @@ import { getTranslations } from "next-intl/server"
 import { Role } from "@prisma/client"
 import { Calendar } from "lucide-react"
 import { requireAuth } from "@/lib/auth/dal"
+import { prisma } from "@/lib/db/client"
+import { getSchoolIdentity } from "@/lib/settings/school-settings"
 import { AdminDashboard } from "@/components/dashboard/admin-dashboard"
 import { TeacherDashboard } from "@/components/dashboard/teacher-dashboard"
 import { GenericDashboard } from "@/components/dashboard/generic-dashboard"
@@ -42,6 +44,11 @@ export default async function DashboardPage() {
     return <AdminDashboard />
   }
 
+  const [identity, activeAcademicYear] = await Promise.all([
+    getSchoolIdentity(user.schoolId),
+    prisma.academicYear.findFirst({ where: { schoolId: user.schoolId, isActive: true }, select: { name: true } }),
+  ])
+
   return (
     <div className="space-y-6">
       {/* Header for non-admin faculty and staff roles */}
@@ -56,13 +63,13 @@ export default async function DashboardPage() {
             </span>
           </div>
           <p className="text-xs text-muted-foreground sm:text-sm">
-            Benwil Model School • Academic Session 2026
+            {activeAcademicYear ? `${identity.schoolName} • ${t("academicSession", { year: activeAcademicYear.name })}` : identity.schoolName}
           </p>
         </div>
 
         <div className="flex items-center gap-2">
           <div className="hidden items-center gap-2 rounded-lg border border-border/70 bg-card px-3 py-1.5 text-xs text-muted-foreground shadow-2xs md:flex">
-            <span className="size-1.5 animate-pulse rounded-full bg-emerald-500" />
+            <span className="size-1.5 animate-pulse rounded-full bg-success" />
             <Calendar className="size-3.5 text-muted-foreground" />
             <span className="font-mono">{todayFormatted}</span>
           </div>

@@ -46,16 +46,16 @@ export function RecentActivityFeed({ activities }: RecentActivityFeedProps) {
     {
       id: "act-1",
       title: t("studentAdmitted"),
-      description: "Sultana Parvin • Class 8 (A) • Roll #14",
-      timestamp: t("minutesAgo", { count: locale === "bn" ? "৮" : "8" }),
+      description: "Sultana Parvin â€¢ Class 8 (A) â€¢ Roll #14",
+      timestamp: t("minutesAgo", { count: locale === "bn" ? "à§®" : "8" }),
       type: "admission",
       href: "/students",
     },
     {
       id: "act-2",
       title: t("feeReceived"),
-      description: "৳ 12,500 collected • Student #STU-0821",
-      timestamp: t("minutesAgo", { count: locale === "bn" ? "২৪" : "24" }),
+      description: "à§³ 12,500 collected â€¢ Student #STU-0821",
+      timestamp: t("minutesAgo", { count: locale === "bn" ? "à§¨à§ª" : "24" }),
       type: "payment",
       href: "/fees",
     },
@@ -64,10 +64,10 @@ export function RecentActivityFeed({ activities }: RecentActivityFeedProps) {
       title: t("attendanceDone"),
       description: t("attendanceSummary", {
         className: "Class 7 (B)",
-        count: locale === "bn" ? "৩২" : "32",
-        percent: locale === "bn" ? "৯৭" : "97",
+        count: locale === "bn" ? "à§©à§¨" : "32",
+        percent: locale === "bn" ? "à§¯à§­" : "97",
       }),
-      timestamp: t("minutesAgo", { count: locale === "bn" ? "৪২" : "42" }),
+      timestamp: t("minutesAgo", { count: locale === "bn" ? "à§ªà§¨" : "42" }),
       type: "attendance",
       href: "/attendance",
     },
@@ -75,7 +75,7 @@ export function RecentActivityFeed({ activities }: RecentActivityFeedProps) {
       id: "act-4",
       title: t("examScheduled"),
       description: t("examRoutineFinalized"),
-      timestamp: t("hourAgo", { count: locale === "bn" ? "১" : "1" }),
+      timestamp: t("hourAgo", { count: locale === "bn" ? "à§§" : "1" }),
       type: "exam",
       href: "/exams",
     },
@@ -84,7 +84,7 @@ export function RecentActivityFeed({ activities }: RecentActivityFeedProps) {
   const items = activities && activities.length > 0 ? activities : defaultActivities
 
   return (
-    <Card className="flex flex-col justify-between rounded-2xl border border-border/60 bg-card p-5 shadow-xs">
+    <Card className="flex flex-col justify-between rounded-xl border border-border/60 bg-card p-4 shadow-xs">
       <CardHeader className="p-0 pb-3">
         <div className="flex items-center justify-between">
           <div>

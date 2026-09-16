@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useLocale, useTranslations } from "next-intl"
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts"
+import { BarChart, Bar, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts"
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { ArrowUpRight, CheckCircle2, Clock } from "lucide-react"
 import { formatLakh, formatNumber } from "@/lib/format"
@@ -40,15 +40,15 @@ export function FeeAnalyticsCard({
   pendingAmount = 1040000,
   collectionRate = 82.4,
   monthlyData = DEFAULT_MONTHLY,
-  currencySymbol = "৳",
+  currencySymbol = "\u09F3",
 }: FeeAnalyticsCardProps) {
   const t = useTranslations("dashboard.admin.feeAnalytics")
   const locale = useLocale()
   const lakhSuffix = t("lakhSuffix")
 
   return (
-    <Card className="flex flex-col justify-between rounded-2xl border border-border/60 bg-card p-5 shadow-xs">
-      <CardHeader className="p-0 pb-4">
+    <Card className="flex flex-col justify-between rounded-2xl border border-border/70 bg-card p-5 shadow-[0_10px_30px_rgba(25,49,90,0.05)]">
+      <CardHeader className="p-0 pb-3">
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="text-base font-semibold tracking-tight text-foreground">
@@ -86,55 +86,33 @@ export function FeeAnalyticsCard({
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-2 pt-1">
-          <div className="rounded-xl border border-border/50 bg-muted/20 p-2.5">
-            <span className="text-[10px] font-medium tracking-wider text-muted-foreground uppercase">
-              {t("collected")}
-            </span>
-            <p className="font-mono text-sm font-bold text-success sm:text-base">
-              {currencySymbol} {formatLakh(totalCollected, locale, lakhSuffix)}
-            </p>
-            <span className="inline-flex items-center gap-0.5 text-[10px] text-success">
-              <CheckCircle2 className="size-2.5" />
-              {t("reconciled")}
-            </span>
+        <div className="grid grid-cols-1 divide-y divide-border/65 border-y border-border/65 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+          <div className="py-3 sm:px-3 sm:first:pl-0">
+            <span className="text-[10px] font-bold tracking-[0.08em] text-muted-foreground uppercase">{t("collected")}</span>
+            <p className="mt-1 font-mono text-base font-bold tracking-tight text-success sm:text-lg">{currencySymbol} {formatLakh(totalCollected, locale, lakhSuffix)}</p>
+            <span className="mt-1 inline-flex items-center gap-1 text-[10px] text-success"><CheckCircle2 className="size-3" />{t("reconciled")}</span>
           </div>
-
-          <div className="rounded-xl border border-border/50 bg-muted/20 p-2.5">
-            <span className="text-[10px] font-medium tracking-wider text-muted-foreground uppercase">
-              {t("target")}
-            </span>
-            <p className="font-mono text-sm font-bold text-foreground sm:text-base">
-              {currencySymbol} {formatLakh(targetAmount, locale, lakhSuffix)}
-            </p>
-            <span className="text-[10px] text-muted-foreground">
-              {t("sessionTotal")}
-            </span>
+          <div className="py-3 sm:px-3">
+            <span className="text-[10px] font-bold tracking-[0.08em] text-muted-foreground uppercase">{t("target")}</span>
+            <p className="mt-1 font-mono text-base font-bold tracking-tight text-foreground sm:text-lg">{currencySymbol} {formatLakh(targetAmount, locale, lakhSuffix)}</p>
+            <span className="mt-1 block text-[10px] text-muted-foreground">{t("sessionTotal")}</span>
           </div>
-
-          <div className="rounded-xl border border-border/50 bg-muted/20 p-2.5">
-            <span className="text-[10px] font-medium tracking-wider text-muted-foreground uppercase">
-              {t("pending")}
-            </span>
-            <p className="font-mono text-sm font-bold text-warning sm:text-base">
-              {currencySymbol} {formatLakh(pendingAmount, locale, lakhSuffix)}
-            </p>
-            <span className="inline-flex items-center gap-0.5 text-[10px] text-warning">
-              <Clock className="size-2.5" />
-              {t("invoicesActive")}
-            </span>
+          <div className="py-3 sm:px-3 sm:last:pr-0">
+            <span className="text-[10px] font-bold tracking-[0.08em] text-muted-foreground uppercase">{t("pending")}</span>
+            <p className="mt-1 font-mono text-base font-bold tracking-tight text-warning sm:text-lg">{currencySymbol} {formatLakh(pendingAmount, locale, lakhSuffix)}</p>
+            <span className="mt-1 inline-flex items-center gap-1 text-[10px] text-warning"><Clock className="size-3" />{t("invoicesActive")}</span>
           </div>
         </div>
       </div>
 
       {/* Monthly Cashflow Bar Chart */}
-      <div className="mt-4 pt-3 border-t border-border/40">
+      <div className="mt-4 border-t border-border/50 pt-4">
         <div className="flex items-center justify-between pb-2 text-xs">
           <span className="font-medium text-muted-foreground">{t("monthlyTrend")}</span>
           <span className="font-mono text-[11px] text-muted-foreground">{t("monthsRange")}</span>
         </div>
 
-        <div className="h-44 w-full">
+        <div className="h-32 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={monthlyData} margin={{ top: 5, right: 5, left: -25, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" className="text-border/40" />
@@ -170,7 +148,15 @@ export function FeeAnalyticsCard({
                   )
                 }}
               />
-              <Bar dataKey="amount" fill="var(--color-dashboard-blue)" radius={[4, 4, 0, 0]} maxBarSize={32} />
+              <Bar dataKey="amount" radius={[4, 4, 0, 0]} maxBarSize={32}>
+                {/* Current month highlighted in the brand accent (design.md §13) */}
+                {monthlyData.map((point, index) => (
+                  <Cell
+                    key={point.month}
+                    fill={index === monthlyData.length - 1 ? "var(--color-brand-red)" : "var(--color-dashboard-blue)"}
+                  />
+                ))}
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         </div>

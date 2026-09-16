@@ -46,7 +46,10 @@ export default async function MarksEntryPage({
       select: { id: true, name: true, classId: true },
     })
   } else {
-    const triples = await getTeacherAssignmentTriples(user.userId)
+    // Marks entry is scoped to THIS exam's own academic year - a teacher's
+    // assignment from a different year must not authorize them here, even
+    // if that other year is currently active.
+    const triples = await getTeacherAssignmentTriples(user.userId, exam.academicYearId)
     allowedSchedules = allSchedules.filter((schedule) =>
       triples.some((triple) => triple.classId === schedule.classId && triple.subjectId === schedule.subjectId)
     )

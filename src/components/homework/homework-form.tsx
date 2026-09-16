@@ -39,6 +39,7 @@ type ExistingHomework = {
   subjectId: string
   assignedDate: Date
   dueDate: Date
+  maxMarks: number | null
 }
 
 type HomeworkFormProps = {
@@ -71,7 +72,8 @@ export function HomeworkForm(props: HomeworkFormProps) {
     setError,
     formState: { errors },
   } = useForm<CreateHomeworkInput | EditHomeworkInput>({
-    resolver: zodResolver(isEdit ? editHomeworkSchema : createHomeworkSchema),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(isEdit ? editHomeworkSchema : createHomeworkSchema) as any,
     defaultValues: isEdit
       ? {
           id: homework!.id,
@@ -85,6 +87,7 @@ export function HomeworkForm(props: HomeworkFormProps) {
           teacherId: "",
           assignedDate: toDateInputValue(homework!.assignedDate),
           dueDate: toDateInputValue(homework!.dueDate),
+          maxMarks: homework!.maxMarks ?? undefined,
         }
       : {
           title: "",
@@ -97,6 +100,7 @@ export function HomeworkForm(props: HomeworkFormProps) {
           teacherId: "",
           assignedDate: toDateInputValue(new Date()),
           dueDate: toDateInputValue(new Date()),
+          maxMarks: undefined,
         },
   })
 
@@ -274,6 +278,19 @@ export function HomeworkForm(props: HomeworkFormProps) {
             <FieldError errors={[errors.dueDate && { message: t(errors.dueDate.message as never) }]} />
           </Field>
         </div>
+
+        <Field>
+          <FieldLabel htmlFor="homework-max-marks">{t("fields.maxMarks")}</FieldLabel>
+          <Input
+            id="homework-max-marks"
+            type="number"
+            min={1}
+            step={1}
+            placeholder={t("fields.maxMarksPlaceholder")}
+            {...register("maxMarks")}
+          />
+          <FieldError errors={[errors.maxMarks && { message: t(errors.maxMarks.message as never) }]} />
+        </Field>
       </FieldGroup>
 
       <div className="flex flex-wrap gap-2">

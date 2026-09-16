@@ -27,7 +27,11 @@ export default async function ResultsOverviewPage({
 
   let restrictToClassIds: string[] | undefined
   if (user.role === Role.TEACHER) {
-    const triples = await getTeacherClassSectionPairs(user.userId)
+    // This overview spans every exam/year by default - scope to the
+    // filtered year when one is selected, otherwise show classes the
+    // teacher has ever been assigned to (matches the existing "all years"
+    // overview behavior when no year filter is applied).
+    const triples = await getTeacherClassSectionPairs(user.userId, academicYearId || null)
     restrictToClassIds = Array.from(new Set(triples.map((triple) => triple.classId)))
   }
 

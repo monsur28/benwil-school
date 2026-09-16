@@ -33,38 +33,41 @@ const ALLOWED_MIME_TYPES = [
   "image/webp",
 ]
 
-/**
- * Student submission action.
- * Receives FormData with homeworkId, optional text content, and optional file attachment.
- * Derives student identity strictly from the authenticated session.
- */
+// Path separators and traversal segments are stripped from the original
+// filename before it ever reaches the filesystem - the upload path is built
+// from school/homework/student ids we already trust, not from user input.
+function sanitizeFileName(name: string): string {
+  const base = name.replace(/[/\\]+/g, "_").replace(/\.\./g, "_")
+  return base.slice(-150) || "file"
+}
+
 export async function submitHomework(formData: FormData): Promise<ActionResult<{ id: string }>> {
   const { user, student } = await requireStudentIdentity()
   const t = await getTranslations("homework")
 
   const homeworkId = formData.get("homeworkId")?.toString() ?? ""
   const content = formData.get("content")?.toString()?.trim() || ""
-  const file = formData.get("file") as File | null
+  const rawFile = formData.get("file")
+  const file = rawFile instanceof File && rawFile.size > 0 ? rawFile : null
 
   const parsed = submitHomeworkSchema.safeParse({ homeworkId, content })
   if (!parsed.success) {
     return { success: false, error: t("errors.invalidForm") }
   }
 
-  const hasFile = Boolean(file && file.size > 0 && file.name)
-  if (!content && !hasFile) {
+  // A submission needs at least one of content or a file - this can only be
+  // checked here, not in the Zod schema, since the schema never sees the
+  // raw FormData file entry.
+  if (!parsed.data.content && !file) {
     return { success: false, error: t("errors.submissionEmpty") }
   }
 
-  if (hasFile && file) {
+  if (file) {
     if (file.size > MAX_FILE_SIZE) {
       return { success: false, error: t("errors.fileTooLarge") }
     }
-    // Some browsers or test fixtures may not set type; check extension too
-    const ext = file.name.split(".").pop()?.toLowerCase() || ""
-    const allowedExts = ["pdf", "doc", "docx", "txt", "png", "jpg", "jpeg", "webp"]
-    if (file.type && !ALLOWED_MIME_TYPES.includes(file.type) && !allowedExts.includes(ext)) {
-      return { success: false, error: t("errors.invalidFileType") }
+    if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+      return { success: false, error: t("errors.fileTypeNotAllowed") }
     }
   }
 
@@ -87,18 +90,11 @@ export async function submitHomework(formData: FormData): Promise<ActionResult<{
     return { success: false, error: t("errors.submissionClosed") }
   }
 
-  let fileUrl: string | null = null
-  let fileName: string | null = null
-  let fileSize: number | null = null
-
-  if (hasFile && file) {
+  let uploaded: { url: string; fileName: string; fileSize?: number } | null = null
+  if (file) {
     const storage = getDocumentStorage()
-    const cleanName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_")
-    const relativePath = `uploads/homework/${user.schoolId}/${Date.now()}-${cleanName}`
-    const uploaded = await storage.upload(file, relativePath)
-    fileUrl = uploaded.url
-    fileName = uploaded.fileName
-    fileSize = uploaded.fileSize ?? file.size
+    const relativePath = `uploads/homework-submissions/${user.schoolId}/${homework.id}/${student.id}-${Date.now()}-${sanitizeFileName(file.name)}`
+    uploaded = await storage.upload(file, relativePath)
   }
 
   const submission = await prisma.homeworkSubmission.upsert({
@@ -113,19 +109,23 @@ export async function submitHomework(formData: FormData): Promise<ActionResult<{
       schoolId: user.schoolId,
       homeworkId: homework.id,
       studentId: student.id,
-      content: content || null,
-      fileUrl,
-      fileName,
-      fileSize,
+      content: parsed.data.content || null,
+      fileUrl: uploaded?.url ?? null,
+      fileName: uploaded?.fileName ?? null,
+      fileSize: uploaded?.fileSize ?? null,
       status: "SUBMITTED",
       submittedAt: new Date(),
     },
     update: {
-      content: content || null,
-      ...(hasFile ? { fileUrl, fileName, fileSize } : {}),
+      content: parsed.data.content || null,
+      // A resubmission without a new file keeps whatever was previously
+      // uploaded rather than silently deleting it.
+      ...(uploaded ? { fileUrl: uploaded.url, fileName: uploaded.fileName, fileSize: uploaded.fileSize } : {}),
       status: "SUBMITTED",
       submittedAt: new Date(),
-      // Resubmission resets review state as it requires fresh teacher review
+      // Resubmission resets review state - marks/grade from a previous
+      // version of the work must not silently linger on the new one, since
+      // it hasn't been reviewed yet.
       marks: null,
       grade: null,
       feedback: null,
@@ -144,11 +144,6 @@ export async function submitHomework(formData: FormData): Promise<ActionResult<{
   return { success: true, data: { id: submission.id } }
 }
 
-/**
- * Teacher and Admin review action.
- * Allows awarding marks, grade, and textual feedback.
- * Strictly verifies school scoping, teacher ownership, and class/section match.
- */
 export async function reviewHomeworkSubmission(input: unknown): Promise<ActionResult> {
   const user = await requireRole(...HOMEWORK_ROLES)
   const t = await getTranslations("homework")
@@ -175,6 +170,15 @@ export async function reviewHomeworkSubmission(input: unknown): Promise<ActionRe
   })
   if (!homework) {
     return { success: false, error: t("errors.notFound") }
+  }
+
+  // The client's marks value is only ever a suggestion - maxMarks is
+  // re-read from this homework's own authoritative row, never trusted from
+  // the form (spec §14/§43). A homework with no maxMarks configured has no
+  // ceiling to enforce, so any non-negative value (already checked by the
+  // Zod schema) is accepted.
+  if (parsed.data.marks !== undefined && homework.maxMarks !== null && parsed.data.marks > homework.maxMarks) {
+    return { success: false, error: t("errors.marksExceedsMax", { max: homework.maxMarks }) }
   }
 
   const student = await prisma.student.findFirst({
@@ -213,24 +217,13 @@ export async function reviewHomeworkSubmission(input: unknown): Promise<ActionRe
     return { success: false, error: t("errors.notFound") }
   }
 
-  if (
-    parsed.data.marks !== undefined &&
-    parsed.data.marks !== null &&
-    homework.maxMarks !== null &&
-    homework.maxMarks !== undefined
-  ) {
-    if (parsed.data.marks > homework.maxMarks) {
-      return { success: false, error: t("errors.marksExceedMax") }
-    }
-  }
-
   await prisma.homeworkSubmission.update({
     where: { id: submission.id },
     data: {
       status: "REVIEWED",
+      feedback: parsed.data.feedback || null,
       marks: parsed.data.marks !== undefined ? parsed.data.marks : null,
       grade: parsed.data.grade || null,
-      feedback: parsed.data.feedback || null,
       reviewedAt: new Date(),
       reviewedById: user.userId,
     },

@@ -1,6 +1,7 @@
 import "server-only"
 import { prisma } from "@/lib/db/client"
 import type { HomeworkSubmission, Student, Prisma } from "@prisma/client"
+import { isSubmissionLate } from "@/lib/homework/submission-timing"
 
 export type StudentSubmissionWithReviewer = Prisma.HomeworkSubmissionGetPayload<{
   include: {
@@ -19,6 +20,7 @@ export type HomeworkSubmissionsRosterItem = {
     id: string
     status: "SUBMITTED" | "REVIEWED"
     submittedAt: Date
+    isLate: boolean
     marks: Prisma.Decimal | null
     grade: string | null
     fileUrl: string | null
@@ -33,6 +35,7 @@ export type HomeworkSubmissionsSummary = {
   reviewedCount: number
   pendingCount: number
   notSubmittedCount: number
+  lateCount: number
 }
 
 /**
@@ -77,6 +80,7 @@ export async function getHomeworkSubmissionsRoster(args: {
       classId: true,
       sectionId: true,
       maxMarks: true,
+      dueDate: true,
     },
   })
   if (!homework) return null
@@ -115,6 +119,7 @@ export async function getHomeworkSubmissionsRoster(args: {
   let submittedCount = 0
   let reviewedCount = 0
   let pendingCount = 0
+  let lateCount = 0
 
   const roster: HomeworkSubmissionsRosterItem[] = students.map((s) => {
     const sub = s.homeworkSubmissions[0] ?? null
@@ -125,6 +130,8 @@ export async function getHomeworkSubmissionsRoster(args: {
       } else {
         pendingCount++
       }
+      const isLate = isSubmissionLate(sub.submittedAt, homework.dueDate)
+      if (isLate) lateCount++
       return {
         student: {
           id: s.id,
@@ -136,6 +143,7 @@ export async function getHomeworkSubmissionsRoster(args: {
           id: sub.id,
           status: sub.status,
           submittedAt: sub.submittedAt,
+          isLate,
           marks: sub.marks,
           grade: sub.grade,
           fileUrl: sub.fileUrl,
@@ -166,9 +174,31 @@ export async function getHomeworkSubmissionsRoster(args: {
       reviewedCount,
       pendingCount,
       notSubmittedCount,
+      lateCount,
     },
     roster,
   }
+}
+
+/**
+ * Count of submitted-but-not-yet-reviewed submissions across all of a
+ * teacher's published homework - a single aggregate query (no N+1 roster
+ * fetch) for dashboard stat cards.
+ */
+export async function getPendingReviewCountForTeacher(args: {
+  schoolId: string
+  teacherId: string
+}): Promise<number> {
+  return prisma.homeworkSubmission.count({
+    where: {
+      schoolId: args.schoolId,
+      status: "SUBMITTED",
+      homework: {
+        teacherId: args.teacherId,
+        status: "PUBLISHED",
+      },
+    },
+  })
 }
 
 /**

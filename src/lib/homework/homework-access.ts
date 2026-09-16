@@ -14,12 +14,14 @@ export type HomeworkAccessResult = { ok: true } | { ok: false; reason: "unauthor
 // given class + section + subject. Admins and the Principal are
 // unrestricted within their own school (schoolId scoping happens at the
 // caller's Prisma query, not here). A TEACHER must have a TeacherAssignment
-// matching the exact class + section + subject, re-checked here against the
-// database every call - never trust classId/sectionId/subjectId that merely
-// arrived via a form. Reuses the same TeacherAssignment check exam marks
-// entry already relies on (see src/lib/exams/schedule-access.ts).
+// matching the exact class + section + subject IN THE HOMEWORK'S OWN
+// ACADEMIC YEAR, re-checked here against the database every call - never
+// trust classId/sectionId/subjectId/academicYearId that merely arrived via
+// a form. Reuses the same TeacherAssignment check exam marks entry already
+// relies on (see src/lib/exams/schedule-access.ts).
 export async function checkHomeworkWriteAccess(
   user: SessionData,
+  academicYearId: string,
   classId: string,
   sectionId: string,
   subjectId: string
@@ -30,7 +32,7 @@ export async function checkHomeworkWriteAccess(
   if (user.role !== Role.TEACHER) {
     return { ok: false, reason: "unauthorized" }
   }
-  const assigned = await isTeacherAssignedToSubjectInSection(user.userId, classId, sectionId, subjectId)
+  const assigned = await isTeacherAssignedToSubjectInSection(user.userId, academicYearId, classId, sectionId, subjectId)
   return assigned ? { ok: true } : { ok: false, reason: "unauthorized" }
 }
 

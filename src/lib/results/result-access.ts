@@ -17,8 +17,13 @@ export type ResultAccessResult = { ok: true } | { ok: false; reason: "unauthoriz
 // assignment there at all may not. Admins/Principal are unrestricted within
 // their own school - the schoolId scoping happens at the caller's Prisma
 // query, not here.
+// academicYearId must be the result's OWN exam's academic year - a
+// historical 2025 result is checked against the teacher's 2025 assignment,
+// never against whichever year is currently active (spec: historical
+// results must remain accessible on their own terms).
 export async function checkResultAccess(
   user: SessionData,
+  academicYearId: string,
   classId: string,
   sectionId: string
 ): Promise<ResultAccessResult> {
@@ -28,6 +33,6 @@ export async function checkResultAccess(
   if (user.role !== Role.TEACHER) {
     return { ok: false, reason: "unauthorized" }
   }
-  const assigned = await isTeacherAssignedToSection(user.userId, classId, sectionId)
+  const assigned = await isTeacherAssignedToSection(user.userId, academicYearId, classId, sectionId)
   return assigned ? { ok: true } : { ok: false, reason: "unauthorized" }
 }

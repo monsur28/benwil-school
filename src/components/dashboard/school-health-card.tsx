@@ -64,7 +64,7 @@ export function SchoolHealthCard({ metrics = DEFAULT_METRICS }: SchoolHealthCard
   const composite = Math.round((items.reduce((sum, item) => sum + item.value, 0) / items.length) * 10) / 10
 
   return (
-    <Card className="flex flex-col justify-between rounded-2xl border border-border/60 bg-card p-5 shadow-xs">
+    <Card className="flex flex-col justify-between rounded-xl border border-border/60 bg-card p-4 shadow-xs">
       <CardHeader className="p-0 pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -115,7 +115,7 @@ export function SchoolHealthCard({ metrics = DEFAULT_METRICS }: SchoolHealthCard
       <div className="mt-4 flex items-center justify-between border-t border-border/40 pt-3 text-[11px] text-muted-foreground">
         <span>* {t("calculatedAt")}</span>
         <span className="font-mono font-medium text-foreground">
-          {locale === "bn" ? `যৌথ স্কোর: ${formatNumber(composite, locale)}/১০০` : `Composite: ${composite}/100`}
+          {locale === "bn" ? `à¦¯à§Œà¦¥ à¦¸à§à¦•à§‹à¦°: ${formatNumber(composite, locale)}/à§§à§¦à§¦` : `Composite: ${composite}/100`}
         </span>
       </div>
     </Card>

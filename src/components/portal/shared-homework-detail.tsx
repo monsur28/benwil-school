@@ -51,6 +51,10 @@ export async function SharedHomeworkDetail({
                 {homework.class.name} {homework.section.name}
               </dd>
             </div>
+            <div>
+              <dt className="text-xs text-muted-foreground">{t("fields.maxMarks")}</dt>
+              <dd>{homework.maxMarks ?? "—"}</dd>
+            </div>
           </dl>
         </CardContent>
       </Card>

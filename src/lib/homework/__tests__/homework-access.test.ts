@@ -87,37 +87,96 @@ describe("homework authorization (DB-backed)", () => {
   describe("checkHomeworkWriteAccess", () => {
     it("allows a school admin for any class/section/subject in their school", async () => {
       const user = { userId: adminUserId, schoolId: schoolAId, role: Role.SCHOOL_ADMIN, name: "" }
-      const result = await checkHomeworkWriteAccess(user, class8Id, sectionA8Id, englishSubjectId)
+      const result = await checkHomeworkWriteAccess(user, academicYearId, class8Id, sectionA8Id, englishSubjectId)
       assert.equal(result.ok, true)
     })
 
     it("allows a principal for any class/section/subject in their school", async () => {
       const user = { userId: principalId, schoolId: schoolAId, role: Role.PRINCIPAL, name: "" }
-      const result = await checkHomeworkWriteAccess(user, class8Id, sectionA8Id, englishSubjectId)
+      const result = await checkHomeworkWriteAccess(user, academicYearId, class8Id, sectionA8Id, englishSubjectId)
       assert.equal(result.ok, true)
     })
 
     it("allows a teacher for their assigned class + section + subject", async () => {
       const user = { userId: assignedTeacherId, schoolId: schoolAId, role: Role.TEACHER, name: "" }
-      const result = await checkHomeworkWriteAccess(user, class5Id, sectionA5Id, mathSubjectId)
+      const result = await checkHomeworkWriteAccess(user, academicYearId, class5Id, sectionA5Id, mathSubjectId)
       assert.equal(result.ok, true)
     })
 
     it("rejects a teacher for an unassigned class", async () => {
       const user = { userId: assignedTeacherId, schoolId: schoolAId, role: Role.TEACHER, name: "" }
-      const result = await checkHomeworkWriteAccess(user, class8Id, sectionA8Id, mathSubjectId)
+      const result = await checkHomeworkWriteAccess(user, academicYearId, class8Id, sectionA8Id, mathSubjectId)
       assert.equal(result.ok, false)
     })
 
     it("rejects a teacher for an unassigned subject in an otherwise-assigned class/section", async () => {
       const user = { userId: assignedTeacherId, schoolId: schoolAId, role: Role.TEACHER, name: "" }
-      const result = await checkHomeworkWriteAccess(user, class5Id, sectionA5Id, englishSubjectId)
+      const result = await checkHomeworkWriteAccess(user, academicYearId, class5Id, sectionA5Id, englishSubjectId)
       assert.equal(result.ok, false)
     })
 
     it("rejects a role with no homework access (e.g. accountant)", async () => {
       const user = { userId: adminUserId, schoolId: schoolAId, role: Role.ACCOUNTANT, name: "" }
-      const result = await checkHomeworkWriteAccess(user, class5Id, sectionA5Id, mathSubjectId)
+      const result = await checkHomeworkWriteAccess(user, academicYearId, class5Id, sectionA5Id, mathSubjectId)
+      assert.equal(result.ok, false)
+    })
+  })
+
+  // PHASE 12: a real assignment scoped to one specific academic year must
+  // not authorize a teacher for a different academic year, even for the
+  // exact same class/section/subject. The one pre-Phase-11 legacy row
+  // (academicYearId: null) is intentionally exempt from this - see the
+  // block comment in teacher-assignments.ts - so this uses a FRESH
+  // year-scoped assignment to prove the strict-year case specifically.
+  describe("checkHomeworkWriteAccess is academic-year scoped", () => {
+    let otherYearId: string
+    let yearScopedTeacherId: string
+
+    before(async () => {
+      const otherYear = await prisma.academicYear.findFirstOrThrow({
+        where: { schoolId: schoolAId, id: { not: academicYearId } },
+      })
+      otherYearId = otherYear.id
+
+      const admin = await prisma.user.findFirstOrThrow({ where: { id: adminUserId } })
+      const yearScopedTeacher = await prisma.user.create({
+        data: {
+          schoolId: schoolAId,
+          name: `${RUN_PREFIX} Year Scoped Teacher`,
+          email: `${RUN_PREFIX.toLowerCase().replace(/\s+/g, "-")}-year-scoped@benwil.test`,
+          passwordHash: admin.passwordHash,
+          role: Role.TEACHER,
+        },
+      })
+      yearScopedTeacherId = yearScopedTeacher.id
+
+      // Assigned ONLY in `otherYearId`, never in `academicYearId`.
+      await prisma.teacherAssignment.create({
+        data: {
+          schoolId: schoolAId,
+          academicYearId: otherYearId,
+          teacherId: yearScopedTeacherId,
+          classId: class5Id,
+          sectionId: sectionA5Id,
+          subjectId: mathSubjectId,
+        },
+      })
+    })
+
+    after(async () => {
+      await prisma.teacherAssignment.deleteMany({ where: { teacherId: yearScopedTeacherId } })
+      await prisma.user.delete({ where: { id: yearScopedTeacherId } })
+    })
+
+    it("authorizes the teacher for the year they're actually assigned in", async () => {
+      const user = { userId: yearScopedTeacherId, schoolId: schoolAId, role: Role.TEACHER, name: "" }
+      const result = await checkHomeworkWriteAccess(user, otherYearId, class5Id, sectionA5Id, mathSubjectId)
+      assert.equal(result.ok, true)
+    })
+
+    it("rejects the same teacher/class/section/subject for a DIFFERENT academic year", async () => {
+      const user = { userId: yearScopedTeacherId, schoolId: schoolAId, role: Role.TEACHER, name: "" }
+      const result = await checkHomeworkWriteAccess(user, academicYearId, class5Id, sectionA5Id, mathSubjectId)
       assert.equal(result.ok, false)
     })
   })

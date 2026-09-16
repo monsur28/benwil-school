@@ -9,6 +9,7 @@ import { requireRole } from "@/lib/auth/dal"
 import { createStudentSchema, type CreateStudentInput } from "@/lib/validations/student"
 import { generateStudentUid } from "@/lib/students/student-uid"
 import { syncStudentGuardians } from "@/lib/students/guardians"
+import { isTrustedStudentDocumentUpload } from "@/lib/storage/cloudinary-student-documents"
 
 const CAN_MANAGE: Role[] = [Role.SUPER_ADMIN, Role.SCHOOL_ADMIN, Role.PRINCIPAL]
 
@@ -24,6 +25,10 @@ export async function createStudent(input: CreateStudentInput): Promise<StudentF
     return { success: false, error: t("errors.invalidForm") }
   }
   const data = parsed.data
+
+  if (data.documents.some((document) => !isTrustedStudentDocumentUpload(document, user.schoolId))) {
+    return { success: false, error: t("errors.invalidForm") }
+  }
 
   const [academicYear, section] = await Promise.all([
     prisma.academicYear.findFirst({ where: { id: data.academicYearId, schoolId: user.schoolId } }),
@@ -68,6 +73,11 @@ export async function createStudent(input: CreateStudentInput): Promise<StudentF
             studentId: student.id,
             type: doc.type,
             title: doc.title,
+            fileUrl: doc.fileUrl,
+            fileName: doc.fileName,
+            cloudinaryPublicId: doc.cloudinaryPublicId,
+            mimeType: doc.mimeType,
+            fileSize: doc.fileSize,
           })),
         })
       }

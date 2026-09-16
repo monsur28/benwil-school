@@ -34,7 +34,7 @@ export function UserMenu({ name, roleLabel }: { name: string; roleLabel: string 
         render={
           <button
             aria-label={t("account")}
-            className="flex w-full items-center gap-2.5 rounded-lg p-1.5 text-left transition-colors hover:bg-sidebar-accent"
+            className="flex w-full items-center gap-2.5 rounded-lg p-1.5 text-left transition-colors hover:bg-muted"
           />
         }
       >
@@ -42,8 +42,8 @@ export function UserMenu({ name, roleLabel }: { name: string; roleLabel: string 
           <AvatarFallback>{initials(name)}</AvatarFallback>
         </Avatar>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-medium text-sidebar-foreground">{name}</p>
-          <p className="truncate text-xs text-sidebar-foreground/60">{roleLabel}</p>
+          <p className="truncate text-sm font-medium text-foreground">{name}</p>
+          <p className="truncate text-xs text-muted-foreground">{roleLabel}</p>
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent side="top" align="start" className="w-56">

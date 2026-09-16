@@ -38,8 +38,78 @@ model School {
   homeworkCategories  HomeworkCategory[]
   homeworks           Homework[]
   homeworkSubmissions HomeworkSubmission[]
+  settings            SchoolSettings?
 
   @@map("schools")
+}
+
+// Phase 13: the single source of truth for school identity, branding, and
+// system defaults. One row per school (nullable relation on School - a
+// school with no row yet just means "no admin has saved settings"; every
+// reader goes through src/lib/settings/school-settings.ts, which always
+// falls back to sane defaults rather than assuming this row exists).
+model SchoolSettings {
+  id       String @id @default(cuid())
+  schoolId String @unique
+  school   School @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  // Identity
+  schoolName      String?
+  shortName       String?
+  schoolCode      String?
+  motto           String?
+  description     String?
+  establishedYear Int?
+  principalName   String?
+
+  // Contact
+  email          String?
+  phone          String?
+  alternatePhone String?
+  website        String?
+
+  // Address
+  address    String?
+  city       String?
+  country    String?
+  postalCode String?
+
+  // Branding - logos/images (URLs into the app's existing document storage,
+  // never raw binary data in the row)
+  logoUrl            String?
+  faviconUrl         String?
+  loginLogoUrl       String?
+  loginBackgroundUrl String?
+
+  // Branding - colors. Validated server-side to #RRGGBB before save (see
+  // src/lib/validations/school-settings.ts) - never arbitrary CSS.
+  primaryColor   String?
+  secondaryColor String?
+  accentColor    String?
+  sidebarColor   String?
+
+  // Login page copy
+  loginTitle       String?
+  loginSubtitle    String?
+  loginDescription String?
+  loginFooterText  String?
+
+  // System defaults. Deliberately NOT an academic-year field - the
+  // AcademicYear table (see src/lib/academics/academic-year.ts) remains the
+  // only source of truth for "the current year."
+  defaultLanguage String?
+  timezone        String?
+  currency        String?
+  dateFormat      String?
+  timeFormat      String?
+  weekStartsOn    Int?
+  workingDays     Int[]  @default([])
+  pageSize        Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("school_settings")
 }
 
 enum Role {
@@ -65,7 +135,16 @@ model User {
   passwordHash String
   role         Role
   isActive     Boolean   @default(true)
-  lockedUntil  DateTime?
+  lockedUntil    DateTime?
+  employeeId     String?
+  phone          String?
+  address        String?
+  designation    String?
+  department     String?
+  joiningDate    DateTime?
+  employmentType String?
+  qualifications String?
+  specialization String?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
@@ -106,6 +185,7 @@ model AcademicYear {
   feeStructures FeeStructure[]
   studentFees   StudentFee[]
   homeworks     Homework[]
+  teacherAssignments TeacherAssignment[]
 
   @@unique([schoolId, name])
   @@index([schoolId])
@@ -189,6 +269,7 @@ model Student {
   name                   String
   nameBn                 String?
   photoUrl               String?
+  bannerUrl              String?
   dateOfBirth            DateTime
   gender                 Gender
   bloodGroup             BloodGroup?
@@ -285,13 +366,16 @@ enum DocumentType {
 // yet (see lib/storage), so a document can exist as a labeled record before
 // an actual file is attached.
 model StudentDocument {
-  id         String       @id @default(cuid())
-  studentId  String
-  type       DocumentType
-  title      String
-  fileUrl    String?
-  fileName   String?
-  uploadedAt DateTime     @default(now())
+  id                String       @id @default(cuid())
+  studentId         String
+  type              DocumentType
+  title             String
+  fileUrl           String?
+  fileName          String?
+  cloudinaryPublicId String?
+  mimeType          String?
+  fileSize          Int?
+  uploadedAt        DateTime     @default(now())
 
   student Student @relation(fields: [studentId], references: [id])
 
@@ -381,7 +465,7 @@ model ClassSubject {
 // The smallest additive model needed to connect a teacher to what they
 // teach: no separate Teacher/Employee table exists yet (that's full Teacher
 // & Staff Management, a later phase), so this links directly to User (role
-// TEACHER). A teacher can have any number of these rows — multiple classes,
+// TEACHER). A teacher can have any number of these rows ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â multiple classes,
 // sections, and subjects.
 model TeacherAssignment {
   id        String @id @default(cuid())
@@ -389,7 +473,9 @@ model TeacherAssignment {
   teacherId String
   classId   String
   sectionId String
-  subjectId String
+  subjectId      String
+  academicYearId String?
+  isClassTeacher Boolean @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -398,11 +484,19 @@ model TeacherAssignment {
   teacher User    @relation("TeacherAssignments", fields: [teacherId], references: [id], onDelete: Cascade)
   class   Class   @relation(fields: [classId], references: [id])
   section Section @relation(fields: [sectionId], references: [id])
-  subject Subject @relation(fields: [subjectId], references: [id])
+  subject      Subject       @relation(fields: [subjectId], references: [id])
+  academicYear AcademicYear? @relation(fields: [academicYearId], references: [id])
 
-  @@unique([teacherId, classId, sectionId, subjectId])
+  @@unique([schoolId, academicYearId, teacherId, classId, sectionId, subjectId])
+  @@index([academicYearId])
   @@index([schoolId])
   @@index([classId, sectionId])
+  // Every Phase 12 authorization/listing lookup (getTeacherAssignmentTriples,
+  // getTeacherClassSectionPairs, teacher dashboard "My Classes") filters by
+  // teacherId first, then optionally narrows by academicYearId - none of the
+  // existing indexes have teacherId as a leading column, so those queries
+  // were previously unindexed table scans.
+  @@index([teacherId, academicYearId])
   @@map("teacher_assignments")
 }
 
@@ -549,7 +643,7 @@ model ExamSchedule {
 }
 
 // A student's result for one exam schedule. No classId/sectionId/academicYearId
-// denormalization here (unlike Attendance) — marks are never read after a
+// denormalization here (unlike Attendance) ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â marks are never read after a
 // student's later promotion in a way that requires point-in-time class/section,
 // and Phase 5 explicitly excludes promotion/report-card logic that would need it.
 model ExamMark {

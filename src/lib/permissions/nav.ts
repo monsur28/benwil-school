@@ -100,7 +100,7 @@ export const NAV_GROUPS: NavGroup[] = [
   {
     titleKey: "nav.groups.system",
     items: [
-      { href: "/settings", labelKey: "nav.settings", icon: Settings, roles: [Role.SUPER_ADMIN, Role.SCHOOL_ADMIN] },
+      { href: "/settings", labelKey: "nav.settings", icon: Settings, roles: [Role.SUPER_ADMIN, Role.SCHOOL_ADMIN, Role.PRINCIPAL] },
     ],
   },
 ]

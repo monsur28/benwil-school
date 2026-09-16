@@ -13,10 +13,13 @@ export default async function ReportCardPage({
   const user = await requireAuth()
   const { examId, studentId } = await params
 
-  const student = await prisma.student.findFirst({ where: { id: studentId, schoolId: user.schoolId } })
-  if (!student) notFound()
+  const [student, exam] = await Promise.all([
+    prisma.student.findFirst({ where: { id: studentId, schoolId: user.schoolId } }),
+    prisma.exam.findFirst({ where: { id: examId, schoolId: user.schoolId }, select: { academicYearId: true } }),
+  ])
+  if (!student || !exam) notFound()
 
-  const access = await checkResultAccess(user, student.classId, student.sectionId)
+  const access = await checkResultAccess(user, exam.academicYearId, student.classId, student.sectionId)
   if (!access.ok) redirect("/unauthorized")
 
   const school = await prisma.school.findFirstOrThrow({ where: { id: user.schoolId } })

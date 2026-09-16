@@ -23,21 +23,21 @@ export default function GlobalError({ error, reset, retry }: GlobalErrorProps) {
 
   return (
     <html lang="en" className="h-full antialiased">
-      <body className="min-h-full flex flex-col items-center justify-center p-4 sm:p-6 bg-slate-50 text-slate-900 selection:bg-teal-500/20 selection:text-teal-700">
-        <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-lg text-center space-y-5">
-          <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-amber-50 text-amber-600 border border-amber-200/60 shadow-xs">
+      <body className="min-h-full flex flex-col items-center justify-center p-4 sm:p-6 bg-background text-foreground selection:bg-primary/20 selection:text-primary">
+        <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 sm:p-8 shadow-lg text-center space-y-5">
+          <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-warning/10 text-warning border border-warning/20 shadow-xs">
             <AlertTriangle className="size-7" />
           </div>
 
           <div className="space-y-2">
-            <h1 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
+            <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
               Application Error
             </h1>
-            <p className="text-sm text-slate-500 leading-relaxed">
+            <p className="text-sm text-muted-foreground leading-relaxed">
               A critical error occurred while loading the application shell. You can attempt to reload the view or return to the main portal.
             </p>
             {error?.digest && (
-              <p className="text-[11px] font-mono text-slate-400 bg-slate-100 py-1 px-2 rounded-md inline-block">
+              <p className="text-[11px] font-mono text-muted-foreground bg-muted py-1 px-2 rounded-md inline-block">
                 Digest: {error.digest}
               </p>
             )}
@@ -47,14 +47,14 @@ export default function GlobalError({ error, reset, retry }: GlobalErrorProps) {
             <button
               type="button"
               onClick={handleRetry}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-slate-800 transition-colors cursor-pointer"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-lg bg-foreground px-4 py-2.5 text-sm font-semibold text-background shadow-xs hover:bg-foreground/90 transition-colors cursor-pointer"
             >
               <RefreshCw className="size-4" />
               Try again
             </button>
             <Link
               href="/"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-xs hover:bg-slate-50 transition-colors"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-card px-4 py-2.5 text-sm font-semibold text-foreground shadow-xs hover:bg-muted transition-colors"
             >
               <Home className="size-4" />
               Return Home

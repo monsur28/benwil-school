@@ -22,7 +22,7 @@ export default async function EditHomeworkPage({
 
   const ownership = checkHomeworkOwnership(user, homework.teacherId)
   if (!ownership.ok) notFound()
-  const writeAccess = await checkHomeworkWriteAccess(user, homework.classId, homework.sectionId, homework.subjectId)
+  const writeAccess = await checkHomeworkWriteAccess(user, homework.academicYearId, homework.classId, homework.sectionId, homework.subjectId)
   if (!writeAccess.ok) notFound()
 
   const categories = await prisma.homeworkCategory.findMany({
@@ -40,6 +40,7 @@ export default async function EditHomeworkPage({
     subjectId: homework.subjectId,
     assignedDate: homework.assignedDate,
     dueDate: homework.dueDate,
+    maxMarks: homework.maxMarks,
   }
 
   return (
@@ -71,6 +72,7 @@ type HomeworkFormValue = {
   subjectId: string
   assignedDate: Date
   dueDate: Date
+  maxMarks: number | null
 }
 
 async function TeacherEditForm({
@@ -84,9 +86,14 @@ async function TeacherEditForm({
   categories: { id: string; name: string }[]
   homework: HomeworkFormValue
 }) {
+  // This homework belongs to a fixed academic year (homework.academicYearId,
+  // possibly a past one) - the options offered here must reflect what the
+  // teacher was actually assigned to THAT year, not their current-year
+  // assignments, or editing an old homework could silently move it onto a
+  // class/section/subject the teacher never had in that year.
   const [assignmentRows, academicYear] = await Promise.all([
     prisma.teacherAssignment.findMany({
-      where: { schoolId, teacherId },
+      where: { schoolId, teacherId, OR: [{ academicYearId: homework.academicYearId }, { academicYearId: null }] },
       include: { class: true, section: true, subject: true },
     }),
     prisma.academicYear.findFirst({ where: { id: homework.academicYearId }, select: { name: true } }),

@@ -7,9 +7,9 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-poppins), var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), monospace;
-  --font-heading: var(--font-poppins), var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-manrope), var(--font-bengali), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-dm-mono), ui-monospace, monospace;
+  --font-heading: var(--font-manrope), var(--font-bengali), ui-sans-serif, system-ui, sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -41,7 +41,7 @@
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
 
-  /* Brand (design.md §32) - navy drives nav/headings/links; red drives
+  /* Brand (design.md Â§32) - navy drives nav/headings/links; red drives
      primary CTAs. Distinct from --primary/--foreground on purpose: not
      every heading/link in the app is being repainted navy in this pass,
      only the elements the spec explicitly calls out (sidebar active state,
@@ -132,7 +132,7 @@
   --shadow-modal-value: 0 20px 50px rgba(16, 24, 40, 0.15);
 
   /* design.md colors.background/surface/text/border - the "minimal
-     structure" half of "minimal structure + colorful data" (design.md §1):
+     structure" half of "minimal structure + colorful data" (design.md Â§1):
      the neutral scale stays a clean cool-gray/white system, color is
      reserved for --primary (CTAs) and the dashboard-* data palette. */
   --background: #f6f7fb;
@@ -159,13 +159,19 @@
   --chart-4: var(--dashboard-green);
   --chart-5: var(--dashboard-orange);
   --radius: 1rem;
-  --sidebar: #ffffff;
-  --sidebar-foreground: #172033;
-  --sidebar-primary: var(--brand-navy);
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: var(--brand-navy-light);
-  --sidebar-accent-foreground: var(--brand-navy);
-  --sidebar-border: #e8ebf0;
+  /* Sidebar carries the brand navy per design.md Â§4 (the reference layout
+     uses a dark navy rail with a lighter-navy active pill) - the neutral
+     background/card tokens above stay for page content, this is the one
+     surface that's deliberately colored. Reuses the dark-mode brand-navy
+     shade (already tuned as a lighter navy for dark surfaces) for the
+     active/hover pill instead of inventing a new token. */
+  --sidebar: var(--brand-navy);
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #ffffff;
+  --sidebar-primary-foreground: var(--brand-navy);
+  --sidebar-accent: #3a5d99;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: oklch(1 0 0 / 12%);
   --sidebar-ring: var(--brand-red);
 }
 
@@ -242,9 +248,11 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+
   html {
     @apply font-sans;
   }
@@ -260,6 +268,7 @@
     size: A4;
     margin: 12mm;
   }
+
   tr,
   td,
   th {

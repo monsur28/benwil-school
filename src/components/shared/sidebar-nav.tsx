@@ -13,57 +13,32 @@ interface SidebarNavProps {
 
 export function SidebarNav({ groups, items, onNavigate }: SidebarNavProps) {
   const pathname = usePathname()
+  const allHrefs = (groups ? groups.flatMap((group) => group.items) : (items ?? [])).map((item) => item.href)
 
-  // Collect all defined nav item hrefs to detect more specific matches
-  const allHrefs = (groups ? groups.flatMap((g) => g.items) : (items ?? [])).map((i) => i.href)
-
-  // Helper to render an individual link
   const renderItem = (item: TranslatedNavItem) => {
     const isDashboard = item.href === "/dashboard"
-    let isActive = false
-
-    if (isDashboard) {
-      isActive = pathname === "/dashboard"
-    } else if (pathname === item.href) {
-      isActive = true
-    } else if (pathname.startsWith(`${item.href}/`)) {
-      // If another nav item is a closer / more specific prefix match, don't mark this parent active
-      const hasMoreSpecificItem = allHrefs.some(
-        (otherHref) =>
-          otherHref !== item.href &&
-          otherHref.startsWith(`${item.href}/`) &&
-          (pathname === otherHref || pathname.startsWith(`${otherHref}/`))
+    const isActive = isDashboard
+      ? pathname === "/dashboard"
+      : pathname === item.href || (
+        pathname.startsWith(`${item.href}/`) &&
+        !allHrefs.some((href) => href !== item.href && href.startsWith(`${item.href}/`) && (pathname === href || pathname.startsWith(`${href}/`)))
       )
-      isActive = !hasMoreSpecificItem
-    }
 
     return (
       <Link
         key={item.href}
         href={item.href}
         onClick={onNavigate}
+        aria-current={isActive ? "page" : undefined}
         className={cn(
-          "group relative flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-xs font-medium transition-all duration-150 select-none",
+          "group relative flex h-8 items-center gap-2.5 rounded-lg px-2.5 text-[11px] font-medium outline-none transition-[background-color,color,transform] duration-200 focus-visible:ring-2 focus-visible:ring-sidebar-primary/80 focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar active:scale-[0.98]",
           isActive
-            ? "bg-sidebar-accent text-sidebar-accent-foreground font-semibold shadow-2xs"
-            : "text-sidebar-foreground/75 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+            ? "bg-sidebar-accent text-sidebar-accent-foreground font-semibold shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06)]"
+            : "text-sidebar-foreground/70 hover:bg-sidebar-accent/45 hover:text-sidebar-foreground"
         )}
       >
-        {/* Subtle active pill indicator on left - navy, not --primary (red):
-            the sidebar is explicitly a navy-branded surface per design.md
-            §6/§32 ("Do NOT make the entire active item bright red"), while
-            --primary drives CTA buttons elsewhere. */}
-        {isActive && (
-          <span className="absolute inset-y-1.5 left-0 w-1 rounded-r-full bg-sidebar-primary" />
-        )}
-        <span
-          className={cn(
-            "flex size-4 shrink-0 items-center justify-center transition-colors",
-            isActive
-              ? "text-sidebar-primary"
-              : "text-muted-foreground/80 group-hover:text-sidebar-foreground"
-          )}
-        >
+        {isActive && <span className="absolute inset-y-2 left-0 w-0.5 rounded-r-full bg-brand-red" />}
+        <span className={cn("flex size-4 shrink-0 items-center justify-center", isActive ? "text-sidebar-primary" : "text-sidebar-foreground/45 group-hover:text-sidebar-foreground/85")}>
           {item.icon}
         </span>
         <span className="truncate">{item.label}</span>
@@ -71,30 +46,23 @@ export function SidebarNav({ groups, items, onNavigate }: SidebarNavProps) {
     )
   }
 
-  // If grouped navigation is provided
-  if (groups && groups.length > 0) {
+  if (groups?.length) {
     return (
-      <nav className="flex flex-col gap-3 px-2 py-1">
-        {groups.map((group, groupIdx) => (
-          <div key={group.titleKey || groupIdx} className="space-y-0.5">
+      <nav aria-label="Main navigation" className="flex flex-col gap-3 px-3 py-3">
+        {groups.map((group, index) => (
+          <section key={group.titleKey || index} className="space-y-1">
             {group.title && (
-              <div className="px-2.5 pt-1.5 pb-1 text-[10px] font-semibold tracking-wider text-muted-foreground/60 uppercase select-none">
-                {group.title}
+              <div className="flex items-center gap-2 px-2.5 pb-1 pt-0.5">
+                <span className="text-[9px] font-bold uppercase tracking-[0.12em] text-sidebar-foreground/35">{group.title}</span>
+                <span className="h-px flex-1 bg-sidebar-border/45" />
               </div>
             )}
-            <div className="flex flex-col gap-0.5">
-              {group.items.map((item) => renderItem(item))}
-            </div>
-          </div>
+            <div className="flex flex-col gap-0.5">{group.items.map(renderItem)}</div>
+          </section>
         ))}
       </nav>
     )
   }
 
-  // Fallback for flat items list
-  return (
-    <nav className="flex flex-col gap-0.5 px-2 py-1">
-      {(items ?? []).map((item) => renderItem(item))}
-    </nav>
-  )
+  return <nav aria-label="Main navigation" className="flex flex-col gap-0.5 px-3 py-3">{(items ?? []).map(renderItem)}</nav>
 }

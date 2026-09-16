@@ -8,6 +8,7 @@ const errors = {
   dateRequired: "errors.dateRequired",
   invalidDate: "errors.invalidDate",
   invalidDateRange: "errors.invalidDateRange",
+  maxMarksInvalid: "errors.maxMarksInvalid",
 }
 
 const optionalText = z.string().trim().optional().or(z.literal(""))
@@ -46,7 +47,10 @@ const homeworkFields = {
   assignedDate: requiredDate,
   dueDate: requiredDate,
   maxMarks: z
-    .preprocess((v) => (v === "" || v === null || v === undefined ? undefined : Number(v)), z.number().int().positive().max(1000).optional())
+    .preprocess(
+      (v) => (v === "" || v === null || v === undefined ? undefined : Number(v)),
+      z.number().int().positive({ error: errors.maxMarksInvalid }).max(1000, { error: errors.maxMarksInvalid }).optional()
+    )
     .optional(),
 }
 

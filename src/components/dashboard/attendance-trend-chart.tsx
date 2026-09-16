@@ -64,8 +64,8 @@ export function AttendanceTrendChart({ initialData }: AttendanceTrendChartProps)
         : DEFAULT_TERM
 
   return (
-    <Card className="rounded-2xl border border-border/60 bg-card p-5 shadow-xs">
-      <CardHeader className="p-0 pb-4">
+    <Card className="rounded-xl border border-border/60 bg-card p-4 shadow-xs">
+      <CardHeader className="p-0 pb-3">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <CardTitle className="text-base font-semibold tracking-tight text-foreground">
@@ -118,7 +118,7 @@ export function AttendanceTrendChart({ initialData }: AttendanceTrendChartProps)
       </CardHeader>
 
       {/* Modern Legend */}
-      <div className="flex flex-wrap items-center gap-4 py-2 text-xs">
+      <div className="flex flex-wrap items-center gap-3 py-1 text-xs">
         <div className="flex items-center gap-1.5">
           <span className="size-2 rounded-full bg-dashboard-green" />
           <span className="font-medium text-foreground">{t("present")}</span>
@@ -134,7 +134,7 @@ export function AttendanceTrendChart({ initialData }: AttendanceTrendChartProps)
       </div>
 
       {/* Chart Canvas */}
-      <div className="h-64 w-full pt-3">
+      <div className="h-52 w-full pt-2">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
             <defs>

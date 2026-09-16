@@ -43,8 +43,18 @@ async function TeacherHomeworkForm({
   academicYearId: string
   academicYearName: string
 }) {
+  // The new-homework form always submits under the current active academic
+  // year (see academicYearId above), so the class/section/subject options
+  // offered here must be scoped the same way - otherwise a teacher whose
+  // only assignment is from a past year would see a selectable option that
+  // checkHomeworkWriteAccess then rejects with a generic "unauthorized"
+  // error, with nothing on screen explaining why.
   const assignmentRows = await prisma.teacherAssignment.findMany({
-    where: { schoolId, teacherId },
+    where: {
+      schoolId,
+      teacherId,
+      ...(academicYearId && { OR: [{ academicYearId }, { academicYearId: null }] }),
+    },
     include: { class: true, section: true, subject: true },
   })
   const assignments = assignmentRows.map((row) => ({

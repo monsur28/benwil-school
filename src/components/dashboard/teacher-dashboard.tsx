@@ -1,10 +1,14 @@
 import { getTranslations } from "next-intl/server"
 import { CalendarClock, ClipboardCheck, Users, NotebookPen, GraduationCap, FileEdit } from "lucide-react"
 import { requireAuth } from "@/lib/auth/dal"
+import { prisma } from "@/lib/db/client"
+import { getActiveAcademicYear } from "@/lib/academics/academic-year"
 import { getHomeworkList } from "@/lib/homework/get-homework"
+import { getPendingReviewCountForTeacher } from "@/lib/homework/get-homework-submissions"
 import { StatCard } from "@/components/dashboard/stat-card"
 import { QuickAction } from "@/components/dashboard/quick-action"
 import { PortalHomeworkWidget } from "@/components/portal/portal-homework-widget"
+import { Card } from "@/components/ui/card"
 
 export async function TeacherDashboard() {
   const [user, t, tCommon] = await Promise.all([
@@ -13,18 +17,66 @@ export async function TeacherDashboard() {
     getTranslations("common"),
   ])
 
-  const { homework } = await getHomeworkList({
-    schoolId: user.schoolId,
-    teacherId: user.userId,
-    status: "PUBLISHED",
-    take: 5,
+  const activeAcademicYear = await getActiveAcademicYear(user.schoolId)
+
+  const [{ homework }, pendingReviewCount, assignments] = await Promise.all([
+    getHomeworkList({
+      schoolId: user.schoolId,
+      teacherId: user.userId,
+      status: "PUBLISHED",
+      take: 5,
+    }),
+    getPendingReviewCountForTeacher({ schoolId: user.schoolId, teacherId: user.userId }),
+    // "My Classes" is a current-operations view - only this year's
+    // assignments (plus any legacy standing assignment predating
+    // academic-year scoping, see teacher-assignments.ts), never a stale
+    // assignment from a past year the school has since moved on from.
+    prisma.teacherAssignment.findMany({
+      where: {
+        schoolId: user.schoolId,
+        teacherId: user.userId,
+        ...(activeAcademicYear && { OR: [{ academicYearId: activeAcademicYear.id }, { academicYearId: null }] }),
+      },
+      include: { class: true, section: true, subject: true },
+      orderBy: [{ class: { order: "asc" } }, { section: { name: "asc" } }],
+    }),
+  ])
+
+  // One card per class+section this teacher is assigned to (a teacher can
+  // teach several subjects in the same section, so this collapses those
+  // into one card listing all of them, rather than one card per subject).
+  const classSections = new Map<
+    string,
+    { className: string; sectionName: string; sectionId: string; subjects: string[] }
+  >()
+  for (const assignment of assignments) {
+    const key = `${assignment.classId}:${assignment.sectionId}`
+    const existing = classSections.get(key)
+    if (existing) {
+      existing.subjects.push(assignment.subject.name)
+    } else {
+      classSections.set(key, {
+        className: assignment.class.name,
+        sectionName: assignment.section.name,
+        sectionId: assignment.sectionId,
+        subjects: [assignment.subject.name],
+      })
+    }
+  }
+
+  const studentCounts = await prisma.student.groupBy({
+    by: ["sectionId"],
+    where: { sectionId: { in: [...classSections.values()].map((c) => c.sectionId) }, status: "ACTIVE" },
+    _count: true,
   })
+  const studentCountBySection = new Map(studentCounts.map((row) => [row.sectionId, row._count]))
+  const totalStudents = [...studentCountBySection.values()].reduce((sum, count) => sum + count, 0)
 
   const stats = [
     { icon: CalendarClock, label: t("todaysClasses") },
-    { icon: Users, label: t("myStudents") },
+    { icon: Users, label: t("myStudents"), value: classSections.size > 0 ? totalStudents : undefined },
     { icon: GraduationCap, label: t("upcomingExams") },
-    { icon: FileEdit, label: t("pendingMarks") },
+    { icon: FileEdit, label: t("pendingMarks"), value: pendingReviewCount, description: t("pendingMarksCaption") },
   ]
 
   const quickActions = [
@@ -37,9 +89,35 @@ export async function TeacherDashboard() {
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => (
-          <StatCard key={stat.label} icon={stat.icon} label={stat.label} placeholder={tCommon("comingSoon")} />
+          <StatCard
+            key={stat.label}
+            icon={stat.icon}
+            label={stat.label}
+            value={stat.value}
+            description={stat.description}
+            placeholder={tCommon("comingSoon")}
+          />
         ))}
       </div>
+
+      {classSections.size > 0 && (
+        <Card className="p-4 sm:p-5">
+          <h3 className="text-sm font-bold text-foreground">{t("myClasses")}</h3>
+          <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {[...classSections.values()].map((cs) => (
+              <div key={`${cs.className}-${cs.sectionName}`} className="rounded-lg border border-border p-3">
+                <p className="font-semibold text-foreground">
+                  {cs.className} {cs.sectionName}
+                </p>
+                <p className="truncate text-xs text-muted-foreground">{cs.subjects.join(", ")}</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {t("students", { count: studentCountBySection.get(cs.sectionId) ?? 0 })}
+                </p>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
         {quickActions.map((action) => (
           <QuickAction key={action.label} {...action} />

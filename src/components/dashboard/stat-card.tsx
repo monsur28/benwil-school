@@ -28,14 +28,14 @@ export function StatCard({
   className,
 }: StatCardProps) {
   const tagStyles = {
-    green: "bg-[#EDF3EC] text-[#346538] border-[#EDF3EC]",
-    blue: "bg-[#E1F3FE] text-[#1F6C9F] border-[#E1F3FE]",
-    yellow: "bg-[#FBF3DB] text-[#956400] border-[#FBF3DB]",
-    red: "bg-[#FDEBEC] text-[#9F2F2D] border-[#FDEBEC]",
+    green: "bg-success/10 text-success border-success/20",
+    blue: "bg-info/10 text-info border-info/20",
+    yellow: "bg-warning/10 text-warning border-warning/20",
+    red: "bg-destructive/10 text-destructive border-destructive/20",
   }[tagColor]
 
   return (
-    <Card className={cn("transition-all duration-200 hover:border-neutral-300 dark:hover:border-neutral-700", className)}>
+    <Card className={cn("transition-all duration-200 hover:border-foreground/20", className)}>
       <CardContent className="flex flex-col justify-between gap-3 p-4 sm:p-5">
         <div className="flex items-center justify-between gap-2">
           <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
@@ -67,8 +67,8 @@ export function StatCard({
               <span
                 className={cn(
                   "font-mono font-medium",
-                  changeType === "positive" && "text-[#346538] dark:text-emerald-400",
-                  changeType === "negative" && "text-[#9F2F2D] dark:text-rose-400",
+                  changeType === "positive" && "text-success",
+                  changeType === "negative" && "text-destructive",
                   changeType === "neutral" && "text-muted-foreground"
                 )}
               >

@@ -34,7 +34,7 @@ export function MobileNav({
         <span className="sr-only">Open navigation</span>
       </DrawerTrigger>
       <DrawerContent className="bg-sidebar text-sidebar-foreground">
-        <DrawerTitle className="px-4 pt-4 font-heading text-base font-bold">{appName}</DrawerTitle>
+        <DrawerTitle className="px-4 pt-4 font-heading text-base font-bold text-sidebar-foreground">{appName}</DrawerTitle>
         <div className="max-h-[80vh] overflow-y-auto pb-6">
           <SidebarNav items={items} groups={groups} onNavigate={() => setOpen(false)} />
         </div>

@@ -11,6 +11,7 @@ import { PageHeader } from "@/components/shared/page-header"
 import { Button } from "@/components/ui/button"
 import { HomeworkStatusBadge } from "@/components/homework/homework-status-badge"
 import { HomeworkPublishButton } from "@/components/homework/homework-publish-button"
+import { HomeworkSubmissionsList } from "@/components/homework/homework-submissions-list"
 
 export default async function HomeworkDetailPage({
   params,
@@ -32,7 +33,7 @@ export default async function HomeworkDetailPage({
   if (user.role === Role.TEACHER && !ownership.ok) notFound()
 
   const writeAccess = ownership.ok
-    ? await checkHomeworkWriteAccess(user, homework.classId, homework.sectionId, homework.subjectId)
+    ? await checkHomeworkWriteAccess(user, homework.academicYearId, homework.classId, homework.sectionId, homework.subjectId)
     : { ok: false as const }
   const canManage = ownership.ok && writeAccess.ok
 
@@ -85,7 +86,19 @@ export default async function HomeworkDetailPage({
           <dt className="text-muted-foreground">{t("fields.dueDate")}</dt>
           <dd>{formatDate(homework.dueDate, locale)}</dd>
         </div>
+        <div>
+          <dt className="text-muted-foreground">{t("fields.maxMarks")}</dt>
+          <dd>{homework.maxMarks ?? "—"}</dd>
+        </div>
       </dl>
+
+      {homework.status === "PUBLISHED" && (
+        <HomeworkSubmissionsList
+          schoolId={user.schoolId}
+          homeworkId={homework.id}
+          canReview={canManage}
+        />
+      )}
     </div>
   )
 }

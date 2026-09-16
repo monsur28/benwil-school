@@ -44,7 +44,9 @@ export default async function AttendancePage({
   let classes = allClasses
   let sections = allSections
   if (user.role === Role.TEACHER) {
-    const assignedPairs = await getTeacherClassSectionPairs(user.userId)
+    // "Take attendance today" is a current-operations page - scope to the
+    // active academic year, not every year this teacher has ever taught.
+    const assignedPairs = await getTeacherClassSectionPairs(user.userId, activeAcademicYear?.id ?? null)
     const assignedClassIds = new Set(assignedPairs.map((pair) => pair.classId))
     const assignedSectionIds = new Set(assignedPairs.map((pair) => pair.sectionId))
     classes = allClasses.filter((klass) => assignedClassIds.has(klass.id))

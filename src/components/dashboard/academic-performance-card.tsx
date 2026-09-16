@@ -38,7 +38,7 @@ export function AcademicPerformanceCard({
   const locale = useLocale()
 
   return (
-    <Card className="flex flex-col justify-between rounded-2xl border border-border/60 bg-card p-5 shadow-xs">
+    <Card className="flex flex-col justify-between rounded-xl border border-border/60 bg-card p-4 shadow-xs">
       <CardHeader className="p-0 pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">

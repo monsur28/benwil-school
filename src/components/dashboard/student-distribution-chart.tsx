@@ -18,8 +18,8 @@ interface StudentDistributionProps {
 }
 
 const DEFAULT_DISTRIBUTION: StudentDistributionItem[] = [
-  { name: "Primary (1–5)", count: 812, percent: 65, color: "var(--color-dashboard-purple)" },
-  { name: "Secondary (6–10)", count: 436, percent: 35, color: "var(--color-dashboard-blue)" },
+  { name: "Primary (1â€“5)", count: 812, percent: 65, color: "var(--color-dashboard-purple)" },
+  { name: "Secondary (6â€“10)", count: 436, percent: 35, color: "var(--color-dashboard-blue)" },
 ]
 
 export function StudentDistributionChart({
@@ -30,13 +30,13 @@ export function StudentDistributionChart({
   const locale = useLocale()
 
   const resolveItemName = (name: string) => {
-    if (name === "Primary (1–5)") return t("primaryWing")
-    if (name === "Secondary (6–10)") return t("secondaryWing")
+    if (name === "Primary (1â€“5)") return t("primaryWing")
+    if (name === "Secondary (6â€“10)") return t("secondaryWing")
     return name
   }
 
   return (
-    <Card className="flex flex-col justify-between rounded-2xl border border-border/60 bg-card p-5 shadow-xs">
+    <Card className="flex flex-col justify-between rounded-xl border border-border/60 bg-card p-4 shadow-xs">
       <CardHeader className="p-0 pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-base font-semibold tracking-tight text-foreground">
@@ -117,4 +117,3 @@ export function StudentDistributionChart({
     </Card>
   )
 }
-

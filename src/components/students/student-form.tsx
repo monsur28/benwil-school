@@ -137,9 +137,12 @@ export function StudentForm({
         mode === "create" ? await createStudent(payload) : await updateStudent(studentId!, payload)
 
       if (!result?.success) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         if ((result.field as any)) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const stepIndex = STEP_FIELDS.findIndex((fields) => fields.includes((result.field as any)!))
           if (stepIndex >= 0) setCurrentStep(stepIndex)
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           setError((result.field as any), { type: "server", message: result.error })
         } else {
           setError("root", { type: "server", message: result.error })

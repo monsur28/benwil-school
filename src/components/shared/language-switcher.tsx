@@ -48,29 +48,29 @@ export function LanguageSwitcher({ variant = "ghost" }: LanguageSwitcherProps = 
               variant="outline"
               size="sm"
               disabled={isPending}
-              className="h-8 rounded-lg bg-white/95 px-3 text-xs font-medium border-slate-200 gap-1.5 hover:bg-white text-slate-700 cursor-pointer shadow-2xs"
+              className="h-8 rounded-lg bg-card/95 px-3 text-xs font-medium border-border gap-1.5 hover:bg-card text-foreground cursor-pointer shadow-2xs"
             />
           ) : variant === "pill" ? (
             <Button
               variant="outline"
               size="sm"
               disabled={isPending}
-              className="h-9 rounded-full bg-white/90 px-3 text-xs font-medium shadow-xs backdrop-blur-xs hover:bg-white border-slate-200/80 gap-1.5 cursor-pointer"
+              className="h-9 rounded-full bg-card/90 px-3 text-xs font-medium shadow-xs backdrop-blur-xs hover:bg-card border-border/80 gap-1.5 cursor-pointer"
             />
           ) : (
             <Button variant="ghost" size="icon" disabled={isPending} />
           )
         }
       >
-        <Globe className="size-3.5 text-slate-500" />
+        <Globe className="size-3.5 text-muted-foreground" />
         {variant === "rounded" && (
           <>
-            <span className="text-slate-700 font-medium text-xs">{currentLanguage}</span>
-            <ChevronDown className="size-3 text-slate-400" />
+            <span className="text-foreground font-medium text-xs">{currentLanguage}</span>
+            <ChevronDown className="size-3 text-muted-foreground" />
           </>
         )}
         {variant === "pill" && (
-          <span className="uppercase text-slate-700 font-semibold text-[11px] tracking-wide">{locale}</span>
+          <span className="uppercase text-foreground font-semibold text-[11px] tracking-wide">{locale}</span>
         )}
         <span className="sr-only">{t("language")}</span>
       </DropdownMenuTrigger>

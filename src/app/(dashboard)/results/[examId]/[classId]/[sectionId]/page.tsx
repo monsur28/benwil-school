@@ -30,7 +30,7 @@ export default async function ClassSectionResultsPage({
   const classRecord = await prisma.class.findFirst({ where: { id: classId, schoolId: user.schoolId } })
   if (!classRecord) notFound()
 
-  const access = await checkResultAccess(user, classId, sectionId)
+  const access = await checkResultAccess(user, exam.academicYearId, classId, sectionId)
   if (!access.ok) redirect("/unauthorized")
 
   const sections = await prisma.section.findMany({ where: { classId }, orderBy: { name: "asc" } })

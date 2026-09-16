@@ -5,15 +5,11 @@ import { HOMEWORK_ADMIN_ROLES } from "./homework-access"
 
 export type SubmissionAccessResult = { ok: true } | { ok: false; reason: "unauthorized" | "not_found" | "closed" | "mismatch" }
 
-/**
- * Validates whether student submissions are open based on the due date.
- * Uses consistent YYYY-MM-DD date string semantics without timezone skew.
- */
-export function isSubmissionOpen(dueDate: Date): boolean {
-  const todayStr = new Date().toISOString().slice(0, 10)
-  const dueStr = dueDate.toISOString().slice(0, 10)
-  return todayStr <= dueStr
-}
+// Re-exported so existing server-side importers don't need to change -
+// the actual implementation lives in submission-timing.ts, which has no
+// "server-only" marker and no transitive Prisma import, so client
+// components can import it directly without pulling this file in.
+export { isSubmissionOpen, isSubmissionLate } from "./submission-timing"
 
 /**
  * Validates that a student is eligible to submit to a specific homework.

@@ -81,11 +81,11 @@ async function main() {
   // existing TeacherAssignment already is the "teacher assigned to one
   // class+section+subject" scenario the spec asks for.
   const subjectDefs = [
-    { name: "Mathematics", nameBn: "গণিত", code: "MATH" },
-    { name: "English", nameBn: "ইংরেজি", code: "ENG" },
-    { name: "Bangla", nameBn: "বাংলা", code: "BAN" },
-    { name: "Science", nameBn: "বিজ্ঞান", code: "SCI" },
-    { name: "Social Science", nameBn: "সমাজবিজ্ঞান", code: "SST" },
+    { name: "Mathematics", nameBn: "à¦—à¦£à¦¿à¦¤", code: "MATH" },
+    { name: "English", nameBn: "à¦‡à¦‚à¦°à§‡à¦œà¦¿", code: "ENG" },
+    { name: "Bangla", nameBn: "à¦¬à¦¾à¦‚à¦²à¦¾", code: "BAN" },
+    { name: "Science", nameBn: "à¦¬à¦¿à¦œà§à¦žà¦¾à¦¨", code: "SCI" },
+    { name: "Social Science", nameBn: "à¦¸à¦®à¦¾à¦œà¦¬à¦¿à¦œà§à¦žà¦¾à¦¨", code: "SST" },
   ]
   const subjects = []
   for (const def of subjectDefs) {
@@ -122,24 +122,10 @@ async function main() {
   const teacherUser = await prisma.user.findFirstOrThrow({
     where: { schoolId: school.id, email: "teacher@benwil.test" },
   })
-  await prisma.teacherAssignment.upsert({
-    where: {
-      teacherId_classId_sectionId_subjectId: {
-        teacherId: teacherUser.id,
-        classId: class5.id,
-        sectionId: class5SectionA.id,
-        subjectId: mathSubject.id,
-      },
-    },
-    update: {},
-    create: {
-      schoolId: school.id,
-      teacherId: teacherUser.id,
-      classId: class5.id,
-      sectionId: class5SectionA.id,
-      subjectId: mathSubject.id,
-    },
-  })
+  const seededAssignment = await prisma.teacherAssignment.findFirst({ where: { schoolId: school.id, teacherId: teacherUser.id, classId: class5.id, sectionId: class5SectionA.id, subjectId: mathSubject.id, academicYearId: academicYear.id } })
+  if (!seededAssignment) {
+    await prisma.teacherAssignment.create({ data: { schoolId: school.id, teacherId: teacherUser.id, classId: class5.id, sectionId: class5SectionA.id, subjectId: mathSubject.id, academicYearId: academicYear.id } })
+  }
 
   // Top up the roster to 5 students in Section A and 2 in Section B (some of
   // these already exist from manual QA; upsert keeps that data untouched and
@@ -221,17 +207,17 @@ async function main() {
     create: {
       schoolId: school.id,
       name: "Default Test Grading Scale",
-      nameBn: "ডিফল্ট পরীক্ষামূলক গ্রেডিং স্কেল",
+      nameBn: "à¦¡à¦¿à¦«à¦²à§à¦Ÿ à¦ªà¦°à§€à¦•à§à¦·à¦¾à¦®à§‚à¦²à¦• à¦—à§à¦°à§‡à¦¡à¦¿à¦‚ à¦¸à§à¦•à§‡à¦²",
     },
   })
   const gradeRuleDefs = [
-    { min: "80.00", max: "100.00", grade: "A+", gradeBn: "এ প্লাস", point: "5.00" },
-    { min: "70.00", max: "79.99", grade: "A", gradeBn: "এ", point: "4.00" },
-    { min: "60.00", max: "69.99", grade: "A-", gradeBn: "এ মাইনাস", point: "3.50" },
-    { min: "50.00", max: "59.99", grade: "B", gradeBn: "বি", point: "3.00" },
-    { min: "40.00", max: "49.99", grade: "C", gradeBn: "সি", point: "2.00" },
-    { min: "33.00", max: "39.99", grade: "D", gradeBn: "ডি", point: "1.00" },
-    { min: "0.00", max: "32.99", grade: "F", gradeBn: "এফ", point: "0.00" },
+    { min: "80.00", max: "100.00", grade: "A+", gradeBn: "à¦ à¦ªà§à¦²à¦¾à¦¸", point: "5.00" },
+    { min: "70.00", max: "79.99", grade: "A", gradeBn: "à¦", point: "4.00" },
+    { min: "60.00", max: "69.99", grade: "A-", gradeBn: "à¦ à¦®à¦¾à¦‡à¦¨à¦¾à¦¸", point: "3.50" },
+    { min: "50.00", max: "59.99", grade: "B", gradeBn: "à¦¬à¦¿", point: "3.00" },
+    { min: "40.00", max: "49.99", grade: "C", gradeBn: "à¦¸à¦¿", point: "2.00" },
+    { min: "33.00", max: "39.99", grade: "D", gradeBn: "à¦¡à¦¿", point: "1.00" },
+    { min: "0.00", max: "32.99", grade: "F", gradeBn: "à¦à¦«", point: "0.00" },
   ]
   for (const def of gradeRuleDefs) {
     const existing = await prisma.gradeRule.findFirst({
@@ -261,7 +247,7 @@ async function main() {
   const tuitionCategory = await prisma.feeCategory.upsert({
     where: { schoolId_name: { schoolId: school.id, name: "Tuition Fee" } },
     update: {},
-    create: { schoolId: school.id, name: "Tuition Fee", nameBn: "বেতন" },
+    create: { schoolId: school.id, name: "Tuition Fee", nameBn: "à¦¬à§‡à¦¤à¦¨" },
   })
 
   const class5TuitionStructure = await prisma.feeStructure.upsert({
@@ -281,7 +267,7 @@ async function main() {
       classId: class5.id,
       feeCategoryId: tuitionCategory.id,
       name: "Class 5 Tuition Fee",
-      nameBn: "পঞ্চম শ্রেণির বেতন",
+      nameBn: "à¦ªà¦žà§à¦šà¦® à¦¶à§à¦°à§‡à¦£à¦¿à¦° à¦¬à§‡à¦¤à¦¨",
       amount: "1200.00",
       frequency: "MONTHLY",
     },
@@ -347,9 +333,9 @@ async function main() {
   // --- (student@benwil.test / guardian@benwil.test, linked to STU-0501,  ---
   // --- Class 5 Section A) have something real to see out of the box.     ---
   const noticeCategoryDefs = [
-    { name: "General", nameBn: "সাধারণ" },
-    { name: "Academic", nameBn: "একাডেমিক" },
-    { name: "Emergency", nameBn: "জরুরি" },
+    { name: "General", nameBn: "à¦¸à¦¾à¦§à¦¾à¦°à¦£" },
+    { name: "Academic", nameBn: "à¦à¦•à¦¾à¦¡à§‡à¦®à¦¿à¦•" },
+    { name: "Emergency", nameBn: "à¦œà¦°à§à¦°à¦¿" },
   ]
   const noticeCategories: Record<string, { id: string }> = {}
   for (const def of noticeCategoryDefs) {
@@ -368,9 +354,9 @@ async function main() {
   const noticeDefs = [
     {
       title: "Welcome to the 2026 Academic Session",
-      titleBn: "২০২৬ শিক্ষাবর্ষে স্বাগতম",
+      titleBn: "à§¨à§¦à§¨à§¬ à¦¶à¦¿à¦•à§à¦·à¦¾à¦¬à¦°à§à¦·à§‡ à¦¸à§à¦¬à¦¾à¦—à¦¤à¦®",
       content: "Classes for the new academic session begin this week. Please check your class routine on the notice board.",
-      contentBn: "নতুন শিক্ষাবর্ষের ক্লাস এই সপ্তাহ থেকে শুরু হচ্ছে। নোটিশ বোর্ডে আপনার ক্লাস রুটিন দেখে নিন।",
+      contentBn: "à¦¨à¦¤à§à¦¨ à¦¶à¦¿à¦•à§à¦·à¦¾à¦¬à¦°à§à¦·à§‡à¦° à¦•à§à¦²à¦¾à¦¸ à¦à¦‡ à¦¸à¦ªà§à¦¤à¦¾à¦¹ à¦¥à§‡à¦•à§‡ à¦¶à§à¦°à§ à¦¹à¦šà§à¦›à§‡à¥¤ à¦¨à§‹à¦Ÿà¦¿à¦¶ à¦¬à§‹à¦°à§à¦¡à§‡ à¦†à¦ªà¦¨à¦¾à¦° à¦•à§à¦²à¦¾à¦¸ à¦°à§à¦Ÿà¦¿à¦¨ à¦¦à§‡à¦–à§‡ à¦¨à¦¿à¦¨à¥¤",
       categoryName: "General",
       audienceType: "ALL" as const,
       classId: null as string | null,
@@ -378,9 +364,9 @@ async function main() {
     },
     {
       title: "Library Card Renewal for All Students",
-      titleBn: "সকল শিক্ষার্থীর জন্য লাইব্রেরি কার্ড নবায়ন",
+      titleBn: "à¦¸à¦•à¦² à¦¶à¦¿à¦•à§à¦·à¦¾à¦°à§à¦¥à§€à¦° à¦œà¦¨à§à¦¯ à¦²à¦¾à¦‡à¦¬à§à¦°à§‡à¦°à¦¿ à¦•à¦¾à¦°à§à¦¡ à¦¨à¦¬à¦¾à¦¯à¦¼à¦¨",
       content: "All students must renew their library cards at the library desk before the end of this month.",
-      contentBn: "এই মাসের শেষের আগে সকল শিক্ষার্থীকে লাইব্রেরি ডেস্কে তাদের লাইব্রেরি কার্ড নবায়ন করতে হবে।",
+      contentBn: "à¦à¦‡ à¦®à¦¾à¦¸à§‡à¦° à¦¶à§‡à¦·à§‡à¦° à¦†à¦—à§‡ à¦¸à¦•à¦² à¦¶à¦¿à¦•à§à¦·à¦¾à¦°à§à¦¥à§€à¦•à§‡ à¦²à¦¾à¦‡à¦¬à§à¦°à§‡à¦°à¦¿ à¦¡à§‡à¦¸à§à¦•à§‡ à¦¤à¦¾à¦¦à§‡à¦° à¦²à¦¾à¦‡à¦¬à§à¦°à§‡à¦°à¦¿ à¦•à¦¾à¦°à§à¦¡ à¦¨à¦¬à¦¾à¦¯à¦¼à¦¨ à¦•à¦°à¦¤à§‡ à¦¹à¦¬à§‡à¥¤",
       categoryName: "Academic",
       audienceType: "STUDENTS" as const,
       classId: null as string | null,
@@ -388,9 +374,9 @@ async function main() {
     },
     {
       title: "Parent-Teacher Meeting Schedule",
-      titleBn: "অভিভাবক-শিক্ষক সভার সময়সূচি",
+      titleBn: "à¦…à¦­à¦¿à¦­à¦¾à¦¬à¦•-à¦¶à¦¿à¦•à§à¦·à¦• à¦¸à¦­à¦¾à¦° à¦¸à¦®à¦¯à¦¼à¦¸à§‚à¦šà¦¿",
       content: "The termly parent-teacher meeting will be held next Saturday. Please contact your child's class teacher to confirm your slot.",
-      contentBn: "মেয়াদী অভিভাবক-শিক্ষক সভা আগামী শনিবার অনুষ্ঠিত হবে। আপনার স্লট নিশ্চিত করতে সন্তানের শ্রেণি শিক্ষকের সাথে যোগাযোগ করুন।",
+      contentBn: "à¦®à§‡à¦¯à¦¼à¦¾à¦¦à§€ à¦…à¦­à¦¿à¦­à¦¾à¦¬à¦•-à¦¶à¦¿à¦•à§à¦·à¦• à¦¸à¦­à¦¾ à¦†à¦—à¦¾à¦®à§€ à¦¶à¦¨à¦¿à¦¬à¦¾à¦° à¦…à¦¨à§à¦·à§à¦ à¦¿à¦¤ à¦¹à¦¬à§‡à¥¤ à¦†à¦ªà¦¨à¦¾à¦° à¦¸à§à¦²à¦Ÿ à¦¨à¦¿à¦¶à§à¦šà¦¿à¦¤ à¦•à¦°à¦¤à§‡ à¦¸à¦¨à§à¦¤à¦¾à¦¨à§‡à¦° à¦¶à§à¦°à§‡à¦£à¦¿ à¦¶à¦¿à¦•à§à¦·à¦•à§‡à¦° à¦¸à¦¾à¦¥à§‡ à¦¯à§‹à¦—à¦¾à¦¯à§‹à¦— à¦•à¦°à§à¦¨à¥¤",
       categoryName: "General",
       audienceType: "GUARDIANS" as const,
       classId: null as string | null,
@@ -398,9 +384,9 @@ async function main() {
     },
     {
       title: "Class 5 Field Trip Permission Slips",
-      titleBn: "পঞ্চম শ্রেণির ভ্রমণের অনুমতিপত্র",
+      titleBn: "à¦ªà¦žà§à¦šà¦® à¦¶à§à¦°à§‡à¦£à¦¿à¦° à¦­à§à¦°à¦®à¦£à§‡à¦° à¦…à¦¨à§à¦®à¦¤à¦¿à¦ªà¦¤à§à¦°",
       content: "Class 5 students: permission slips for next month's educational field trip are due to your class teacher by Thursday.",
-      contentBn: "পঞ্চম শ্রেণির শিক্ষার্থীরা: আগামী মাসের শিক্ষামূলক ভ্রমণের অনুমতিপত্র বৃহস্পতিবারের মধ্যে শ্রেণি শিক্ষকের কাছে জমা দিতে হবে।",
+      contentBn: "à¦ªà¦žà§à¦šà¦® à¦¶à§à¦°à§‡à¦£à¦¿à¦° à¦¶à¦¿à¦•à§à¦·à¦¾à¦°à§à¦¥à§€à¦°à¦¾: à¦†à¦—à¦¾à¦®à§€ à¦®à¦¾à¦¸à§‡à¦° à¦¶à¦¿à¦•à§à¦·à¦¾à¦®à§‚à¦²à¦• à¦­à§à¦°à¦®à¦£à§‡à¦° à¦…à¦¨à§à¦®à¦¤à¦¿à¦ªà¦¤à§à¦° à¦¬à§ƒà¦¹à¦¸à§à¦ªà¦¤à¦¿à¦¬à¦¾à¦°à§‡à¦° à¦®à¦§à§à¦¯à§‡ à¦¶à§à¦°à§‡à¦£à¦¿ à¦¶à¦¿à¦•à§à¦·à¦•à§‡à¦° à¦•à¦¾à¦›à§‡ à¦œà¦®à¦¾ à¦¦à¦¿à¦¤à§‡ à¦¹à¦¬à§‡à¥¤",
       categoryName: "Academic",
       audienceType: "CLASS" as const,
       classId: class5.id,

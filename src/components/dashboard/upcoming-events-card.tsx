@@ -36,7 +36,7 @@ export function UpcomingEventsCard({ events }: UpcomingEventsCardProps) {
     {
       id: "evt-1",
       dateMonth: t("sep"),
-      dateDay: locale === "bn" ? "১৮" : "18",
+      dateDay: locale === "bn" ? "à§§à§®" : "18",
       title: t("midTermTitle"),
       description: t("midTermDesc"),
       badgeText: t("badgeAcademic"),
@@ -46,7 +46,7 @@ export function UpcomingEventsCard({ events }: UpcomingEventsCardProps) {
     {
       id: "evt-2",
       dateMonth: t("sep"),
-      dateDay: locale === "bn" ? "২২" : "22",
+      dateDay: locale === "bn" ? "à§¨à§¨" : "22",
       title: t("ptmTitle"),
       description: t("ptmDesc"),
       badgeText: t("badgeMeeting"),
@@ -56,7 +56,7 @@ export function UpcomingEventsCard({ events }: UpcomingEventsCardProps) {
     {
       id: "evt-3",
       dateMonth: t("oct"),
-      dateDay: locale === "bn" ? "০২" : "02",
+      dateDay: locale === "bn" ? "à§¦à§¨" : "02",
       title: t("scienceFairTitle"),
       description: t("scienceFairDesc"),
       badgeText: t("badgeCoCurricular"),
@@ -66,7 +66,7 @@ export function UpcomingEventsCard({ events }: UpcomingEventsCardProps) {
     {
       id: "evt-4",
       dateMonth: t("oct"),
-      dateDay: locale === "bn" ? "১৫" : "15",
+      dateDay: locale === "bn" ? "à§§à§«" : "15",
       title: t("resultPubTitle"),
       description: t("resultPubDesc"),
       badgeText: t("badgeGrading"),
@@ -78,7 +78,7 @@ export function UpcomingEventsCard({ events }: UpcomingEventsCardProps) {
   const items = events && events.length > 0 ? events : defaultEvents
 
   return (
-    <Card className="flex flex-col justify-between rounded-2xl border border-border/60 bg-card p-5 shadow-xs">
+    <Card className="flex flex-col justify-between rounded-xl border border-border/60 bg-card p-4 shadow-xs">
       <CardHeader className="p-0 pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -148,7 +148,7 @@ export function UpcomingEventsCard({ events }: UpcomingEventsCardProps) {
       <div className="mt-4 flex items-center justify-between border-t border-border/40 pt-3 text-[11px] text-muted-foreground">
         <span>{t("termCalendar")}</span>
         <span className="font-mono text-foreground font-medium">
-          {t("activeEvents", { count: locale === "bn" ? "৪" : "4" })}
+          {t("activeEvents", { count: locale === "bn" ? "à§ª" : "4" })}
         </span>
       </div>
     </Card>

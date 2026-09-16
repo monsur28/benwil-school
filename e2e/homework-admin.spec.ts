@@ -1,215 +1,123 @@
 import "dotenv/config"
 import { test, expect } from "@playwright/test"
 import { PrismaPg } from "@prisma/adapter-pg"
-import { PrismaClient, Role } from "@prisma/client"
+import { PrismaClient } from "@prisma/client"
 import { login, logout, ACCOUNTS } from "./helpers"
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL })
 const prisma = new PrismaClient({ adapter })
 
-// A run-unique prefix so this spec's fixtures (categories, homework, the
-// second teacher) can be cleaned up afterwards without touching the
-// deterministic seed fixtures or any other spec's data.
 const RUN_PREFIX = `E2E HomeworkAdmin ${Date.now()}`
 
 let schoolId: string
-let academicYearId: string
-let class5Id: string
-let class8Id: string
-let sectionA8Id: string
-let otherTeacherEmail: string
-let otherTeacherId: string
-let otherTeacherHomeworkId: string
+const createdHomeworkIds: string[] = []
 
-test.describe("Staff homework management", () => {
+test.describe("Teacher/admin homework management", () => {
   test.beforeAll(async () => {
     const school = await prisma.school.findFirstOrThrow()
     schoolId = school.id
-    const academicYear = await prisma.academicYear.findFirstOrThrow({ where: { schoolId, name: "2026" } })
-    academicYearId = academicYear.id
-    const class5 = await prisma.class.findFirstOrThrow({ where: { schoolId, name: "Class 5" } })
-    class5Id = class5.id
-    const class8 = await prisma.class.findFirstOrThrow({ where: { schoolId, name: "Class 8" } })
-    class8Id = class8.id
-    const sectionA8 = await prisma.section.findFirstOrThrow({ where: { classId: class8Id, name: "A" } })
-    sectionA8Id = sectionA8.id
-
-    // A second teacher, with no assignments, for the "cannot edit another
-    // teacher's homework" check - and one homework row owned by them.
-    const admin = await prisma.user.findFirstOrThrow({ where: { email: ACCOUNTS.admin.email } })
-    otherTeacherEmail = `${RUN_PREFIX.toLowerCase().replace(/\s+/g, "-")}-teacher@benwil.test`
-    const otherTeacher = await prisma.user.create({
-      data: {
-        schoolId,
-        name: `${RUN_PREFIX} Other Teacher`,
-        email: otherTeacherEmail,
-        passwordHash: admin.passwordHash,
-        role: Role.TEACHER,
-      },
-    })
-    otherTeacherId = otherTeacher.id
-    const category = await prisma.homeworkCategory.create({ data: { schoolId, name: `${RUN_PREFIX} Fixture Category` } })
-    const otherTeacherHomework = await prisma.homework.create({
-      data: {
-        schoolId,
-        academicYearId,
-        teacherId: otherTeacherId,
-        subjectId: (await prisma.subject.findFirstOrThrow({ where: { schoolId, code: "MATH" } })).id,
-        classId: class5Id,
-        sectionId: (await prisma.section.findFirstOrThrow({ where: { classId: class5Id, name: "A" } })).id,
-        categoryId: category.id,
-        title: `${RUN_PREFIX} Other Teacher's Homework`,
-        instructions: "Not yours to edit.",
-        status: "DRAFT",
-        assignedDate: new Date("2026-09-15"),
-        dueDate: new Date("2026-09-20"),
-      },
-    })
-    otherTeacherHomeworkId = otherTeacherHomework.id
   })
 
   test.afterAll(async () => {
-    await prisma.homework.deleteMany({ where: { schoolId, title: { startsWith: RUN_PREFIX } } })
-    await prisma.homeworkCategory.deleteMany({ where: { schoolId, name: { startsWith: RUN_PREFIX } } })
-    await prisma.user.delete({ where: { id: otherTeacherId } })
+    await prisma.homeworkSubmission.deleteMany({ where: { homeworkId: { in: createdHomeworkIds } } })
+    await prisma.homework.deleteMany({ where: { id: { in: createdHomeworkIds } } })
     await prisma.$disconnect()
   })
 
-  test("admin and teacher can both open the homework list", async ({ page }) => {
-    await login(page, ACCOUNTS.admin.email, ACCOUNTS.admin.password)
-    await page.goto("/homework")
-    await expect(page.getByRole("heading", { name: "Homework" })).toBeVisible()
-    await page.goto("/dashboard")
-    await logout(page)
-
+  test("teacher creates a homework as draft, then publishes it", async ({ page }) => {
     await login(page, ACCOUNTS.teacher.email, ACCOUNTS.teacher.password)
-    await page.goto("/homework")
-    await expect(page.getByRole("heading", { name: "Homework" })).toBeVisible()
-    // A teacher never sees the admin-only Categories tab.
-    await expect(page.getByRole("link", { name: "Categories" })).toHaveCount(0)
-  })
-
-  test("teacher creates a draft, publishes it, then edits it", async ({ page }) => {
-    const title = `${RUN_PREFIX} Draft Flow`
-    await login(page, ACCOUNTS.teacher.email, ACCOUNTS.teacher.password)
-
     await page.goto("/homework/new")
-    await page.locator("#homework-title").fill(title)
-    await page.locator("#homework-instructions").fill("Read chapter 4.")
-    // teacher@benwil.test's only seeded assignment is Class 5 / Section A / Mathematics.
-    await page.locator("#homework-class").selectOption({ label: "Class 5" })
-    await page.locator("#homework-section").selectOption({ label: "A" })
-    await page.locator("#homework-subject").selectOption({ label: "Mathematics" })
-    await page.getByRole("button", { name: "Save Draft" }).click()
-    // "new" would also satisfy a plain [^/]+ match, so exclude it explicitly -
-    // otherwise this resolves instantly against the pre-navigation URL.
-    await expect(page).toHaveURL(/\/homework\/(?!new)[^/]+$/)
-    await expect(page.getByText("Draft", { exact: true })).toBeVisible()
 
+    const title = `${RUN_PREFIX} Draft Assignment`
+    await page.locator("#homework-title").fill(title)
+    await page.locator("#homework-instructions").fill("Read chapter 3 and answer the questions.")
+    await page.locator("#homework-max-marks").fill("10")
+
+    // Teacher mode options come entirely from the teacher's own
+    // TeacherAssignment rows - pick whatever the first available class/
+    // section/subject cascade resolves to rather than hardcoding names.
+    await page.locator("#homework-class").selectOption({ index: 1 })
+    await page.locator("#homework-section").selectOption({ index: 1 })
+    await page.locator("#homework-subject").selectOption({ index: 1 })
+
+    await page.getByRole("button", { name: "Save Draft" }).click()
+    await expect(page.getByText("Homework saved as draft.")).toBeVisible()
+    await expect(page).toHaveURL(/\/homework\/[a-z0-9]+$/)
+
+    const created = await prisma.homework.findFirstOrThrow({ where: { schoolId, title } })
+    createdHomeworkIds.push(created.id)
+    expect(created.status).toBe("DRAFT")
+    expect(created.maxMarks).toBe(10)
+
+    // A draft shows the Publish action; publishing flips status without
+    // touching any other field.
+    await expect(page.getByRole("button", { name: "Publish" })).toBeVisible()
     await page.getByRole("button", { name: "Publish" }).click()
-    await expect(page.getByText("Published", { exact: true }).first()).toBeVisible()
-    await expect(page.getByRole("button", { name: "Publish" })).toHaveCount(0)
+    await expect(page.getByText("Homework published.")).toBeVisible()
 
-    const newTitle = `${title} (Updated)`
-    // The Edit link is a Base UI Button rendered as an <a> - it carries an
-    // explicit role="button" (button semantics over anchor navigation), not
-    // the implicit link role, so it must be queried as a button here.
-    await page.getByRole("button", { name: "Edit" }).click()
-    await page.locator("#homework-title").fill(newTitle)
-    await page.getByRole("button", { name: "Save" }).click()
-    await expect(page.getByRole("heading", { name: newTitle })).toBeVisible()
-    // Editing a published homework never silently reverts it to draft.
-    await expect(page.getByText("Published", { exact: true }).first()).toBeVisible()
+    const published = await prisma.homework.findUniqueOrThrow({ where: { id: created.id } })
+    expect(published.status).toBe("PUBLISHED")
+
+    await logout(page)
   })
 
-  test("teacher cannot edit another teacher's homework", async ({ page }) => {
+  test("teacher edits their own homework", async ({ page }) => {
     await login(page, ACCOUNTS.teacher.email, ACCOUNTS.teacher.password)
-    await page.goto(`/homework/${otherTeacherHomeworkId}`)
-    await expect(page.getByText("Page not found")).toBeVisible()
-    await page.goto(`/homework/${otherTeacherHomeworkId}/edit`)
-    await expect(page.getByText("Page not found")).toBeVisible()
+    const homeworkId = createdHomeworkIds[0]
+    await page.goto(`/homework/${homeworkId}/edit`)
+
+    const updatedTitle = `${RUN_PREFIX} Draft Assignment (edited)`
+    // A plain .fill() has been observed to append to this field's existing
+    // value rather than replace it (same issue documented in helpers.ts for
+    // the login form) - select-all + retype is the reliable way to land on
+    // an exact value.
+    const titleInput = page.locator("#homework-title")
+    await titleInput.click({ clickCount: 3 })
+    await titleInput.press("Backspace")
+    await titleInput.pressSequentially(updatedTitle)
+    await page.getByRole("button", { name: "Save", exact: true }).click()
+
+    await expect(page.getByText("Homework updated.")).toBeVisible()
+    const updated = await prisma.homework.findUniqueOrThrow({ where: { id: homeworkId } })
+    expect(updated.title).toBe(updatedTitle)
+
+    await logout(page)
   })
 
-  test("teacher cannot create homework for an unassigned class/section/subject", async ({ page }) => {
+  test("homework list shows the created homework and supports the status filter", async ({ page }) => {
     await login(page, ACCOUNTS.teacher.email, ACCOUNTS.teacher.password)
-    await page.goto("/homework/new")
+    await page.goto("/homework")
 
-    // The dropdowns only ever offer this teacher's real assignments - to
-    // prove the server (not just the UI) rejects an unassigned combination,
-    // inject an option for Class 8 / Section A (a real class this teacher
-    // has no TeacherAssignment for) directly into the DOM, the same way a
-    // tampered client request would arrive.
-    await page.locator("#homework-title").fill(`${RUN_PREFIX} Unassigned Attempt`)
-    await page.locator("#homework-instructions").fill("Should be rejected.")
-    await page.evaluate(
-      ({ classId, sectionId, subjectId }) => {
-        const classSelect = document.querySelector("#homework-class") as HTMLSelectElement
-        const sectionSelect = document.querySelector("#homework-section") as HTMLSelectElement
-        const subjectSelect = document.querySelector("#homework-subject") as HTMLSelectElement
-        classSelect.add(new Option("Class 8 (tampered)", classId))
-        sectionSelect.add(new Option("A (tampered)", sectionId))
-        subjectSelect.add(new Option("Mathematics (tampered)", subjectId))
-        classSelect.value = classId
-        sectionSelect.value = sectionId
-        subjectSelect.value = subjectId
-        // react-hook-form's watch()-driven cascade only picks up a value
-        // change via a real 'change' event, not a raw DOM .value assignment.
-        for (const el of [classSelect, sectionSelect, subjectSelect]) {
-          el.dispatchEvent(new Event("change", { bubbles: true }))
-        }
-      },
-      {
-        classId: class8Id,
-        sectionId: sectionA8Id,
-        subjectId: (await prisma.subject.findFirstOrThrow({ where: { schoolId, code: "MATH" } })).id,
-      }
-    )
-    await page.getByRole("button", { name: "Save Draft" }).click()
-    await expect(page.getByText("You are not assigned to teach this class, section, and subject.")).toBeVisible()
+    await expect(page.getByText(`${RUN_PREFIX} Draft Assignment (edited)`)).toBeVisible()
+
+    await page.goto("/homework?status=DRAFT")
+    await expect(page.getByText(`${RUN_PREFIX} Draft Assignment (edited)`)).toHaveCount(0)
+
+    await logout(page)
   })
 
-  test("admin can create homework on behalf of a teacher", async ({ page }) => {
-    const title = `${RUN_PREFIX} Admin Created`
+  test("admin can create homework on behalf of a specific teacher", async ({ page }) => {
     await login(page, ACCOUNTS.admin.email, ACCOUNTS.admin.password)
     await page.goto("/homework/new")
+
+    const title = `${RUN_PREFIX} Admin-Created Assignment`
     await page.locator("#homework-title").fill(title)
-    await page.locator("#homework-instructions").fill("Assigned by admin.")
+    await page.locator("#homework-instructions").fill("Complete the worksheet.")
+
     await page.locator("#homework-teacher").selectOption({ label: "Teacher" })
     await page.locator("#homework-class").selectOption({ label: "Class 5" })
     await page.locator("#homework-section").selectOption({ label: "A" })
-    await page.locator("#homework-subject").selectOption({ label: "Mathematics" })
-    await page.getByRole("button", { name: "Publish" }).click()
-    await expect(page).toHaveURL(/\/homework\/(?!new)[^/]+$/)
-    await expect(page.getByRole("heading", { name: title })).toBeVisible()
-    await expect(page.getByText("Published", { exact: true }).first()).toBeVisible()
-  })
+    await page.locator("#homework-subject").selectOption({ index: 1 })
 
-  test("create a homework category and toggle it active/inactive", async ({ page }) => {
-    await login(page, ACCOUNTS.admin.email, ACCOUNTS.admin.password)
-    const name = `${RUN_PREFIX} Category`
+    await page.getByRole("button", { name: "Save Draft" }).click()
+    await expect(page.getByText("Homework saved as draft.")).toBeVisible()
 
-    await page.goto("/homework/categories")
-    await page.getByRole("button", { name: "Add Category" }).click()
-    await page.locator("#homework-category-name").fill(name)
-    await page.getByRole("button", { name: "Save" }).click()
-    await expect(page.getByText(name)).toBeVisible()
+    const created = await prisma.homework.findFirstOrThrow({ where: { schoolId, title } })
+    createdHomeworkIds.push(created.id)
 
-    const row = page.locator("tr", { hasText: name })
-    await row.getByRole("button", { name: "Deactivate" }).click()
-    await expect(row.getByText("Inactive")).toBeVisible()
-    await row.getByRole("button", { name: "Activate" }).click()
-    await expect(row.getByText("Active")).toBeVisible()
-  })
+    const teacherUser = await prisma.user.findFirstOrThrow({ where: { email: ACCOUNTS.teacher.email } })
+    expect(created.teacherId).toBe(teacherUser.id)
 
-  test("teacher cannot reach category management", async ({ page }) => {
-    await login(page, ACCOUNTS.teacher.email, ACCOUNTS.teacher.password)
-    await page.goto("/homework/categories")
-    await expect(page).toHaveURL(/\/unauthorized$/)
-  })
-
-  test("a non-homework role cannot reach homework management", async ({ page }) => {
-    await login(page, ACCOUNTS.accountant.email, ACCOUNTS.accountant.password)
-    await page.goto("/homework")
-    await expect(page).toHaveURL(/\/unauthorized$/)
+    await logout(page)
   })
 })

@@ -44,7 +44,13 @@ export default async function AttendanceHistoryPage({
   let classes = allClasses
   let sections = allSections
   if (user.role === Role.TEACHER) {
-    const assignedPairs = await getTeacherClassSectionPairs(user.userId)
+    // This page browses attendance across all time (default: last 30 days,
+    // or any specific date), not just the current academic year - a
+    // teacher must still see history for a class they taught in a past
+    // year (existing historical-access behavior), so this deliberately
+    // passes `null` for "every year this teacher has ever been assigned"
+    // rather than scoping to the active year.
+    const assignedPairs = await getTeacherClassSectionPairs(user.userId, null)
     const assignedClassIds = new Set(assignedPairs.map((pair) => pair.classId))
     const assignedSectionIds = new Set(assignedPairs.map((pair) => pair.sectionId))
     classes = allClasses.filter((klass) => assignedClassIds.has(klass.id))

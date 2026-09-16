@@ -16,8 +16,13 @@
     "tryAgain": "Try again",
     "pageNotFound": "Page not found",
     "pageNotFoundDescription": "The page you're looking for doesn't exist.",
+    "academicSession": "Academic Session {year}",
+    "online": "Online",
+    "allModulesNominal": "All Academic Modules Nominal",
     "header": {
       "academicSession": "Academic Session",
+      "establishedYear": "EST. {year}",
+      "session": "Session {year}",
       "notifications": "Notifications",
       "noNotifications": "No new notifications",
       "noNotificationsDescription": "You're all caught up."
@@ -57,7 +62,10 @@
       "resources": "Resources",
       "insights": "Insights",
       "system": "System"
-    }
+    },
+    "profile": "Profile",
+    "reportCard": "Report Card",
+    "myChildren": "My Children"
   },
   "auth": {
     "loginTitle": "Log in",
@@ -107,7 +115,20 @@
       "pendingFees": "Pending Fees",
       "upcomingExams": "Upcoming Exams",
       "recentNotices": "Recent Notices",
-      "quickActions": "Quick actions",
+      "quickActions": {
+        "title": "Quick Actions",
+        "subtitle": "Frequently used commands",
+        "addStudent": "Add Student",
+        "addStudentDesc": "Register new admission",
+        "takeAttendance": "Take Attendance",
+        "takeAttendanceDesc": "Daily roll call register",
+        "createExam": "Create Exam",
+        "createExamDesc": "Schedule assessment routine",
+        "collectFee": "Collect Fee",
+        "collectFeeDesc": "Record student payment",
+        "createNotice": "Create Notice",
+        "createNoticeDesc": "Publish school bulletin"
+      },
       "addStudent": "Add Student",
       "takeAttendance": "Take Attendance",
       "createExam": "Create Exam",
@@ -167,12 +188,25 @@
       "standardCurriculum": "Standard NC",
       "sessionProgress": "Session Progress",
       "milestones": {
-        "midTermTitle": "Mid-Term Assessment Window",
-        "midTermDesc": "Written & Practical examinations across Classes 1-10",
-        "ptmTitle": "Parent-Teacher Progress Reviews",
-        "ptmDesc": "Comprehensive academic evaluation distribution",
+        "title": "Upcoming Milestones",
+        "description": "Official calendar events and academic checkpoints",
+        "calendar": "Calendar",
+        "termCalendar": "Term 1 Calendar • Session 2026",
+        "activeEvents": "{count} active events",
+        "midTermTitle": "Mid-Term Examination",
+        "midTermDesc": "Assessment routine commences for Classes 6–10",
+        "badgeAcademic": "Academic",
+        "ptmTitle": "Parent-Teacher Conference",
+        "ptmDesc": "Primary & Secondary section performance review",
+        "badgeMeeting": "Meeting",
         "scienceFairTitle": "Annual Science & Culture Fair",
-        "scienceFairDesc": "Inter-house exhibits and innovation showcases"
+        "scienceFairDesc": "Campus exhibition and student project showcase",
+        "badgeCoCurricular": "Co-curricular",
+        "resultPubTitle": "Term 1 Result Publication",
+        "resultPubDesc": "Finalized transcript & report card distribution",
+        "badgeGrading": "Grading",
+        "sep": "SEP",
+        "oct": "OCT"
       },
       "collectionHealth": "Collection Health",
       "collectionHealthOnTarget": "{health}% on target",
@@ -198,7 +232,7 @@
         "greetingEvening": "Good evening",
         "liveCampus": "Live Campus",
         "subtitle": "Here's what's happening at {schoolName} on {date}.",
-        "academicSession": "Academic Session {year} • Term 1",
+        "academicSession": "Academic Session {year}",
         "allSystemsNominal": "All systems nominal",
         "directory": "Directory",
         "addStudent": "+ Add Student"
@@ -275,20 +309,6 @@
         "passingBenchmark": "Passing benchmark: 75%",
         "highestClass": "Highest: Class 9 (87%)"
       },
-      "quickActions": {
-        "title": "Quick Actions",
-        "subtitle": "Frequently used commands",
-        "addStudent": "Add Student",
-        "addStudentDesc": "Register new admission",
-        "takeAttendance": "Take Attendance",
-        "takeAttendanceDesc": "Daily roll call register",
-        "createExam": "Create Exam",
-        "createExamDesc": "Schedule assessment routine",
-        "collectFee": "Collect Fee",
-        "collectFeeDesc": "Record student payment",
-        "createNotice": "Create Notice",
-        "createNoticeDesc": "Publish school bulletin"
-      },
       "activity": {
         "title": "Recent Activity",
         "description": "Real-time operational stream across administrative modules",
@@ -306,27 +326,6 @@
         "collectedFrom": "৳ {amount} collected • {student}",
         "attendanceSummary": "{className} • {count} students recorded ({percent}% present)",
         "examRoutineFinalized": "Mid-Term Assessment routine finalized for Classes 6–10"
-      },
-      "milestones": {
-        "title": "Upcoming Milestones",
-        "description": "Official calendar events and academic checkpoints",
-        "calendar": "Calendar",
-        "termCalendar": "Term 1 Calendar • Session 2026",
-        "activeEvents": "{count} active events",
-        "midTermTitle": "Mid-Term Examination",
-        "midTermDesc": "Assessment routine commences for Classes 6–10",
-        "badgeAcademic": "Academic",
-        "ptmTitle": "Parent-Teacher Conference",
-        "ptmDesc": "Primary & Secondary section performance review",
-        "badgeMeeting": "Meeting",
-        "scienceFairTitle": "Annual Science & Culture Fair",
-        "scienceFairDesc": "Campus exhibition and student project showcase",
-        "badgeCoCurricular": "Co-curricular",
-        "resultPubTitle": "Term 1 Result Publication",
-        "resultPubDesc": "Finalized transcript & report card distribution",
-        "badgeGrading": "Grading",
-        "sep": "SEP",
-        "oct": "OCT"
       },
       "healthIndex": {
         "title": "Campus Health Index",
@@ -354,7 +353,7 @@
         "ptmTitle": "Parent Teacher Meeting",
         "ptmScope": "Guardians",
         "examRoutineTitle": "Mid-Term Examination Routine",
-        "examRoutineScope": "Classes 6–10",
+        "examRoutineScope": "Classes 6-10",
         "today": "Today"
       }
     },
@@ -364,7 +363,11 @@
       "myStudents": "My Students",
       "homework": "Homework",
       "upcomingExams": "Upcoming Exams",
-      "pendingMarks": "Pending Marks"
+      "pendingMarks": "Pending Marks",
+      "pendingMarksCaption": "Submissions awaiting review",
+      "myClasses": "My Classes",
+      "students": "{count} students",
+      "noClasses": "No classes assigned yet."
     },
     "student": {
       "todaysRoutine": "Today's Routine",
@@ -881,7 +884,8 @@
       "subject": "Subject",
       "teacher": "Teacher",
       "sections": "Sections",
-      "students": "Students"
+      "students": "Students",
+      "academicYear": "Academic Year"
     },
     "status": {
       "active": "Active",
@@ -927,7 +931,9 @@
       "description": "Assign teachers to a class, section, and subject.",
       "addTitle": "Assign Teacher",
       "empty": "No teacher assignments yet.",
-      "noSubjectsForClass": "This class has no subjects assigned yet. Add one from the class page first."
+      "noSubjectsForClass": "This class has no subjects assigned yet. Add one from the class page first.",
+      "viewAll": "View all assignments",
+      "allYears": "All academic years"
     },
     "classDetail": {
       "backToClasses": "Back to Classes",
@@ -1139,6 +1145,95 @@
       "alreadyVoided": "This payment is already voided."
     }
   },
+  "portal": {
+    "welcome": "Welcome",
+    "nav": {
+      "dashboard": "Dashboard",
+      "profile": "My Profile",
+      "attendance": "Attendance",
+      "results": "Results",
+      "reportCard": "Report Card",
+      "myChildren": "My Children",
+      "fees": "Fees",
+      "notices": "Notices",
+      "homework": "Homework"
+    },
+    "fields": {
+      "roll": "Roll",
+      "academicYear": "Academic Year",
+      "attendancePercentage": "Attendance Percentage",
+      "email": "Email",
+      "password": "Password"
+    },
+    "cards": {
+      "attendance": "Attendance",
+      "latestResult": "Latest Result"
+    },
+    "filters": {
+      "allYears": "All Years",
+      "from": "From",
+      "to": "To"
+    },
+    "empty": {
+      "noResults": "No results available yet.",
+      "noResultsTitle": "No Results",
+      "noAttendance": "No attendance records yet.",
+      "noChildren": "No children are linked to this account yet.",
+      "noChildrenTitle": "No Children",
+      "noFees": "No fees have been assigned yet.",
+      "noFeesTitle": "No Fees",
+      "noNotices": "School announcements will appear here.",
+      "noNoticesTitle": "No Notices",
+      "noHomework": "No upcoming homework.",
+      "noHomeworkTitle": "No Homework"
+    },
+    "account": {
+      "cardTitle": "Portal Accounts",
+      "studentLabel": "Student Account",
+      "notLinked": "No portal account linked",
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "actions": {
+      "createAccount": "Create Account",
+      "activateAccount": "Activate",
+      "deactivateAccount": "Deactivate"
+    },
+    "dialog": {
+      "createAccountTitle": "Create portal account for {name}"
+    },
+    "success": {
+      "accountCreated": "Portal account created"
+    },
+    "errors": {
+      "invalidForm": "Please check the form and try again.",
+      "invalidEmail": "Enter a valid email address.",
+      "passwordTooShort": "Password must be at least 8 characters.",
+      "notFound": "Record not found.",
+      "alreadyLinked": "This record is already linked to a portal account.",
+      "emailTaken": "This email is already in use.",
+      "saveFailed": "Something went wrong. Please try again."
+    },
+    "comingSoon": {
+      "badge": "Coming Soon",
+      "classRoutine": {
+        "title": "Class Routine",
+        "description": "Your weekly class timetable will appear here."
+      },
+      "holidayCalendar": {
+        "title": "Holiday Calendar",
+        "description": "School holidays and important dates will appear here."
+      },
+      "syllabus": {
+        "title": "Syllabus",
+        "description": "Subject-wise syllabus progress will appear here."
+      },
+      "onlineClasses": {
+        "title": "Online Recorded Classes",
+        "description": "Recorded class videos will appear here."
+      }
+    }
+  },
   "notices": {
     "title": "Notices",
     "subnav": {
@@ -1251,7 +1346,13 @@
       "assignedDate": "Assigned Date",
       "dueDate": "Due Date",
       "status": "Status",
-      "createdBy": "Created By"
+      "createdBy": "Created By",
+      "maxMarks": "Maximum Marks",
+      "maxMarksPlaceholder": "e.g. 10",
+      "teacherFeedback": "Teacher Feedback",
+      "submissionContent": "Your Answer",
+      "attachment": "Attachment (optional)",
+      "currentAttachment": "Current file"
     },
     "status": {
       "DRAFT": "Draft",
@@ -1274,7 +1375,11 @@
       "activate": "Activate",
       "deactivate": "Deactivate",
       "viewAll": "View all",
-      "search": "Search"
+      "search": "Search",
+      "submitHomework": "Submit Homework",
+      "editSubmission": "Edit Submission",
+      "submit": "Submit",
+      "saving": "Saving..."
     },
     "list": {
       "empty": "No homework found.",
@@ -1293,14 +1398,18 @@
     "portal": {
       "upcomingTitle": "Upcoming Homework",
       "assignedOn": "Assigned {date}",
-      "dueOn": "Due {date}"
+      "dueOn": "Due {date}",
+      "yourSubmission": "Your Submission",
+      "submissionPlaceholder": "Type your answer here...",
+      "childSubmission": "Child's Submission"
     },
     "success": {
       "categoryCreated": "Category created.",
       "categoryUpdated": "Category updated.",
       "draftSaved": "Homework saved as draft.",
       "homeworkUpdated": "Homework updated.",
-      "published": "Homework published."
+      "published": "Homework published.",
+      "submitted": "Homework submitted."
     },
     "errors": {
       "invalidForm": "Please check the form and try again.",
@@ -1314,77 +1423,278 @@
       "instructionsRequired": "Instructions are required.",
       "dateRequired": "This date is required.",
       "invalidDate": "Enter a valid date.",
-      "invalidDateRange": "The due date cannot be earlier than the assigned date."
+      "invalidDateRange": "The due date cannot be earlier than the assigned date.",
+      "maxMarksInvalid": "Enter a valid number between 1 and 1000.",
+      "marksInvalid": "Marks must be a valid non-negative number.",
+      "marksExceedsMax": "Marks cannot exceed the maximum of {max}.",
+      "contentTooLong": "Your answer is too long.",
+      "submissionEmpty": "Please provide an answer or attach a file.",
+      "gradeTooLong": "Grade is too long.",
+      "feedbackTooLong": "Feedback is too long.",
+      "reviewEmpty": "Provide marks, a grade, or feedback.",
+      "submissionClosed": "The submission deadline for this homework has passed.",
+      "failedSubmit": "Could not submit your homework. Please try again.",
+      "fileTooLarge": "File is too large. Maximum size is 10MB.",
+      "fileTypeNotAllowed": "This file type is not allowed.",
+      "invalidStudent": "This student is not part of this homework's class."
+    },
+    "submissions": {
+      "title": "Submissions",
+      "summary": "Summary",
+      "totalStudents": "Total Students",
+      "submitted": "Submitted",
+      "reviewed": "Reviewed",
+      "pending": "Pending Review",
+      "late": "Late",
+      "lateBadge": "Late",
+      "notSubmitted": "Not Submitted",
+      "empty": "No submissions found.",
+      "status": {
+        "SUBMITTED": "Submitted",
+        "REVIEWED": "Reviewed"
+      },
+      "table": {
+        "student": "Student",
+        "status": "Status",
+        "submittedAt": "Submitted At",
+        "actions": "Actions"
+      }
+    },
+    "review": {
+      "title": "Review Submission",
+      "back": "Back to Homework",
+      "studentSubmission": "Student Submission",
+      "teacherFeedback": "Teacher Feedback",
+      "feedbackPlaceholder": "Provide textual feedback for the student...",
+      "marks": "Marks",
+      "marksPlaceholder": "Enter marks (e.g. 90)",
+      "grade": "Grade",
+      "gradePlaceholder": "Enter grade (e.g. A+)",
+      "save": "Save Feedback",
+      "saving": "Saving...",
+      "success": "Feedback saved successfully.",
+      "notSubmitted": "Student has not submitted yet.",
+      "viewAttachment": "View attachment"
     }
   },
-  "portal": {
-    "welcome": "Welcome",
-    "nav": {
-      "dashboard": "Dashboard",
-      "profile": "My Profile",
-      "attendance": "Attendance",
-      "results": "Results",
-      "reportCard": "Report Card",
-      "myChildren": "My Children",
-      "fees": "Fees",
-      "notices": "Notices",
-      "homework": "Homework"
+  "teachers": {
+    "title": "Teachers & Staff",
+    "description": "Manage teaching staff, assignments and academic responsibilities.",
+    "searchPlaceholder": "Search name, employee ID, email or phone",
+    "sections": {
+      "basic": "Basic Information",
+      "employment": "Employment",
+      "academic": "Academic"
     },
     "fields": {
-      "roll": "Roll",
-      "academicYear": "Academic Year",
-      "attendancePercentage": "Attendance Percentage",
+      "teacher": "Teacher",
+      "name": "Full Name",
       "email": "Email",
-      "password": "Password"
+      "password": "Password",
+      "phone": "Phone",
+      "address": "Address",
+      "employeeId": "Employee ID",
+      "designation": "Designation",
+      "designationPlaceholder": "e.g. Senior Teacher",
+      "department": "Department",
+      "joiningDate": "Joining Date",
+      "employmentType": "Employment Type",
+      "employmentTypePlaceholder": "e.g. Full-time",
+      "qualifications": "Qualifications",
+      "specialization": "Specialization",
+      "assignments": "Assignments",
+      "status": "Status",
+      "actions": "Actions"
     },
-    "cards": {
-      "attendance": "Attendance",
-      "latestResult": "Latest Result"
-    },
-    "filters": {
-      "allYears": "All Years",
-      "from": "From",
-      "to": "To"
-    },
-    "empty": {
-      "noResults": "No results available yet.",
-      "noResultsTitle": "No Results",
-      "noAttendance": "No attendance records yet.",
-      "noChildren": "No children are linked to this account yet.",
-      "noChildrenTitle": "No Children",
-      "noFees": "No fees have been assigned yet.",
-      "noFeesTitle": "No Fees",
-      "noNotices": "School announcements will appear here.",
-      "noNoticesTitle": "No Notices",
-      "noHomework": "No upcoming homework.",
-      "noHomeworkTitle": "No Homework"
-    },
-    "account": {
-      "cardTitle": "Portal Accounts",
-      "studentLabel": "Student Account",
-      "notLinked": "No portal account linked",
+    "status": {
       "active": "Active",
       "inactive": "Inactive"
     },
-    "actions": {
-      "createAccount": "Create Account",
-      "activateAccount": "Activate",
-      "deactivateAccount": "Deactivate"
+    "filters": {
+      "allStatuses": "All statuses",
+      "allDepartments": "All departments",
+      "filter": "Filter"
     },
-    "dialog": {
-      "createAccountTitle": "Create portal account for {name}"
+    "list": {
+      "empty": "No teachers found",
+      "emptyDescription": "Adjust the filters or add a teacher to begin.",
+      "unassigned": "Unassigned",
+      "assignmentsCount": "{count} assignments"
+    },
+    "summary": {
+      "total": "Total Teachers",
+      "active": "Active",
+      "inactive": "Inactive",
+      "unassigned": "Unassigned"
+    },
+    "actions": {
+      "addTeacher": "Add Teacher",
+      "editTeacher": "Edit Teacher",
+      "view": "View",
+      "edit": "Edit",
+      "manageAssignments": "Manage Assignments",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "save": "Save",
+      "saving": "Saving...",
+      "create": "Create Teacher"
+    },
+    "confirm": {
+      "deactivate": "Deactivate this teacher? This will prevent new academic assignments but preserve all historical records."
+    },
+    "profile": {
+      "noEmployeeId": "No employee ID",
+      "noPhone": "No phone recorded",
+      "assignedClasses": "Assigned Classes",
+      "assignedSubjects": "Assigned Subjects",
+      "totalAssignments": "Assignments",
+      "employment": "Employment",
+      "noAssignments": "No assignments yet.",
+      "classTeacher": "Class teacher",
+      "legacy": "Legacy",
+      "department": "Department",
+      "qualifications": "Qualifications",
+      "specialization": "Specialization"
+    },
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next",
+      "pageInfo": "Page {page} of {totalPages}"
     },
     "success": {
-      "accountCreated": "Portal account created"
+      "created": "Teacher account created.",
+      "activated": "Teacher activated.",
+      "deactivated": "Teacher deactivated."
     },
     "errors": {
       "invalidForm": "Please check the form and try again.",
+      "nameRequired": "Name is required.",
       "invalidEmail": "Enter a valid email address.",
       "passwordTooShort": "Password must be at least 8 characters.",
-      "notFound": "Record not found.",
-      "alreadyLinked": "This record is already linked to a portal account.",
+      "notFound": "Teacher not found.",
       "emailTaken": "This email is already in use.",
+      "employeeIdTaken": "This employee ID is already in use.",
       "saveFailed": "Something went wrong. Please try again."
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "description": "Configure your school's identity, branding, and system preferences.",
+    "school": {
+      "title": "School Profile",
+      "description": "Manage school identity, contact information and address.",
+      "sections": {
+        "basic": "Basic Information",
+        "administration": "Administration",
+        "contact": "Contact",
+        "address": "Address"
+      }
+    },
+    "branding": {
+      "title": "Branding",
+      "description": "Manage logo, colors, favicon and application appearance.",
+      "sectionDescription": "Changes here apply across the entire application immediately after saving.",
+      "logo": "School Logo",
+      "logoRecommended": "Recommended: 512×512, transparent PNG",
+      "favicon": "Favicon",
+      "faviconRecommended": "Recommended: 32×32 or 48×48 PNG",
+      "loginLogo": "Login Logo",
+      "loginBackground": "Login Background",
+      "loginBackgroundRecommended": "Recommended: 1920×1080",
+      "primaryColor": "Primary Color",
+      "secondaryColor": "Secondary Color",
+      "sidebarColor": "Sidebar Color",
+      "accentColor": "Accent Color",
+      "preview": "Preview",
+      "previewPrimaryButton": "Primary Button",
+      "previewSecondaryButton": "Secondary",
+      "loginTitle": "Login Title",
+      "loginTitleDefault": "Welcome Back",
+      "loginSubtitle": "Login Subtitle",
+      "loginSubtitleDefault": "Sign in to continue to your account",
+      "loginDescription": "Login Description",
+      "loginFooterText": "Login Footer Text",
+      "loginFooterDefault": "© 2026 Your School. All rights reserved."
+    },
+    "loginExperience": {
+      "title": "Login Experience",
+      "description": "Customize the sign-in page."
+    },
+    "system": {
+      "title": "System Preferences",
+      "description": "Language, timezone, currency and formatting.",
+      "defaultLanguage": "Default Language",
+      "useApplicationDefault": "Use application default",
+      "languages": {
+        "en": "English",
+        "bn": "Bangla"
+      },
+      "timezone": "Timezone",
+      "currency": "Currency",
+      "dateFormat": "Date Format",
+      "timeFormat": "Time Format",
+      "timeFormat12h": "12-hour",
+      "timeFormat24h": "24-hour",
+      "weekStartsOn": "Week Starts On",
+      "workingDays": "School Working Days",
+      "pageSize": "Default Page Size",
+      "weekdays": {
+        "sunday": "Sunday",
+        "monday": "Monday",
+        "tuesday": "Tuesday",
+        "wednesday": "Wednesday",
+        "thursday": "Thursday",
+        "friday": "Friday",
+        "saturday": "Saturday"
+      }
+    },
+    "fields": {
+      "schoolName": "School Name",
+      "shortName": "Short Name",
+      "schoolCode": "School Code",
+      "motto": "Motto",
+      "description": "Description",
+      "establishedYear": "Established Year",
+      "principalName": "Principal Name",
+      "email": "Email",
+      "phone": "Phone",
+      "alternatePhone": "Alternative Phone",
+      "website": "Website",
+      "address": "Address",
+      "city": "City",
+      "country": "Country",
+      "postalCode": "Postal Code"
+    },
+    "actions": {
+      "saving": "Saving...",
+      "saveChanges": "Save Changes",
+      "upload": "Upload",
+      "replace": "Replace",
+      "remove": "Remove"
+    },
+    "success": {
+      "saved": "Settings saved.",
+      "imageUploaded": "Image uploaded.",
+      "imageRemoved": "Image removed."
+    },
+    "errors": {
+      "invalidForm": "Please check the highlighted fields.",
+      "saveFailed": "Unable to save settings. Please try again.",
+      "unsupportedImageType": "That file type isn't supported.",
+      "imageTooLarge": "That file is too large.",
+      "nameRequired": "School name is required.",
+      "invalidEmail": "Enter a valid email address.",
+      "invalidUrl": "Enter a valid URL.",
+      "invalidColor": "Enter a color as #RRGGBB.",
+      "invalidYear": "Enter a valid year.",
+      "invalidTimezone": "Enter a valid timezone (e.g. Asia/Dhaka).",
+      "invalidCurrency": "Select a valid currency.",
+      "invalidLanguage": "Select a valid language.",
+      "invalidDateFormat": "Select a valid date format.",
+      "invalidTimeFormat": "Select a valid time format.",
+      "invalidWeekStart": "Select a valid day.",
+      "invalidWorkingDay": "Select valid working days.",
+      "invalidPageSize": "Enter a page size between 5 and 200."
     }
   }
 }

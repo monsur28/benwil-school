@@ -1,9 +1,6 @@
 import { z } from "zod"
 import { BloodGroup, DocumentType, Gender, GuardianRelation, StudentStatus } from "@prisma/client"
 
-// Error messages are i18n keys relative to the "students" namespace (every
-// consumer resolves them with a translator already scoped to "students",
-// same convention as lib/validations/auth.ts uses for the "auth" namespace).
 const errors = {
   nameRequired: "errors.nameRequired",
   invalidDate: "errors.invalidDate",
@@ -16,11 +13,10 @@ const errors = {
   rollRequired: "errors.rollRequired",
   guardiansRequired: "errors.guardiansRequired",
   documentTitleRequired: "errors.documentTitleRequired",
+  documentFileRequired: "errors.invalidForm",
 }
 
-const isoDate = z
-  .string()
-  .refine((value) => !Number.isNaN(Date.parse(value)), { error: errors.invalidDate })
+const isoDate = z.string().refine((value) => !Number.isNaN(Date.parse(value)), { error: errors.invalidDate })
 
 export const guardianSchema = z.object({
   name: z.string().trim().min(1, { error: errors.nameRequired }),
@@ -37,6 +33,11 @@ export type GuardianInput = z.infer<typeof guardianSchema>
 export const documentInputSchema = z.object({
   type: z.enum(DocumentType),
   title: z.string().trim().min(1, { error: errors.documentTitleRequired }),
+  fileUrl: z.string().url({ error: errors.documentFileRequired }),
+  fileName: z.string().trim().min(1, { error: errors.documentFileRequired }),
+  cloudinaryPublicId: z.string().trim().min(1, { error: errors.documentFileRequired }),
+  mimeType: z.string().trim().min(1, { error: errors.documentFileRequired }),
+  fileSize: z.number().int().positive({ error: errors.documentFileRequired }),
 })
 export type DocumentInput = z.infer<typeof documentInputSchema>
 
@@ -67,7 +68,5 @@ export const createStudentSchema = basicInfoSchema.extend({
 })
 export type CreateStudentInput = z.infer<typeof createStudentSchema>
 
-export const updateStudentSchema = createStudentSchema.extend({
-  status: z.enum(StudentStatus),
-})
+export const updateStudentSchema = createStudentSchema.extend({ status: z.enum(StudentStatus) })
 export type UpdateStudentInput = z.infer<typeof updateStudentSchema>

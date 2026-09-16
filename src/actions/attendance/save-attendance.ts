@@ -40,7 +40,7 @@ export async function saveAttendance(input: SaveAttendanceInput): Promise<SaveAt
   // a per-section permission, not per-subject). Admin/Principal roles are
   // exempt and can manage attendance for any class/section in the school.
   if (user.role === Role.TEACHER) {
-    const isAssigned = await isTeacherAssignedToSection(user.userId, data.classId, data.sectionId)
+    const isAssigned = await isTeacherAssignedToSection(user.userId, academicYear.id, data.classId, data.sectionId)
     if (!isAssigned) {
       return { success: false, error: t("errors.notAssigned") }
     }
