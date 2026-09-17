@@ -1,10 +1,13 @@
 import type { StudentStatus } from "@prisma/client"
 import { Badge } from "@/components/ui/badge"
 
-const VARIANT: Record<StudentStatus, "default" | "outline" | "secondary" | "destructive"> = {
-  ACTIVE: "default",
-  INACTIVE: "outline",
-  GRADUATED: "secondary",
+// Mapped onto the semantic badge tones rather than the neutral ones: a
+// student's status is a state, so it should be readable by colour alone
+// (green = enrolled and attending, red = withdrawn) as well as by label.
+const VARIANT: Record<StudentStatus, "success" | "muted" | "info" | "destructive"> = {
+  ACTIVE: "success",
+  INACTIVE: "muted",
+  GRADUATED: "info",
   WITHDRAWN: "destructive",
 }
 

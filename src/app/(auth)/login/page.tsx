@@ -1,133 +1,124 @@
 import { redirect } from "next/navigation"
+import Image from "next/image"
+import { getTranslations } from "next-intl/server"
+import { ShieldCheck } from "lucide-react"
 import { getSession } from "@/lib/auth/session"
 import { portalHomeForRole } from "@/lib/portal/routes"
 import { getLoginBranding } from "@/lib/settings/branding"
 import { SlidingAuthCard } from "@/components/auth/sliding-auth-card"
 import { LanguageSwitcher } from "@/components/shared/language-switcher"
 import { SchoolCrest } from "@/components/shared/school-crest"
-import { Users, BookOpen, TrendingUp, ShieldCheck } from "lucide-react"
-import Image from "next/image"
 
+/**
+ * Sign-in.
+ *
+ * Composition: an ink brand panel on the left (the same surface language as
+ * the app's navigation rail, so signing in already feels like the product),
+ * and a calm white column on the right holding nothing but the form. The
+ * campus photograph sits *behind* the ink at low opacity rather than under a
+ * white scrim, which keeps every piece of text at full contrast.
+ *
+ * Below `lg` the brand panel collapses into a compact header above the form.
+ */
 export default async function LoginPage() {
   const session = await getSession()
   if (session.userId && session.role) {
     redirect(portalHomeForRole(session.role))
   }
 
-  const branding = await getLoginBranding()
+  const [branding, tAuth] = await Promise.all([getLoginBranding(), getTranslations("auth")])
+  const year = new Date().getFullYear()
+
+  const mark = branding.logoUrl ? (
+    <Image
+      src={branding.logoUrl}
+      alt={branding.schoolName}
+      width={44}
+      height={44}
+      className="size-11 shrink-0 rounded-xl bg-white/10 object-contain p-1.5 ring-1 ring-white/15"
+      unoptimized
+      priority
+    />
+  ) : (
+    <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-white/10 ring-1 ring-white/15">
+      <SchoolCrest size="sm" className="size-7" />
+    </span>
+  )
 
   return (
-    <main className="h-screen max-h-[100dvh] w-full flex bg-background overflow-hidden">
+    <main className="flex min-h-dvh w-full bg-card">
+      {/* Brand panel */}
+      <aside className="relative hidden w-[46%] shrink-0 flex-col justify-between overflow-hidden bg-sidebar p-10 text-sidebar-foreground lg:flex xl:w-[50%] xl:p-14">
+        <Image
+          src={branding.loginBackgroundUrl || "/students_studying.jpg"}
+          alt=""
+          fill
+          priority
+          unoptimized={Boolean(branding.loginBackgroundUrl)}
+          aria-hidden="true"
+          className="pointer-events-none object-cover opacity-[0.14]"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-gradient-to-t from-sidebar via-sidebar/70 to-sidebar/30"
+        />
 
-      {/* LEFT COLUMN - Information & Brand Background (Hidden on small screens) */}
-      <div
-        className="hidden lg:flex flex-col justify-between w-[55%] xl:w-[58%] bg-cover bg-bottom relative overflow-hidden border-r border-border/80"
-        style={{ backgroundImage: `url('${branding.loginBackgroundUrl || "/students_studying.jpg"}')` }}
-      >
-        {/* Soft fading overlay at the top to guarantee 100% text readability */}
-        <div className="absolute top-0 inset-x-0 h-[60%] bg-gradient-to-b from-background/95 via-background/80 to-transparent pointer-events-none z-0" />
+        <div className="relative flex items-center gap-3">
+          {mark}
+          <span className="font-heading text-lg font-bold tracking-[-0.02em]">{branding.schoolName}</span>
+        </div>
 
-        {/* Content Container positioned at top */}
-        <div className="p-6 lg:p-8 xl:p-10 flex flex-col z-10 relative">
+        <div className="relative max-w-lg">
+          <h2 className="font-heading text-[2.75rem] font-bold leading-[1.05] tracking-[-0.04em] xl:text-[3.25rem]">
+            {branding.loginTitle}
+          </h2>
+          <p className="mt-5 max-w-md text-[15px] leading-relaxed text-sidebar-muted">
+            {branding.loginDescription}
+          </p>
+        </div>
 
-          {/* Logo Area */}
-          <div className="flex items-center gap-3 mb-4 xl:mb-5">
-            <div className="w-10 h-10 flex items-center justify-center bg-card/90 rounded-xl shadow-2xs p-1">
+        <p className="relative flex items-center gap-2 text-[12px] text-sidebar-muted">
+          <ShieldCheck className="size-4 shrink-0" />
+          {tAuth("securityNotice")}
+        </p>
+      </aside>
+
+      {/* Form column */}
+      <div className="flex min-w-0 flex-1 flex-col">
+        <div className="flex items-center justify-between gap-3 px-5 py-5 sm:px-8">
+          <div className="flex items-center gap-2.5 lg:invisible">
+            <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-muted">
               {branding.logoUrl ? (
                 <Image
                   src={branding.logoUrl}
                   alt={branding.schoolName}
-                  width={36}
-                  height={36}
-                  className="object-contain"
+                  width={28}
+                  height={28}
+                  className="size-7 object-contain"
                   unoptimized
-                  priority
                 />
               ) : (
-                <SchoolCrest size="sm" className="size-9" />
+                <SchoolCrest size="sm" className="size-6" />
               )}
-            </div>
-            <div>
-              <h1 className="text-foreground font-extrabold text-[20px] tracking-tight font-heading leading-tight">
-                {branding.schoolName}
-              </h1>
-            </div>
+            </span>
+            <span className="truncate font-heading text-sm font-bold tracking-[-0.01em] text-foreground">
+              {branding.schoolName}
+            </span>
           </div>
-
-          {/* Heading */}
-          <div className="max-w-lg">
-            <h2 className="text-[28px] xl:text-[34px] font-black text-foreground tracking-tight font-heading leading-[1.15] mb-2.5">
-              A Brighter Future <br />
-              <span className="text-primary">for Every Learner</span>
-            </h2>
-            <p className="text-foreground/80 text-[13px] xl:text-[14px] leading-relaxed max-w-md mb-4 font-medium">
-              {branding.loginDescription}
-            </p>
-
-            {/* Feature Blocks - Clean without card containers or curve borders */}
-            <div className="grid grid-cols-4 gap-3 max-w-lg">
-              <div className="flex flex-col items-start">
-                <div className="w-9 h-9 rounded-xl bg-info/10 text-info flex items-center justify-center mb-1.5 shadow-2xs">
-                  <Users className="w-4.5 h-4.5" />
-                </div>
-                <h3 className="font-bold text-foreground text-[12.5px] leading-snug">Students</h3>
-                <p className="text-[10.5px] text-muted-foreground mt-0.5 leading-tight font-medium">Manage with ease</p>
-              </div>
-
-              <div className="flex flex-col items-start">
-                <div className="w-9 h-9 rounded-xl bg-destructive/10 text-destructive flex items-center justify-center mb-1.5 shadow-2xs">
-                  <BookOpen className="w-4.5 h-4.5" />
-                </div>
-                <h3 className="font-bold text-foreground text-[12.5px] leading-snug">Academics</h3>
-                <p className="text-[10.5px] text-muted-foreground mt-0.5 leading-tight font-medium">Track progress</p>
-              </div>
-
-              <div className="flex flex-col items-start">
-                <div className="w-9 h-9 rounded-xl bg-success/10 text-success flex items-center justify-center mb-1.5 shadow-2xs">
-                  <TrendingUp className="w-4.5 h-4.5" />
-                </div>
-                <h3 className="font-bold text-foreground text-[12.5px] leading-snug">Results</h3>
-                <p className="text-[10.5px] text-muted-foreground mt-0.5 leading-tight font-medium">Measure success</p>
-              </div>
-
-              <div className="flex flex-col items-start">
-                <div className="w-9 h-9 rounded-xl bg-warning/10 text-warning flex items-center justify-center mb-1.5 shadow-2xs">
-                  <ShieldCheck className="w-4.5 h-4.5" />
-                </div>
-                <h3 className="font-bold text-foreground text-[12.5px] leading-snug">Safe & Secure</h3>
-                <p className="text-[10.5px] text-muted-foreground mt-0.5 leading-tight font-medium">Data protected</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Space at bottom for students */}
-        <div className="h-4 shrink-0" />
-      </div>
-
-      {/* RIGHT COLUMN - Auth Form */}
-      <div className="w-full lg:w-[45%] xl:w-[42%] flex flex-col justify-between relative bg-background h-full overflow-hidden">
-        {/* Header with Language Picker */}
-        <div className="w-full flex justify-end px-6 pt-4 pb-2">
           <LanguageSwitcher variant="rounded" />
         </div>
 
-        {/* Centered Auth Card */}
-        <div className="flex-1 flex items-center justify-center px-4 py-2">
+        <div className="flex flex-1 items-center justify-center px-5 py-6 sm:px-8">
           <SlidingAuthCard branding={branding} />
         </div>
 
-        {/* Footer */}
-        <div className="px-6 py-3 flex flex-col sm:flex-row items-center justify-between text-[11px] text-muted-foreground">
-          <p>{branding.loginFooterText || `© ${new Date().getFullYear()} ${branding.schoolName}. All rights reserved.`}</p>
-          <div className="flex items-center gap-2.5 mt-1.5 sm:mt-0 font-medium">
-            <a href="#" className="hover:text-foreground transition-colors">Privacy</a>
-            <span>|</span>
-            <a href="#" className="hover:text-foreground transition-colors">Terms</a>
-            <span>|</span>
-            <a href="#" className="hover:text-foreground transition-colors">Help</a>
-          </div>
-        </div>
+        <footer className="flex flex-col items-center gap-1.5 border-t border-border-light px-5 py-5 text-[12px] text-muted-foreground sm:flex-row sm:justify-between sm:px-8">
+          <p>{branding.loginFooterText || `© ${year} ${branding.schoolName}`}</p>
+          <p className="flex items-center gap-1.5">
+            <ShieldCheck className="size-3.5 lg:hidden" />
+            <span className="lg:hidden">{tAuth("securityNotice")}</span>
+          </p>
+        </footer>
       </div>
     </main>
   )

@@ -5,6 +5,7 @@ import { getPaymentsReport } from "@/lib/fees/get-fees"
 import type { PaymentMethod, PaymentStatus } from "@prisma/client"
 import { PageHeader } from "@/components/shared/page-header"
 import { EmptyState } from "@/components/shared/empty-state"
+import { FilterBar } from "@/components/shared/filter-bar"
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell, TableFooter } from "@/components/ui/table"
 import { Wallet } from "lucide-react"
 import { FeesSubNav } from "@/components/fees/fees-subnav"
@@ -39,13 +40,15 @@ export default async function CollectionsReportPage({
       <PageHeader title={t("reports.collectionsTitle")} />
       <div className="print:hidden">
         <FeesSubNav />
-        <PaymentFilters />
+        <FilterBar>
+          <PaymentFilters />
+        </FilterBar>
       </div>
 
       {payments.length === 0 ? (
         <EmptyState icon={Wallet} title={t("list.emptyPayments")} />
       ) : (
-        <div className="rounded-lg border">
+        <div className="panel overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow>

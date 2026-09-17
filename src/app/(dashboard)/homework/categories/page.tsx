@@ -27,7 +27,7 @@ export default async function HomeworkCategoriesPage() {
       {categories.length === 0 ? (
         <EmptyState icon={NotebookPen} title={t("list.emptyCategories")} />
       ) : (
-        <div className="rounded-lg border">
+        <div className="panel overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow>

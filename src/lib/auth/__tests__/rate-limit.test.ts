@@ -1,7 +1,7 @@
+import "dotenv/config"
 import { describe, it } from "node:test"
 import assert from "node:assert/strict"
 import { checkRateLimit, recordFailedAttempt, resetRateLimit } from "../rate-limit"
-import { prisma } from "@/lib/db/client"
 
 describe("auth rate-limit", () => {
   it("allows initial attempts within limit", async () => {

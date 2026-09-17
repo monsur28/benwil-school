@@ -89,7 +89,7 @@ export function RecordPaymentForm({ studentId, outstandingFees }: { studentId: s
         </Alert>
       )}
 
-      <div className="rounded-lg border">
+      <div className="panel overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>

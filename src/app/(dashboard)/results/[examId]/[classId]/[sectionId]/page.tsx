@@ -67,7 +67,7 @@ export default async function ClassSectionResultsPage({
       {schedules.length === 0 ? (
         <p className="text-sm text-muted-foreground">{t("detail.noSubjectsScheduled")}</p>
       ) : (
-        <div className="rounded-lg border">
+        <div className="panel overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow>

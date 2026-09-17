@@ -38,7 +38,7 @@ export default async function TeacherProfilePage({
 
   return (
     <div className="space-y-5">
-      <section className="rounded-xl border border-border bg-card p-5">
+      <section className="panel p-5">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-4">
             <div className="grid size-16 place-items-center rounded-2xl bg-brand-navy text-xl font-bold text-white">
@@ -78,7 +78,7 @@ export default async function TeacherProfilePage({
             [t("profile.employment"), teacher.employmentType ?? "—", Briefcase],
           ] as const
         ).map(([label, value, Icon]) => (
-          <div key={String(label)} className="rounded-xl border border-border bg-card p-4">
+          <div key={String(label)} className="panel p-4">
             <Icon className="size-5 text-brand-navy" />
             <p className="mt-4 text-2xl font-bold text-brand-navy">{String(value)}</p>
             <p className="text-xs text-muted-foreground">{String(label)}</p>
@@ -87,7 +87,7 @@ export default async function TeacherProfilePage({
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <section className="rounded-xl border border-border bg-card p-5">
+        <section className="panel p-5">
           <h2 className="font-bold text-brand-navy">{t("sections.basic")}</h2>
           <div className="mt-4 space-y-3 text-sm">
             <p className="flex gap-2">
@@ -110,7 +110,7 @@ export default async function TeacherProfilePage({
           </div>
         </section>
 
-        <section className="rounded-xl border border-border bg-card p-5">
+        <section className="panel p-5">
           <h2 className="font-bold text-brand-navy">{t("fields.assignments")}</h2>
           <div className="mt-4 space-y-2">
             {teacher.teacherAssignments.length ? (

@@ -66,24 +66,31 @@ export default async function GuardianChildDashboardPage({
   ]
 
   return (
-    <div className="space-y-4">
-      <div className="space-y-1">
-        <h1 className="font-heading text-xl font-bold tracking-tight">{student.name}</h1>
-        <p className="text-sm text-muted-foreground">
-          {student.class.name} {student.section.name} • {t("fields.roll")} {student.roll} •{" "}
-          {student.academicYear.name}
-        </p>
-      </div>
+    <div className="space-y-8">
+      <header className="flex flex-col gap-4">
+        <div>
+          <h1 className="font-heading text-[2rem] font-bold leading-[1.08] tracking-[-0.035em] text-foreground sm:text-[2.5rem]">
+            {student.name}
+          </h1>
+          <p className="mt-3 text-[15px] text-muted-foreground">
+            {student.class.name} {student.section.name} • {t("fields.roll")} {student.roll} •{" "}
+            {student.academicYear.name}
+          </p>
+        </div>
+        <div className="rule-fade h-px w-full" aria-hidden="true" />
+      </header>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <QuickActions actions={actions} />
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <AttendanceSummaryCard percentage={attendance.percentage} counts={attendance.counts} />
         <LatestResultCard summary={latestResult} />
       </div>
 
-      <PortalNoticesWidget notices={notices} viewAllHref="/portal/guardian/notices" />
-      <PortalHomeworkWidget homework={homework} viewAllHref={`${base}/homework`} />
-
-      <QuickActions actions={actions} />
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <PortalHomeworkWidget homework={homework} viewAllHref={`${base}/homework`} />
+        <PortalNoticesWidget notices={notices} viewAllHref="/portal/guardian/notices" />
+      </div>
     </div>
   )
 }

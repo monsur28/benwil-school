@@ -66,7 +66,7 @@ export default async function ExamDetailPage({
         }
       />
       <ExamsSubNav />
-      <div className="rounded-lg border">
+      <div className="panel overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>

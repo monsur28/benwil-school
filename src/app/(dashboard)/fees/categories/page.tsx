@@ -27,7 +27,7 @@ export default async function FeeCategoriesPage() {
       {categories.length === 0 ? (
         <EmptyState icon={Wallet} title={t("list.emptyCategories")} />
       ) : (
-        <div className="rounded-lg border">
+        <div className="panel overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow>

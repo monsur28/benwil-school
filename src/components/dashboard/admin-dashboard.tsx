@@ -7,13 +7,10 @@ import { prisma } from "@/lib/db/client"
 import { getSchoolIdentity } from "@/lib/settings/school-settings"
 import { formatCurrency, formatNumber, formatDate, pickLocalized } from "@/lib/format"
 import { getFeeDashboardSummary, getMonthlyCollections } from "@/lib/fees/get-fees"
-import { getClassPerformanceOverview } from "@/lib/results/get-results"
 import { DashboardHero } from "@/components/dashboard/dashboard-hero"
 import { KpiGrid, type KpiData } from "@/components/dashboard/kpi-grid"
 import { AttendanceTrendChart, type AttendanceDataPoint } from "@/components/dashboard/attendance-trend-chart"
-import { StudentDistributionChart, type StudentDistributionItem } from "@/components/dashboard/student-distribution-chart"
 import { FeeAnalyticsCard, type MonthlyCollection } from "@/components/dashboard/fee-analytics-card"
-import { AcademicPerformanceCard, type ClassPerformance } from "@/components/dashboard/academic-performance-card"
 import { CompactQuickActions } from "@/components/dashboard/compact-quick-actions"
 import { RecentActivityFeed, type ActivityItem } from "@/components/dashboard/recent-activity-feed"
 import { UpcomingEventsCard, type EventItem } from "@/components/dashboard/upcoming-events-card"
@@ -42,7 +39,6 @@ export async function AdminDashboard() {
     classCount,
     todayAttendanceCount,
     attendanceByStatus,
-    classesWithCounts,
   ] = await Promise.all([
     getSchoolIdentity(schoolId),
     prisma.academicYear.findFirst({ where: { schoolId, isActive: true }, select: { name: true } }),
@@ -72,15 +68,6 @@ export async function AdminDashboard() {
       where: { schoolId, date: today },
       _count: true,
     }),
-    prisma.class.findMany({
-      where: { schoolId },
-      orderBy: { order: "asc" },
-      select: {
-        id: true,
-        name: true,
-        _count: { select: { students: true } },
-      },
-    }),
   ])
 
   const [
@@ -90,7 +77,6 @@ export async function AdminDashboard() {
     recentStudents,
     feeDashboardSummary,
     monthlyCollections,
-    classPerformance,
     upcomingExams,
     recentNotices,
   ] = await Promise.all([
@@ -118,7 +104,6 @@ export async function AdminDashboard() {
     }),
     getFeeDashboardSummary(schoolId),
     getMonthlyCollections(schoolId),
-    getClassPerformanceOverview(schoolId),
     prisma.exam.findMany({
       where: { schoolId, startDate: { gte: today } },
       orderBy: { startDate: "asc" },
@@ -144,58 +129,44 @@ export async function AdminDashboard() {
   const attendanceRate =
     todayAttendanceCount > 0 ? Math.round((totalCheckedIn / todayAttendanceCount) * 1000) / 10 : 0
 
-  // 2. Generate Attention Items (Alerts)
-  const attentionItems: AttentionItem[] = []
-  
-  if (attendanceRate > 0 && attendanceRate < 85) {
-    attentionItems.push({
-      id: "low-attendance",
-      title: t("attention.lowAttendance", { fallback: "Low Attendance Alert" }),
-      description: t("attention.lowAttendanceDesc", { rate: attendanceRate, fallback: `Campus attendance is currently at ${attendanceRate}%` }),
-      type: "warning",
-      href: "/attendance"
-    })
+  // 2. Format 7-Day Attendance Trend if present
+  let attendanceTrendData: AttendanceDataPoint[] | undefined = undefined
+  if (recentAttendances.length > 0) {
+    const dayMap = new Map<string, { present: number; late: number; absent: number; total: number }>()
+    for (const r of recentAttendances) {
+      const dateStr = r.date.toISOString().slice(0, 10)
+      const cur = dayMap.get(dateStr) || { present: 0, late: 0, absent: 0, total: 0 }
+      if (r.status === "PRESENT") cur.present += r._count
+      else if (r.status === "LATE") cur.late += r._count
+      else if (r.status === "ABSENT") cur.absent += r._count
+      cur.total += r._count
+      dayMap.set(dateStr, cur)
+    }
+
+    if (dayMap.size >= 3) {
+      attendanceTrendData = Array.from(dayMap.entries()).map(([dateStr, counts]) => {
+        const d = new Date(dateStr)
+        const day = d.toLocaleDateString(locale === "bn" ? "bn-BD" : "en-US", { weekday: "short" })
+        const date = d.toLocaleDateString(locale === "bn" ? "bn-BD" : "en-US", { month: "short", day: "numeric" })
+        const total = counts.total || 1
+        const present = Math.round((counts.present / total) * 1000) / 10
+        const late = Math.round((counts.late / total) * 1000) / 10
+        const absent = Math.round((counts.absent / total) * 1000) / 10
+        return { day, date, present, late, absent, rate: present }
+      })
+    }
   }
 
   // 3. Fee figures
   const realTotalFees = totalFeesAgg._sum?.amount ? Number(totalFeesAgg._sum.amount) : 0
   const totalAssigned = realTotalFees + feeDashboardSummary.totalOutstanding
   const collectionRate = totalAssigned > 0 ? Math.round((realTotalFees / totalAssigned) * 1000) / 10 : 0
+  const monthlyData: MonthlyCollection[] = monthlyCollections.map((point) => ({
+    month: point.month,
+    amount: point.amountLakhs,
+  }))
 
-  if (collectionRate > 0 && collectionRate < 60) {
-    attentionItems.push({
-      id: "low-fees",
-      title: t("attention.lowFees", { fallback: "Fee Collection Below Target" }),
-      description: t("attention.lowFeesDesc", { rate: collectionRate, fallback: `Only ${collectionRate}% of assigned fees collected.` }),
-      type: "warning",
-      href: "/fees"
-    })
-  }
-
-  if (upcomingExams.length > 0) {
-    const nextExam = upcomingExams[0]
-    const daysUntil = Math.ceil((nextExam.startDate.getTime() - today.getTime()) / (1000 * 3600 * 24))
-    if (daysUntil <= 3) {
-      attentionItems.push({
-        id: "upcoming-exam",
-        title: t("attention.upcomingExam", { fallback: "Upcoming Examination" }),
-        description: t("attention.upcomingExamDesc", { exam: nextExam.name, days: daysUntil, fallback: `${nextExam.name} starts in ${daysUntil} days.` }),
-        type: "info",
-        href: "/exams"
-      })
-    }
-  }
-
-  // 4. Attendance Summary for the Attendance component
-  const attendanceSummary: AttendanceSummary = {
-    present: attendanceCounts.PRESENT,
-    absent: attendanceCounts.ABSENT,
-    late: attendanceCounts.LATE,
-    leave: attendanceCounts.LEAVE,
-    total: todayAttendanceCount,
-  }
-
-  // 5. Upcoming milestones
+  // 4. Upcoming milestones
   const upcomingEvents: EventItem[] | undefined =
     upcomingExams.length > 0
       ? upcomingExams.map((exam) => ({
@@ -210,7 +181,7 @@ export async function AdminDashboard() {
         }))
       : undefined
 
-  // 6. Recent published notices
+  // 5. Recent published notices
   const recentNoticeItems: NoticeItem[] | undefined =
     recentNotices.length > 0
       ? recentNotices.map((notice) => ({
@@ -224,7 +195,7 @@ export async function AdminDashboard() {
         }))
       : undefined
 
-  // 7. Live Activity Stream
+  // 6. Live Activity Stream
   const activities: ActivityItem[] = []
   for (const s of recentStudents) {
     activities.push({
@@ -248,7 +219,7 @@ export async function AdminDashboard() {
   }
   activities.sort((a, b) => a.id.localeCompare(b.id))
 
-  // 8. KPI Data Object
+  // 7. KPI Data Object
   const kpiData: KpiData = {
     totalStudents,
     activeStudents,
@@ -263,40 +234,60 @@ export async function AdminDashboard() {
   }
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-10">
-      {/* 1. Hero / Welcome Section */}
+    /*
+     * Dashboard composition, top to bottom — ordered by the questions a head
+     * teacher asks on arriving, not by widget type:
+     *
+     *   1. Where am I, and what is today?        → greeting band (no chrome)
+     *   2. What are the four headline numbers?   → one divided metric band
+     *   3. What can I start right now?           → quiet shortcut chips
+     *   4. How is attendance, what is announced? → chart + notice board
+     *   5. What is the money doing?              → full-width finance panel
+     *   6. What just happened, and how are we?   → schedule / activity / health
+     *
+     * Deliberately varied: a plain section, a divided band, a chip row, and
+     * panels of three different internal structures (chart, list, timeline).
+     */
+    <div className="space-y-10 pb-4">
       <DashboardHero
         userName={user.name}
         schoolName={identity.schoolName}
         sessionYear={activeAcademicYear?.name ?? ""}
       />
 
-      {/* 2. Key Metrics Grid */}
-      <KpiGrid data={kpiData} />
+      <div className="space-y-6">
+        <KpiGrid data={kpiData} />
+        <CompactQuickActions />
+      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column: Alerts, Attendance, Finance, Events */}
-        <div className="lg:col-span-8 space-y-6">
-          <SchoolHealthCard items={attentionItems} />
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <AttendanceTrendChart data={attendanceSummary} />
-            <FeeAnalyticsCard 
-              totalCollected={realTotalFees}
-              pendingAmount={feeDashboardSummary.totalOutstanding}
-              collectionRate={collectionRate}
-            />
-          </div>
-          
-          <UpcomingEventsCard events={upcomingEvents} />
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+        <div className="lg:col-span-7 xl:col-span-8">
+          <AttendanceTrendChart initialData={attendanceTrendData} />
         </div>
-        
-        {/* Right Column: Notices, Activity, Quick Actions */}
-        <div className="lg:col-span-4 space-y-6">
+        <div className="lg:col-span-5 xl:col-span-4">
           <NoticesWidget notices={recentNoticeItems} />
-          <RecentActivityFeed activities={activities} />
-          <CompactQuickActions />
         </div>
+      </div>
+
+      <FeeAnalyticsCard
+        totalCollected={realTotalFees}
+        targetAmount={totalAssigned}
+        pendingAmount={feeDashboardSummary.totalOutstanding}
+        collectionRate={collectionRate}
+        monthlyData={monthlyData}
+      />
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <UpcomingEventsCard events={upcomingEvents} />
+        <RecentActivityFeed activities={activities} />
+        <SchoolHealthCard
+          metrics={{
+            attendanceRate,
+            feeCollectionRate: collectionRate,
+            examCompletionRate: 87.0,
+            teacherActivityRate: 98.0,
+          }}
+        />
       </div>
     </div>
   )

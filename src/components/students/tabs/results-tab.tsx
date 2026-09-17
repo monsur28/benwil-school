@@ -16,7 +16,7 @@ export async function ResultsTab({ studentId, schoolId, classId }: { studentId: 
   }
 
   return (
-    <div className="rounded-lg border">
+    <div className="panel overflow-hidden">
       <Table>
         <TableHeader>
           <TableRow>

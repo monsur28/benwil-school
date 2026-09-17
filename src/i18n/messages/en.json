@@ -25,8 +25,11 @@
       "session": "Session {year}",
       "notifications": "Notifications",
       "noNotifications": "No new notifications",
-      "noNotificationsDescription": "You're all caught up."
-    }
+      "noNotificationsDescription": "You're all caught up.",
+      "openNavigation": "Open navigation",
+      "searchDirectory": "Search directory"
+    },
+    "skipToContent": "Skip to content"
   },
   "roles": {
     "SUPER_ADMIN": "Super Admin",
@@ -393,7 +396,7 @@
   },
   "students": {
     "title": "Students",
-    "addStudent": "+ Add Student",
+    "addStudent": "Add Student",
     "searchLabel": "Search",
     "searchPlaceholder": "Search by name, admission no., student ID, or guardian phone",
     "filters": {
@@ -572,7 +575,9 @@
       }
     },
     "notFoundTitle": "Student not found",
-    "notFoundDescription": "This student may have been removed, or the link is incorrect."
+    "notFoundDescription": "This student may have been removed, or the link is incorrect.",
+    "eyebrow": "People",
+    "description": "Manage student enrolment, profiles, guardians and academic records."
   },
   "attendance": {
     "title": "Attendance",
@@ -1401,7 +1406,8 @@
       "dueOn": "Due {date}",
       "yourSubmission": "Your Submission",
       "submissionPlaceholder": "Type your answer here...",
-      "childSubmission": "Child's Submission"
+      "childSubmission": "Child's Submission",
+      "dueLabel": "Due"
     },
     "success": {
       "categoryCreated": "Category created.",
@@ -1575,7 +1581,8 @@
       "emailTaken": "This email is already in use.",
       "employeeIdTaken": "This employee ID is already in use.",
       "saveFailed": "Something went wrong. Please try again."
-    }
+    },
+    "eyebrow": "Staff"
   },
   "settings": {
     "title": "Settings",

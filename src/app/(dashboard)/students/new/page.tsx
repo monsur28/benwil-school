@@ -28,7 +28,7 @@ export default async function NewStudentPage() {
   ])
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto w-full max-w-4xl space-y-6">
       <PageHeader title={t("new.title")} />
       <StudentForm mode="create" academicOptions={{ academicYears, classes, sections }} />
     </div>

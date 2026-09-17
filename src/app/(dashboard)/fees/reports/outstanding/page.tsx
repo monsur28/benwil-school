@@ -5,6 +5,7 @@ import { prisma } from "@/lib/db/client"
 import { getOutstandingFeesReport } from "@/lib/fees/get-fees"
 import { PageHeader } from "@/components/shared/page-header"
 import { EmptyState } from "@/components/shared/empty-state"
+import { FilterBar } from "@/components/shared/filter-bar"
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell, TableFooter } from "@/components/ui/table"
 import { Wallet } from "lucide-react"
 import { FeesSubNav } from "@/components/fees/fees-subnav"
@@ -43,12 +44,14 @@ export default async function OutstandingFeesReportPage({
       <div className="print:hidden">
         <FeesSubNav />
       </div>
-      <OutstandingFilters academicYears={academicYears} classes={classes} categories={categories} />
+      <FilterBar>
+        <OutstandingFilters academicYears={academicYears} classes={classes} categories={categories} />
+      </FilterBar>
 
       {rows.length === 0 ? (
         <EmptyState icon={Wallet} title={t("list.empty")} />
       ) : (
-        <div className="rounded-lg border">
+        <div className="panel overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow>

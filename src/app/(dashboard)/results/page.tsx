@@ -7,6 +7,7 @@ import { prisma } from "@/lib/db/client"
 import { getResultOverviewRows } from "@/lib/results/get-results"
 import { getTeacherClassSectionPairs } from "@/lib/academics/teacher-assignments"
 import { PageHeader } from "@/components/shared/page-header"
+import { FilterBar } from "@/components/shared/filter-bar"
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { ResultsSubNav } from "@/components/results/results-subnav"
@@ -66,8 +67,10 @@ export default async function ResultsOverviewPage({
     <div className="space-y-6">
       <PageHeader title={t("title")} />
       <ResultsSubNav />
-      <ResultFilters academicYears={academicYears} exams={exams} classes={classes} />
-      <div className="rounded-lg border">
+      <FilterBar>
+        <ResultFilters academicYears={academicYears} exams={exams} classes={classes} />
+      </FilterBar>
+      <div className="panel overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>

@@ -3,7 +3,9 @@ import { getTranslations } from "next-intl/server"
 import { Wallet } from "lucide-react"
 import { getStudentFeeOverview } from "@/lib/fees/get-fees"
 import { EmptyState } from "@/components/shared/empty-state"
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+import { PageHeader } from "@/components/shared/page-header"
+import { Panel, PanelHeader } from "@/components/shared/panel"
+import { StatRow, StatTile } from "@/components/shared/stat-tile"
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { FeeStatusBadge } from "@/components/fees/fee-status-badge"
@@ -14,97 +16,101 @@ interface SharedFeesPageProps {
   baseReceiptPath: string
 }
 
+/**
+ * A family's view of what is owed and what has been paid.
+ *
+ * Hierarchy: the outstanding balance is what a guardian opens this page for,
+ * so it leads the summary band in a warning tone when non-zero; the charge
+ * list and the receipt history follow as two distinct panels.
+ */
 export async function SharedFeesPage({ schoolId, studentId, baseReceiptPath }: SharedFeesPageProps) {
   const [t, tPortal] = await Promise.all([getTranslations("fees"), getTranslations("portal")])
 
   const { fees, payments, summary } = await getStudentFeeOverview({ schoolId, studentId })
 
   if (fees.length === 0 && payments.length === 0) {
-    return <EmptyState icon={Wallet} title={tPortal("empty.noFeesTitle")} description={tPortal("empty.noFees")} />
+    return (
+      <div className="space-y-6">
+        <PageHeader title={tPortal("nav.fees")} />
+        <EmptyState icon={Wallet} title={tPortal("empty.noFeesTitle")} description={tPortal("empty.noFees")} />
+      </div>
+    )
   }
 
   return (
-    <div className="space-y-4">
-      <h1 className="font-heading text-lg font-bold">{t("subnav.student")}</h1>
+    <div className="space-y-6">
+      <PageHeader title={tPortal("nav.fees")} />
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-xs font-normal text-muted-foreground">{t("fields.totalCharges")}</CardTitle>
-          </CardHeader>
-          <CardContent className="text-lg font-semibold">{summary.totalCharges.toFixed(2)}</CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-xs font-normal text-muted-foreground">{t("fields.totalPaid")}</CardTitle>
-          </CardHeader>
-          <CardContent className="text-lg font-semibold">{summary.totalPaid.toFixed(2)}</CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-xs font-normal text-muted-foreground">{t("fields.outstandingBalance")}</CardTitle>
-          </CardHeader>
-          <CardContent className="text-lg font-semibold">{summary.totalOutstanding.toFixed(2)}</CardContent>
-        </Card>
-      </div>
+      <StatRow columns={3}>
+        <StatTile label={t("fields.totalCharges")} value={summary.totalCharges.toFixed(2)} tone="neutral" />
+        <StatTile label={t("fields.totalPaid")} value={summary.totalPaid.toFixed(2)} tone="success" />
+        <StatTile
+          label={t("fields.outstandingBalance")}
+          value={summary.totalOutstanding.toFixed(2)}
+          tone={summary.totalOutstanding > 0 ? "warning" : "neutral"}
+        />
+      </StatRow>
 
       {fees.length > 0 && (
-        <div className="space-y-2">
-          <h2 className="text-sm font-semibold">{t("subnav.student")}</h2>
-          <div className="grid grid-cols-1 gap-2">
+        <Panel>
+          <PanelHeader title={t("subnav.student")} />
+          <ul className="divide-y divide-border-light">
             {fees.map((fee) => (
-              <Card key={fee.id}>
-                <CardContent className="flex items-center justify-between p-4 text-sm">
-                  <div>
-                    <p className="font-medium">{fee.name}</p>
-                    <p className="text-xs text-muted-foreground">{fee.categoryName}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-medium">{fee.remaining.toFixed(2)}</p>
-                    <FeeStatusBadge status={fee.status} />
-                  </div>
-                </CardContent>
-              </Card>
+              <li
+                key={fee.id}
+                className="flex items-center justify-between gap-4 px-4 py-3.5 sm:px-5"
+              >
+                <span className="min-w-0">
+                  <span className="block truncate text-[13.5px] font-semibold text-foreground">{fee.name}</span>
+                  <span className="mt-0.5 block truncate text-xs text-muted-foreground">{fee.categoryName}</span>
+                </span>
+                <span className="flex shrink-0 items-center gap-3">
+                  <span className="text-base font-bold tabular-nums text-foreground">
+                    {fee.remaining.toFixed(2)}
+                  </span>
+                  <FeeStatusBadge status={fee.status} />
+                </span>
+              </li>
             ))}
-          </div>
-        </div>
+          </ul>
+        </Panel>
       )}
 
       {payments.length > 0 && (
-        <div className="space-y-2">
-          <h2 className="text-sm font-semibold">{t("subnav.payments")}</h2>
-          <div className="overflow-x-auto rounded-lg border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>{t("fields.receiptNumber")}</TableHead>
-                  <TableHead>{t("fields.paymentDate")}</TableHead>
-                  <TableHead>{t("fields.amount")}</TableHead>
-                  <TableHead className="text-right">{t("actions.label")}</TableHead>
+        <Panel>
+          <PanelHeader title={t("subnav.payments")} />
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>{t("fields.receiptNumber")}</TableHead>
+                <TableHead>{t("fields.paymentDate")}</TableHead>
+                <TableHead>{t("fields.amount")}</TableHead>
+                <TableHead className="text-right">{t("actions.label")}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {payments.map((payment) => (
+                <TableRow key={payment.id}>
+                  <TableCell className="font-medium tabular-nums">{payment.receiptNumber}</TableCell>
+                  <TableCell className="tabular-nums text-muted-foreground">
+                    {payment.paidAt.toLocaleDateString()}
+                  </TableCell>
+                  <TableCell className="font-semibold tabular-nums">{payment.amount.toFixed(2)}</TableCell>
+                  <TableCell className="text-right">
+                    <Button
+                      nativeButton={false}
+                      variant="ghost"
+                      size="sm"
+                      render={<Link href={`${baseReceiptPath}/${payment.id}/receipt`} />}
+                    >
+                      {t("actions.view")}
+                    </Button>
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {payments.map((payment) => (
-                  <TableRow key={payment.id}>
-                    <TableCell>{payment.receiptNumber}</TableCell>
-                    <TableCell>{payment.paidAt.toLocaleDateString()}</TableCell>
-                    <TableCell>{payment.amount.toFixed(2)}</TableCell>
-                    <TableCell className="text-right">
-                      <Button
-                        nativeButton={false}
-                        variant="ghost"
-                        size="sm"
-                        render={<Link href={`${baseReceiptPath}/${payment.id}/receipt`} />}
-                      >
-                        {t("actions.view")}
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </div>
+              ))}
+            </TableBody>
+          </Table>
+        </Panel>
       )}
     </div>
   )

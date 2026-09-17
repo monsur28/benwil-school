@@ -8,6 +8,7 @@ import { getRolesForHref } from "@/lib/permissions/nav"
 import { getTeacherClassSectionPairs } from "@/lib/academics/teacher-assignments"
 import { PageHeader } from "@/components/shared/page-header"
 import { EmptyState } from "@/components/shared/empty-state"
+import { FilterBar } from "@/components/shared/filter-bar"
 import { AttendanceHistoryFilters } from "@/components/attendance/attendance-history-filters"
 import { Button } from "@/components/ui/button"
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table"
@@ -119,7 +120,9 @@ export default async function AttendanceHistoryPage({
         }
       />
 
-      <AttendanceHistoryFilters classes={classes} sections={sections} />
+      <FilterBar>
+        <AttendanceHistoryFilters classes={classes} sections={sections} />
+      </FilterBar>
 
       {rows.length === 0 ? (
         <EmptyState icon={HistoryIcon} title={t("history.empty")} />

@@ -74,7 +74,7 @@ export default async function EditStudentPage({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto w-full max-w-4xl space-y-6">
       <PageHeader title={t("edit.title")} />
       <StudentForm
         mode="edit"

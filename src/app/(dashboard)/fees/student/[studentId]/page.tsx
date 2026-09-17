@@ -92,7 +92,7 @@ export default async function StudentFeeOverviewPage({
         {fees.length === 0 ? (
           <EmptyState icon={UserX} title={t("list.emptyFees")} />
         ) : (
-          <div className="rounded-lg border">
+          <div className="panel overflow-hidden">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -137,7 +137,7 @@ export default async function StudentFeeOverviewPage({
         {payments.length === 0 ? (
           <EmptyState icon={UserX} title={t("list.emptyPayments")} />
         ) : (
-          <div className="rounded-lg border">
+          <div className="panel overflow-hidden">
             <Table>
               <TableHeader>
                 <TableRow>

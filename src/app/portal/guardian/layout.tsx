@@ -11,7 +11,7 @@ export default async function GuardianPortalLayout({ children }: { children: Rea
   const customNavGroups = [
     {
       titleKey: "nav.groups.overview",
-      title: t("nav.dashboard", { fallback: "Dashboard" }),
+      title: t("nav.groups.overview"),
       items: [
         { href: "/portal/guardian", label: t("nav.myChildren", { fallback: "My Children" }), icon: <Users className="size-4" /> },
       ],

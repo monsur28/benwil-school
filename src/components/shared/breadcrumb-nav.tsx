@@ -11,6 +11,13 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 
+/**
+ * "Where am I", in the top bar.
+ *
+ * The root crumb is the signed-in user's home. A portal user's home nav entry
+ * is itself labelled "Dashboard", so matching on the label as well as on
+ * `/dashboard` is what stops that case rendering as "Dashboard / Dashboard".
+ */
 export function BreadcrumbNav({
   items,
   dashboardLabel,
@@ -19,24 +26,34 @@ export function BreadcrumbNav({
   dashboardLabel: string
 }) {
   const pathname = usePathname()
-  const current = items.find((item) => pathname === item.href || pathname.startsWith(`${item.href}/`))
-  const isDashboard = current?.href === "/dashboard"
+  // Longest match wins: /portal/student and /portal/student/results both
+  // match on a results page, and the more specific one is the answer.
+  const current = items
+    .filter((item) => pathname === item.href || pathname.startsWith(`${item.href}/`))
+    .sort((a, b) => b.href.length - a.href.length)[0]
+  const isHome = !current || current.href === "/dashboard" || current.label === dashboardLabel
 
   return (
-    <Breadcrumb>
-      <BreadcrumbList>
-        <BreadcrumbItem>
-          {isDashboard || !current ? (
-            <BreadcrumbPage>{dashboardLabel}</BreadcrumbPage>
+    <Breadcrumb className="min-w-0">
+      <BreadcrumbList className="flex-nowrap">
+        <BreadcrumbItem className="min-w-0">
+          {isHome ? (
+            <BreadcrumbPage className="truncate font-semibold text-foreground">
+              {current?.label ?? dashboardLabel}
+            </BreadcrumbPage>
           ) : (
-            <BreadcrumbLink render={<Link href="/dashboard" />}>{dashboardLabel}</BreadcrumbLink>
+            <BreadcrumbLink render={<Link href="/dashboard" />} className="truncate">
+              {dashboardLabel}
+            </BreadcrumbLink>
           )}
         </BreadcrumbItem>
-        {current && !isDashboard && (
+        {current && !isHome && (
           <>
             <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>{current.label}</BreadcrumbPage>
+            <BreadcrumbItem className="min-w-0">
+              <BreadcrumbPage className="truncate font-semibold text-foreground">
+                {current.label}
+              </BreadcrumbPage>
             </BreadcrumbItem>
           </>
         )}

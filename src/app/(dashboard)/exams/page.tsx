@@ -5,6 +5,7 @@ import { requireRole } from "@/lib/auth/dal"
 import { getRolesForHref } from "@/lib/permissions/nav"
 import { prisma } from "@/lib/db/client"
 import { PageHeader } from "@/components/shared/page-header"
+import { FilterBar } from "@/components/shared/filter-bar"
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { ExamsSubNav } from "@/components/exams/exams-subnav"
@@ -56,8 +57,10 @@ export default async function ExamsPage({
         actions={canManage && <ExamDialog academicYears={academicYears} examTypes={examTypes} />}
       />
       <ExamsSubNav />
-      <ExamFilters academicYears={academicYears} examTypes={examTypes} />
-      <div className="rounded-lg border">
+      <FilterBar>
+        <ExamFilters academicYears={academicYears} examTypes={examTypes} />
+      </FilterBar>
+      <div className="panel overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>

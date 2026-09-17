@@ -23,7 +23,7 @@ export default async function ExamTypesPage() {
     <div className="space-y-6">
       <PageHeader title={t("types.title")} actions={<ExamTypeDialog />} />
       <ExamsSubNav />
-      <div className="rounded-lg border">
+      <div className="panel overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>

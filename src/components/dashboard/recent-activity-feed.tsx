@@ -2,9 +2,9 @@
 
 import Link from "next/link"
 import { useLocale, useTranslations } from "next-intl"
-import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { UserPlus, Wallet, ClipboardCheck, CalendarClock, ArrowUpRight } from "lucide-react"
+import { UserPlus, Wallet, ClipboardCheck, CalendarClock } from "lucide-react"
 import { cn } from "cn"
+import { Panel, PanelHeader } from "@/components/shared/panel"
 
 export interface ActivityItem {
   id: string
@@ -20,24 +20,19 @@ interface RecentActivityFeedProps {
 }
 
 const ICON_MAP = {
-  admission: {
-    icon: UserPlus,
-    color: "bg-dashboard-purple-light text-dashboard-purple",
-  },
-  payment: {
-    icon: Wallet,
-    color: "bg-dashboard-green-light text-dashboard-green",
-  },
-  attendance: {
-    icon: ClipboardCheck,
-    color: "bg-dashboard-blue-light text-dashboard-blue",
-  },
-  exam: {
-    icon: CalendarClock,
-    color: "bg-dashboard-orange-light text-dashboard-orange",
-  },
+  admission: { icon: UserPlus, tone: "text-dashboard-purple" },
+  payment: { icon: Wallet, tone: "text-success" },
+  attendance: { icon: ClipboardCheck, tone: "text-dashboard-blue" },
+  exam: { icon: CalendarClock, tone: "text-dashboard-orange" },
 }
 
+/**
+ * What has happened in the school today.
+ *
+ * A true timeline — a single connector line running through small icon nodes
+ * — rather than a list of tinted squares. The line is what makes this read as
+ * chronology at a glance and distinguishes it from the notice list beside it.
+ */
 export function RecentActivityFeed({ activities }: RecentActivityFeedProps) {
   const t = useTranslations("dashboard.admin.activity")
   const locale = useLocale()
@@ -46,16 +41,16 @@ export function RecentActivityFeed({ activities }: RecentActivityFeedProps) {
     {
       id: "act-1",
       title: t("studentAdmitted"),
-      description: "Sultana Parvin â€¢ Class 8 (A) â€¢ Roll #14",
-      timestamp: t("minutesAgo", { count: locale === "bn" ? "à§®" : "8" }),
+      description: "Sultana Parvin · Class 8 (A) · Roll #14",
+      timestamp: t("minutesAgo", { count: locale === "bn" ? "৮" : "8" }),
       type: "admission",
       href: "/students",
     },
     {
       id: "act-2",
       title: t("feeReceived"),
-      description: "à§³ 12,500 collected â€¢ Student #STU-0821",
-      timestamp: t("minutesAgo", { count: locale === "bn" ? "à§¨à§ª" : "24" }),
+      description: "৳ 12,500 · Student #STU-0821",
+      timestamp: t("minutesAgo", { count: locale === "bn" ? "২৪" : "24" }),
       type: "payment",
       href: "/fees",
     },
@@ -64,10 +59,10 @@ export function RecentActivityFeed({ activities }: RecentActivityFeedProps) {
       title: t("attendanceDone"),
       description: t("attendanceSummary", {
         className: "Class 7 (B)",
-        count: locale === "bn" ? "à§©à§¨" : "32",
-        percent: locale === "bn" ? "à§¯à§­" : "97",
+        count: locale === "bn" ? "৩২" : "32",
+        percent: locale === "bn" ? "৯৭" : "97",
       }),
-      timestamp: t("minutesAgo", { count: locale === "bn" ? "à§ªà§¨" : "42" }),
+      timestamp: t("minutesAgo", { count: locale === "bn" ? "৪২" : "42" }),
       type: "attendance",
       href: "/attendance",
     },
@@ -75,7 +70,7 @@ export function RecentActivityFeed({ activities }: RecentActivityFeedProps) {
       id: "act-4",
       title: t("examScheduled"),
       description: t("examRoutineFinalized"),
-      timestamp: t("hourAgo", { count: locale === "bn" ? "à§§" : "1" }),
+      timestamp: t("hourAgo", { count: locale === "bn" ? "১" : "1" }),
       type: "exam",
       href: "/exams",
     },
@@ -84,64 +79,50 @@ export function RecentActivityFeed({ activities }: RecentActivityFeedProps) {
   const items = activities && activities.length > 0 ? activities : defaultActivities
 
   return (
-    <Card className="flex flex-col justify-between rounded-xl border border-border/60 bg-card p-4 shadow-xs">
-      <CardHeader className="p-0 pb-3">
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="text-base font-semibold tracking-tight text-foreground">
-              {t("title")}
-            </CardTitle>
-            <CardDescription className="text-xs text-muted-foreground">
-              {t("description")}
-            </CardDescription>
-          </div>
+    <Panel className="h-full">
+      <PanelHeader
+        title={t("title")}
+        description={t("description")}
+        href="/reports"
+        hrefLabel={t("auditLog")}
+      />
 
-          <Link
-            href="/reports"
-            className="group flex items-center gap-1 text-xs font-semibold text-brand-navy hover:underline"
-          >
-            <span>{t("auditLog")}</span>
-            <ArrowUpRight className="size-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-          </Link>
-        </div>
-      </CardHeader>
-
-      <div className="space-y-3 pt-1">
+      <ol className="relative px-4 py-4 sm:px-5">
+        <span
+          aria-hidden="true"
+          className="absolute inset-y-6 left-[calc(1rem+0.6875rem)] w-px bg-border sm:left-[calc(1.25rem+0.6875rem)]"
+        />
         {items.map((item) => {
           const config = ICON_MAP[item.type] || ICON_MAP.admission
           const Icon = config.icon
+          const row = (
+            <>
+              <span className="relative z-10 mt-0.5 grid size-5.5 shrink-0 place-items-center rounded-full border border-border bg-card">
+                <Icon className={cn("size-3", config.tone)} />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="flex items-baseline justify-between gap-3">
+                  <span className="truncate text-[13px] font-semibold text-foreground">{item.title}</span>
+                  <span className="shrink-0 text-[11px] tabular-nums text-muted-foreground">{item.timestamp}</span>
+                </span>
+                <span className="mt-0.5 block truncate text-xs text-muted-foreground">{item.description}</span>
+              </span>
+            </>
+          )
 
           return (
-            <div
-              key={item.id}
-              className="group flex items-start gap-3 rounded-xl p-2 transition-colors hover:bg-muted/40"
-            >
-              <div className={cn("flex size-8 shrink-0 items-center justify-center rounded-lg mt-0.5", config.color)}>
-                <Icon className="size-4" />
-              </div>
-
-              <div className="min-w-0 flex-1 space-y-0.5">
-                <div className="flex items-center justify-between gap-2">
-                  <p className="text-xs font-semibold text-foreground">
-                    {item.title}
-                  </p>
-                  <span className="shrink-0 font-mono text-[10px] text-muted-foreground">
-                    {item.timestamp}
-                  </span>
-                </div>
-                <p className="truncate text-xs text-muted-foreground">
-                  {item.description}
-                </p>
-              </div>
-            </div>
+            <li key={item.id} className="relative">
+              {item.href ? (
+                <Link href={item.href} className="-mx-2 flex gap-3 rounded-lg px-2 py-2.5 transition-colors hover:bg-subtle">
+                  {row}
+                </Link>
+              ) : (
+                <div className="-mx-2 flex gap-3 px-2 py-2.5">{row}</div>
+              )}
+            </li>
           )
         })}
-      </div>
-
-      <div className="mt-4 flex items-center justify-between border-t border-border/40 pt-3 text-[11px] text-muted-foreground">
-        <span>{t("databaseStream")}</span>
-        <span className="font-mono text-success">{t("liveConnected")}</span>
-      </div>
-    </Card>
+      </ol>
+    </Panel>
   )
 }
