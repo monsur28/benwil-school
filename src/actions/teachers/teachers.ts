@@ -29,6 +29,9 @@ function toProfileData(data: Omit<UpdateTeacherInput, never>) {
     employmentType: data.employmentType || null,
     qualifications: data.qualifications || null,
     specialization: data.specialization || null,
+    gender: data.gender || null,
+    dateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth) : null,
+    experience: data.experience || null,
   }
 }
 
@@ -48,6 +51,11 @@ export async function createTeacher(input: CreateTeacherInput): Promise<ActionRe
         email: data.email,
         passwordHash,
         role: Role.TEACHER,
+        // "Allow teacher to access the system" from the Account Access
+        // section - the same isActive flag the profile page's
+        // Activate/Deactivate control uses (see updateTeacherSchema's
+        // comment for why it isn't also editable from this form).
+        isActive: data.isActive,
         ...toProfileData(data),
       },
       select: { id: true },

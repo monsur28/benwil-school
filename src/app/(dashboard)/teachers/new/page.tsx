@@ -11,8 +11,13 @@ export default async function NewTeacherPage() {
   const t = await getTranslations("teachers")
 
   return (
-    <div className="mx-auto w-full max-w-3xl space-y-6">
-      <PageHeader title={t("actions.addTeacher")} />
+    <div className="mx-auto w-full max-w-4xl space-y-6 pb-12">
+      <PageHeader
+        title={t("actions.addTeacher")}
+        description={t("new.subtitle")}
+        backHref="/teachers"
+        backLabel={t("title")}
+      />
       <TeacherForm />
     </div>
   )

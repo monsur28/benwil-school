@@ -27,6 +27,7 @@ const STEP_FIELDS: Path<StudentFormValues>[][] = [
   [
     "name",
     "nameBn",
+    "photoUrl",
     "dateOfBirth",
     "admissionDate",
     "gender",
@@ -70,6 +71,7 @@ export function StudentForm({
     defaultValues: {
       name: "",
       nameBn: "",
+      photoUrl: "",
       dateOfBirth: "",
       admissionDate: todayIso(),
       gender: "MALE",

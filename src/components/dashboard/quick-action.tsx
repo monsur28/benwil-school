@@ -1,17 +1,22 @@
 import Link from "next/link"
 import type { LucideIcon } from "lucide-react"
+import { IconBadge, type IconBadgeName, type IconBadgeTone } from "@/components/ui/icon-badge"
 import { cn } from "cn"
 
 export function QuickAction({
   href,
   icon: Icon,
+  badgeName,
+  badgeTone = "blue",
   label,
   description,
   kbd,
   className,
 }: {
   href: string
-  icon: LucideIcon
+  icon?: LucideIcon
+  badgeName?: IconBadgeName
+  badgeTone?: IconBadgeTone
   label: string
   description?: string
   kbd?: string
@@ -26,7 +31,11 @@ export function QuickAction({
       )}
     >
       <span className="flex min-w-0 items-center gap-3">
-        <Icon className="size-4 shrink-0 text-muted-foreground transition-colors group-hover:text-primary" />
+        {Icon ? (
+          <IconBadge icon={Icon} tone={badgeTone} size="sm" />
+        ) : badgeName ? (
+          <IconBadge name={badgeName} tone={badgeTone} size="sm" />
+        ) : null}
         <span className="min-w-0">
           <span className="block truncate text-[13px] font-semibold text-foreground">{label}</span>
           {description && (
@@ -43,3 +52,4 @@ export function QuickAction({
     </Link>
   )
 }
+

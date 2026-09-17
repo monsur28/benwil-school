@@ -14,6 +14,7 @@ const errors = {
   guardiansRequired: "errors.guardiansRequired",
   documentTitleRequired: "errors.documentTitleRequired",
   documentFileRequired: "errors.invalidForm",
+  invalidPhoto: "errors.invalidPhoto",
 }
 
 const isoDate = z.string().refine((value) => !Number.isNaN(Date.parse(value)), { error: errors.invalidDate })
@@ -44,6 +45,9 @@ export type DocumentInput = z.infer<typeof documentInputSchema>
 export const basicInfoSchema = z.object({
   name: z.string().trim().min(1, { error: errors.nameRequired }),
   nameBn: z.string().trim().optional().or(z.literal("")),
+  // Empty string means "no photo" - the wizard's uploader clears to "" rather
+  // than undefined, and the server turns either into NULL.
+  photoUrl: z.union([z.url({ error: errors.invalidPhoto }), z.literal("")]).optional(),
   dateOfBirth: isoDate,
   gender: z.enum(Gender),
   bloodGroup: z.union([z.enum(BloodGroup), z.literal("")]).optional(),

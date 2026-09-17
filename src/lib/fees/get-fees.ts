@@ -346,7 +346,16 @@ export async function getFeeDashboardSummary(schoolId: string): Promise<FeeDashb
   }
 }
 
-export type MonthlyCollectionPoint = { month: string; amountLakhs: number }
+export type MonthlyCollectionPoint = {
+  month: string
+  /** Display unit for the dashboard chart. */
+  amountLakhs: number
+  /** Raw taka, so callers can compute an exact month-on-month change without
+      the rounding that the lakh figure applies. */
+  amount: number
+  /** First day of the month, for building a real axis range label. */
+  monthStart: Date
+}
 
 // Real monthly collection trend for the admin dashboard's fee chart - one
 // query over the trailing `months` calendar months, bucketed in JS (never
@@ -378,9 +387,11 @@ export async function getMonthlyCollections(schoolId: string, months = 9): Promi
 
   return orderedKeys.map((key) => {
     const [year, month] = key.split("-").map(Number)
-    const label = new Date(year, month, 1).toLocaleDateString("en-US", { month: "short" })
-    const amountLakhs = Math.round((totalsByMonthKey.get(key)! / 100000) * 10) / 10
-    return { month: label, amountLakhs }
+    const monthStart = new Date(year, month, 1)
+    const label = monthStart.toLocaleDateString("en-US", { month: "short" })
+    const amount = totalsByMonthKey.get(key)!
+    const amountLakhs = Math.round((amount / 100000) * 10) / 10
+    return { month: label, amountLakhs, amount, monthStart }
   })
 }
 

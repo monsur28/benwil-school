@@ -2,6 +2,7 @@ import type { ReactNode } from "react"
 import Link from "next/link"
 import { ArrowRight } from "lucide-react"
 import { cn } from "cn"
+import { IconBadge, type IconBadgeTone } from "@/components/ui/icon-badge"
 
 /**
  * The container primitive for this design system.
@@ -41,38 +42,57 @@ export function Panel({
 }
 
 /**
+ * The tone a panel's header icon carries. Default `muted` keeps the icon
+ * quiet for ordinary module panels; the colour tones are for dashboards,
+ * where the icon is how a section is recognised before it is read.
+ */
+export type PanelIconTone = IconBadgeTone
+
+
+/**
  * Panel heading row. `action` sits opposite the title; `href` renders the
  * conventional "see everything" affordance instead.
+ *
+ * `stack` is for headers whose action is wide enough to squeeze the title to
+ * nothing on a phone (a segmented control, a filter pair): the action drops
+ * below the title until `sm`, where the usual side-by-side row returns.
  */
 export function PanelHeader({
   title,
   description,
   icon,
+  iconTone = "muted",
   action,
   href,
   hrefLabel,
+  stack = false,
   className,
 }: {
   title: string
   description?: string
   icon?: ReactNode
+  iconTone?: PanelIconTone
   action?: ReactNode
   href?: string
   hrefLabel?: string
+  stack?: boolean
   className?: string
 }) {
   return (
     <div
       className={cn(
-        "flex items-start justify-between gap-3 border-b border-border-light px-4 py-3.5 sm:px-5",
+        "border-b border-border-light px-4 py-3.5 sm:px-5",
+        stack
+          ? "flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"
+          : "flex items-start justify-between gap-3",
         className
       )}
     >
       <div className="flex min-w-0 items-start gap-3">
         {icon && (
-          <span className="mt-0.5 grid size-8 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground [&_svg]:size-4">
+          <IconBadge tone={iconTone} size="sm" className="mt-0.5">
             {icon}
-          </span>
+          </IconBadge>
         )}
         <div className="min-w-0">
           <h2 className="title-section truncate">{title}</h2>
@@ -86,7 +106,7 @@ export function PanelHeader({
         (href && (
           <Link
             href={href}
-            className="group inline-flex shrink-0 items-center gap-1 text-[13px] font-medium text-primary transition-colors hover:text-brand-navy-dark"
+            className="group inline-flex shrink-0 items-center gap-1 text-[11px] font-semibold text-dashboard-blue transition-colors hover:text-primary"
           >
             {hrefLabel}
             <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />

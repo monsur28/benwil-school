@@ -9,7 +9,7 @@ import { requireRole } from "@/lib/auth/dal"
 import { createStudentSchema, type CreateStudentInput } from "@/lib/validations/student"
 import { generateStudentUid } from "@/lib/students/student-uid"
 import { syncStudentGuardians } from "@/lib/students/guardians"
-import { isTrustedStudentDocumentUpload } from "@/lib/storage/cloudinary-student-documents"
+import { isTrustedStudentDocumentUpload, isTrustedStudentPhotoUrl } from "@/lib/storage/cloudinary-student-documents"
 
 const CAN_MANAGE: Role[] = [Role.SUPER_ADMIN, Role.SCHOOL_ADMIN, Role.PRINCIPAL]
 
@@ -28,6 +28,13 @@ export async function createStudent(input: CreateStudentInput): Promise<StudentF
 
   if (data.documents.some((document) => !isTrustedStudentDocumentUpload(document, user.schoolId))) {
     return { success: false, error: t("errors.invalidForm") }
+  }
+
+  // A photo URL arrives as a plain string from the browser, so it is only
+  // accepted when it points at this school's own Cloudinary photo folder -
+  // otherwise the field would be a free-form link to anywhere.
+  if (data.photoUrl && !isTrustedStudentPhotoUrl(data.photoUrl, user.schoolId)) {
+    return { success: false, error: t("errors.invalidPhoto") }
   }
 
   const [academicYear, section] = await Promise.all([
@@ -51,6 +58,7 @@ export async function createStudent(input: CreateStudentInput): Promise<StudentF
           admissionNumber: data.admissionNumber,
           name: data.name,
           nameBn: data.nameBn || null,
+          photoUrl: data.photoUrl || null,
           dateOfBirth: new Date(data.dateOfBirth),
           gender: data.gender,
           bloodGroup: data.bloodGroup || null,

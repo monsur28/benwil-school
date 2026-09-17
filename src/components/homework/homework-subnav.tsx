@@ -1,11 +1,12 @@
 "use client"
 
 import { useTranslations } from "next-intl"
+import { NotebookPen, Tag } from "lucide-react"
 import { SubNav } from "@/components/shared/sub-nav"
 
 const LINKS = [
-  { href: "/homework", labelKey: "subnav.homework", exact: true },
-  { href: "/homework/categories", labelKey: "subnav.categories" },
+  { href: "/homework", labelKey: "subnav.homework", exact: true, icon: NotebookPen },
+  { href: "/homework/categories", labelKey: "subnav.categories", icon: Tag },
 ]
 
 // Category management is admin/principal-only (see HOMEWORK_ADMIN_ROLES /
@@ -16,7 +17,12 @@ export function HomeworkSubNav({ showCategories = true }: { showCategories?: boo
 
   return (
     <SubNav
-      links={links.map((link) => ({ href: link.href, label: t(link.labelKey), exact: link.exact }))}
+      links={links.map((link) => ({
+        href: link.href,
+        label: t(link.labelKey),
+        exact: link.exact,
+        icon: link.icon,
+      }))}
     />
   )
 }

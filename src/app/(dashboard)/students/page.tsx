@@ -107,12 +107,17 @@ export default async function StudentsPage({
           title={hasFilters ? t("empty.noResultsTitle") : t("empty.title")}
           description={hasFilters ? t("empty.noResultsDescription") : t("empty.description")}
           action={
-            !hasFilters &&
-            canManage && (
-              <Button nativeButton={false} render={<Link href="/students/new" />}>
-                <UserPlus className="size-4" />
-                {t("addStudent")}
+            hasFilters ? (
+              <Button variant="outline" nativeButton={false} render={<Link href="/students" />}>
+                {t("empty.clearFilters")}
               </Button>
+            ) : (
+              canManage && (
+                <Button nativeButton={false} render={<Link href="/students/new" />}>
+                  <UserPlus className="size-4" />
+                  {t("addStudent")}
+                </Button>
+              )
             )
           }
         />
@@ -149,52 +154,66 @@ export default async function StudentsPage({
                 {students.map((student) => {
                   const primaryGuardian = student.guardians[0]?.guardian
                   return (
-                    <TableRow key={student.id} className="group/row">
+                    <TableRow key={student.id} className="group/row transition-colors hover:bg-subtle/70">
                       <TableCell data-cell="primary" className="py-3">
-                        <Link href={`/students/${student.id}`} className="flex items-center gap-3">
-                          <StudentAvatar name={student.name} size="sm" />
-                          <span className="min-w-0">
-                            <span className="block truncate text-[13.5px] font-semibold text-foreground">
-                              {student.name}
-                            </span>
-                            <span className="block truncate text-xs text-muted-foreground">
-                              {student.studentUid}
-                            </span>
-                          </span>
-                        </Link>
+                        <div className="flex items-center justify-between gap-3">
+                          <Link href={`/students/${student.id}`} className="flex min-w-0 items-center gap-3 group/link">
+                            <StudentAvatar name={student.name} photoUrl={student.photoUrl} size="default" className="size-8.5 shrink-0" />
+                            <div className="min-w-0">
+                              <span className="block truncate text-sm font-semibold text-foreground transition-colors group-hover/link:text-primary">
+                                {student.name}
+                              </span>
+                              <span className="block truncate font-mono text-xs text-muted-foreground">
+                                {student.studentUid}
+                              </span>
+                            </div>
+                          </Link>
+                          <div className="shrink-0 md:hidden">
+                            <StudentStatusBadge status={student.status} label={t(`status.${student.status}`)} />
+                          </div>
+                        </div>
                       </TableCell>
                       <TableCell
                         data-label={t("table.admissionNo")}
-                        className="text-[13px] tabular-nums text-muted-foreground"
+                        className="font-mono text-xs tabular-nums text-muted-foreground"
                       >
                         {student.admissionNumber}
                       </TableCell>
-                      <TableCell data-label={t("table.class")} className="font-medium">
-                        {student.class.name}
-                        <span className="text-muted-foreground"> · {student.section.name}</span>
+                      <TableCell data-label={t("table.class")} className="font-medium text-[13.5px]">
+                        <span className="block max-w-[140px] truncate">
+                          {student.class.name}
+                          <span className="text-muted-foreground"> · {student.section.name}</span>
+                        </span>
                       </TableCell>
-                      <TableCell data-label={t("table.roll")} className="font-semibold tabular-nums">
+                      <TableCell data-label={t("table.roll")} className="tabular-nums font-medium text-foreground">
                         {student.roll}
                       </TableCell>
                       <TableCell data-label={t("table.guardian")}>
-                        <span className="block max-w-44 truncate">{primaryGuardian?.name ?? "—"}</span>
-                        <span className="block text-xs tabular-nums text-muted-foreground">
-                          {primaryGuardian?.phone ?? "—"}
-                        </span>
+                        {primaryGuardian ? (
+                          <div className="min-w-0">
+                            <span className="block max-w-44 truncate text-[13px] font-medium text-foreground">
+                              {primaryGuardian.name}
+                            </span>
+                            <span className="block font-mono text-xs tabular-nums text-muted-foreground">
+                              {primaryGuardian.phone ?? "—"}
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="text-muted-foreground/60">—</span>
+                        )}
                       </TableCell>
-                      <TableCell data-label={t("table.status")}>
+                      <TableCell data-label={t("table.status")} data-cell="hide" className="hidden md:table-cell">
                         <StudentStatusBadge status={student.status} label={t(`status.${student.status}`)} />
                       </TableCell>
                       <TableCell data-cell="actions" className="text-right">
-                        {/* Row actions stay visible on touch devices and simply
-                            gain emphasis on hover for pointer users. */}
-                        <div className="flex gap-1 opacity-70 transition-opacity group-hover/row:opacity-100 md:justify-end">
+                        <div className="flex w-full items-center justify-end gap-1.5 border-t border-border-light/70 pt-2.5 mt-1 opacity-80 transition-opacity group-hover/row:opacity-100 md:mt-0 md:border-t-0 md:pt-0">
                           <Button
                             nativeButton={false}
                             variant="ghost"
                             size="icon-sm"
                             aria-label={t("table.view")}
                             title={t("table.view")}
+                            className="size-8.5 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
                             render={<Link href={`/students/${student.id}`} />}
                           >
                             <Eye className="size-4" />
@@ -206,6 +225,7 @@ export default async function StudentsPage({
                               size="icon-sm"
                               aria-label={t("table.edit")}
                               title={t("table.edit")}
+                              className="size-8.5 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
                               render={<Link href={`/students/${student.id}/edit`} />}
                             >
                               <Pencil className="size-4" />

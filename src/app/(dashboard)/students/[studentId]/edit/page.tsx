@@ -46,6 +46,7 @@ export default async function EditStudentPage({
   const defaultValues: Partial<StudentFormValues> = {
     name: student.name,
     nameBn: student.nameBn ?? "",
+    photoUrl: student.photoUrl ?? "",
     dateOfBirth: toDateInputValue(student.dateOfBirth),
     admissionDate: toDateInputValue(student.admissionDate),
     gender: student.gender,

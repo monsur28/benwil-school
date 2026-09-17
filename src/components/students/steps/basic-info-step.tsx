@@ -8,16 +8,37 @@ import { GENDER_OPTIONS, BLOOD_GROUP_OPTIONS, STATUS_OPTIONS } from "@/lib/stude
 import { Input } from "@/components/ui/input"
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
 import { Field, FieldLabel, FieldError, FieldGroup } from "@/components/ui/field"
+import { StudentPhotoUploader } from "@/components/students/student-photo-uploader"
 
 export function BasicInfoStep({ mode }: { mode: "create" | "edit" }) {
   const t = useTranslations("students")
   const {
     register,
+    setValue,
+    watch,
     formState: { errors },
   } = useFormContext<StudentFormValues>()
 
+  const photoUrl = watch("photoUrl")
+  const name = watch("name")
+
   return (
     <FieldGroup className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      {/* Spans the row: the photo identifies the record the rest of this step
+          describes, so it reads as the head of the form rather than as one
+          more field in the grid. */}
+      <Field className="sm:col-span-2">
+        <FieldLabel htmlFor="photoUrl">{t("fields.photo")}</FieldLabel>
+        <StudentPhotoUploader
+          inputId="photoUrl"
+          value={photoUrl || undefined}
+          studentName={name}
+          onUploaded={(url) => setValue("photoUrl", url, { shouldDirty: true })}
+          onClear={() => setValue("photoUrl", "", { shouldDirty: true })}
+        />
+        <FieldError errors={[errors.photoUrl && { message: translateFieldError(t, errors.photoUrl) }]} />
+      </Field>
+
       <Field>
         <FieldLabel htmlFor="name">{t("fields.name")}</FieldLabel>
         <Input id="name" aria-invalid={Boolean(errors.name)} {...register("name")} />

@@ -1,9 +1,11 @@
 import Link from "next/link"
 import { Role } from "@prisma/client"
 import { notFound } from "next/navigation"
-import { getTranslations } from "next-intl/server"
+import { getLocale, getTranslations } from "next-intl/server"
 import { requireRole } from "@/lib/auth/dal"
 import { prisma } from "@/lib/db/client"
+import { formatDate } from "@/lib/format"
+import { EMPLOYMENT_TYPE_OPTIONS, type EmploymentTypeOption } from "@/lib/teachers/options"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { TeacherActiveToggle } from "@/components/teachers/teacher-active-toggle"
@@ -17,8 +19,11 @@ export default async function TeacherProfilePage({
 }: {
   params: Promise<{ teacherId: string }>
 }) {
-  const user = await requireRole(...VIEWERS)
-  const t = await getTranslations("teachers")
+  const [user, t, locale] = await Promise.all([
+    requireRole(...VIEWERS),
+    getTranslations("teachers"),
+    getLocale(),
+  ])
   const { teacherId } = await params
 
   const teacher = await prisma.user.findFirst({
@@ -35,6 +40,16 @@ export default async function TeacherProfilePage({
   const subjects = new Set(teacher.teacherAssignments.map((item) => item.subject.name))
   const sections = new Set(teacher.teacherAssignments.map((item) => `${item.class.name} ${item.section.name}`))
   const canManage = MANAGERS.includes(user.role)
+
+  // employmentType stays a plain string column (see schema.prisma) rather
+  // than a Prisma enum, so a value outside today's four options - legacy
+  // data, or a direct DB edit - is shown as-is instead of silently
+  // disappearing.
+  const employmentTypeLabel = teacher.employmentType
+    ? EMPLOYMENT_TYPE_OPTIONS.includes(teacher.employmentType as EmploymentTypeOption)
+      ? t(`employmentType.${teacher.employmentType as EmploymentTypeOption}`)
+      : teacher.employmentType
+    : "—"
 
   return (
     <div className="space-y-5">
@@ -75,7 +90,7 @@ export default async function TeacherProfilePage({
             [t("profile.assignedClasses"), sections.size, Users],
             [t("profile.assignedSubjects"), subjects.size, BookOpen],
             [t("profile.totalAssignments"), teacher.teacherAssignments.length, Briefcase],
-            [t("profile.employment"), teacher.employmentType ?? "—", Briefcase],
+            [t("profile.employment"), employmentTypeLabel, Briefcase],
           ] as const
         ).map(([label, value, Icon]) => (
           <div key={String(label)} className="panel p-4">
@@ -99,6 +114,12 @@ export default async function TeacherProfilePage({
               {teacher.phone ?? t("profile.noPhone")}
             </p>
             <p>
+              <b>{t("fields.gender")}:</b> {teacher.gender ? t(`gender.${teacher.gender}`) : "—"}
+            </p>
+            <p>
+              <b>{t("fields.dateOfBirth")}:</b> {teacher.dateOfBirth ? formatDate(teacher.dateOfBirth, locale) : "—"}
+            </p>
+            <p>
               <b>{t("profile.department")}:</b> {teacher.department ?? "—"}
             </p>
             <p>
@@ -106,6 +127,9 @@ export default async function TeacherProfilePage({
             </p>
             <p>
               <b>{t("profile.specialization")}:</b> {teacher.specialization ?? "—"}
+            </p>
+            <p>
+              <b>{t("fields.experience")}:</b> {teacher.experience ?? "—"}
             </p>
           </div>
         </section>

@@ -1,8 +1,11 @@
 import type { LucideIcon } from "lucide-react"
+import { IconBadge, type IconBadgeTone, type IconBadgeName } from "@/components/ui/icon-badge"
 import { cn } from "cn"
 
 export interface StatCardProps {
-  icon: LucideIcon
+  icon?: LucideIcon
+  name?: IconBadgeName
+  tone?: IconBadgeTone
   label: string
   value?: string | number
   placeholder?: string
@@ -25,6 +28,8 @@ export interface StatCardProps {
  */
 export function StatCard({
   icon: Icon,
+  name,
+  tone,
   label,
   value,
   placeholder,
@@ -57,9 +62,16 @@ export function StatCard({
               {tag}
             </span>
           )}
-          <Icon className="size-4 text-muted-foreground" />
+          {tone ? (
+            <IconBadge name={name} icon={Icon} tone={tone} size="xs" />
+          ) : Icon ? (
+            <Icon className="size-4 text-muted-foreground" />
+          ) : name ? (
+            <IconBadge name={name} size="xs" />
+          ) : null}
         </div>
       </div>
+
 
       <div>
         {value !== undefined ? (

@@ -120,17 +120,17 @@
       "recentNotices": "সাম্প্রতিক নোটিশ",
       "quickActions": {
         "title": "দ্রুত কাজ",
-        "subtitle": "বহুল ব্যবহৃত নির্দেশনাসমূহ",
+        "subtitle": "যেগুলো সবচেয়ে বেশি লাগে",
         "addStudent": "শিক্ষার্থী যোগ করুন",
-        "addStudentDesc": "নতুন শিক্ষার্থী ভর্তি নিবন্ধন",
-        "takeAttendance": "উপস্থিতি নিন",
-        "takeAttendanceDesc": "দৈনিক রোল কল খাতা",
-        "createExam": "পরীক্ষা তৈরি করুন",
-        "createExamDesc": "মূল্যায়ন রুটিন তৈরি",
-        "collectFee": "ফি সংগ্রহ করুন",
-        "collectFeeDesc": "শিক্ষার্থীর ফি গ্রহণ",
-        "createNotice": "বিজ্ঞপ্তি দিন",
-        "createNoticeDesc": "বিদ্যালয়ের নোটিশ প্রকাশ"
+        "addStudentDesc": "নতুন ভর্তি নিবন্ধন",
+        "takeAttendance": "হাজিরা নিন",
+        "takeAttendanceDesc": "আজকের রোল কল",
+        "collectFee": "ফি আদায়",
+        "collectFeeDesc": "শিক্ষার্থীর পেমেন্ট রেকর্ড",
+        "createNotice": "নোটিশ দিন",
+        "createNoticeDesc": "বিদ্যালয়ের বিজ্ঞপ্তি প্রকাশ",
+        "reviewResults": "ফলাফল দেখুন",
+        "reviewResultsDesc": "নম্বর, গ্রেড ও প্রকাশ"
       },
       "addStudent": "শিক্ষার্থী যোগ করুন",
       "takeAttendance": "উপস্থিতি নিন",
@@ -191,25 +191,13 @@
       "standardCurriculum": "জাতীয় শিক্ষাক্রম",
       "sessionProgress": "সেশন অগ্রগতি",
       "milestones": {
-        "title": "আসন্ন মাইলফলক",
-        "description": "প্রাতিষ্ঠানিক ক্যালেন্ডার ও গুরুত্বপূর্ণ ইভেন্ট",
+        "title": "আসন্ন পরীক্ষা",
+        "description": "সামনে নির্ধারিত পরীক্ষা",
         "calendar": "ক্যালেন্ডার",
-        "termCalendar": "১ম পর্বের ক্যালেন্ডার • সেশন ২০২৬",
-        "activeEvents": "{count}টি সক্রিয় ইভেন্ট",
-        "midTermTitle": "অর্ধ-বার্ষিক মূল্যায়ন পর্ব",
-        "midTermDesc": "৬ষ্ঠ-১০ম শ্রেণির মূল্যায়ন রুটিন শুরু",
         "badgeAcademic": "একাডেমিক",
-        "ptmTitle": "অভিভাবক-শিক্ষক মূল্যায়ন সভা",
-        "ptmDesc": "প্রাথমিক ও মাধ্যমিক শাখার সার্বিক পর্যালোচনা",
-        "badgeMeeting": "সভা",
-        "scienceFairTitle": "বার্ষিক বিজ্ঞান ও সাংস্কৃতিক মেলা",
-        "scienceFairDesc": "ক্যাম্পাস প্রদর্শনী ও প্রকল্প উৎসব",
-        "badgeCoCurricular": "সহ-পাঠ্যক্রম",
-        "resultPubTitle": "১ম পর্বের ফলাফল প্রকাশ",
-        "resultPubDesc": "চূড়ান্ত ট্রান্সক্রিপ্ট ও রিপোর্ট কার্ড বিতরণ",
-        "badgeGrading": "ফলাফল",
-        "sep": "সেপ্টে",
-        "oct": "অক্টো"
+        "thisWeek": "এই সপ্তাহে",
+        "emptyTitle": "কোনো পরীক্ষা নির্ধারিত নেই",
+        "emptyDetail": "রুটিন তৈরি হলে আসন্ন পরীক্ষা এখানে দেখা যাবে।"
       },
       "collectionHealth": "আদায় স্থিতি",
       "collectionHealthOnTarget": "{health}% লক্ষ্যমাত্রায়",
@@ -234,7 +222,7 @@
         "greetingAfternoon": "শুভ অপরাহ্ন",
         "greetingEvening": "শুভ সন্ধ্যা",
         "liveCampus": "লাইভ ক্যাম্পাস",
-        "subtitle": "আজ {date}-এ {schoolName}-এর সার্বিক কার্যক্রমের চিত্র।",
+        "subtitle": "{schoolName}-এ আজ যা ঘটছে।",
         "academicSession": "শিক্ষাবর্ষ {year}",
         "allSystemsNominal": "সকল সিস্টেম স্বাভাবিক",
         "directory": "ডিরেক্টরি",
@@ -243,29 +231,26 @@
       "kpi": {
         "totalStudents": "মোট শিক্ষার্থী",
         "active": "{count} জন সক্রিয়",
-        "studentsTrend": "+৮.২% চলতি পর্বে",
-        "acrossClasses": "{count}টি শিক্ষা শ্রেণীতে",
+        "acrossClasses": "{count}টি শ্রেণিতে",
         "todaysAttendance": "আজকের উপস্থিতি",
         "open": "উন্মুক্ত",
         "checkedIn": "{count} জন উপস্থিত",
         "registerPending": "হাজিরা অপেক্ষমাণ",
-        "attendanceTrend": "+২.১% গতকালের তুলনায়",
         "awaitingRollCall": "রোল কলের অপেক্ষায়",
-        "dailyRollCallInProgress": "দৈনিক রোল কল প্রক্রিয়াধীন",
-        "pendingClassSubmission": "শ্রেণি জমাদানের অপেক্ষায়",
         "teachersAndStaff": "শিক্ষক ও কর্মকর্তা",
-        "certified": "{count} জন অনুমোদিত",
-        "teachersTrend": "১০০% সক্রিয় তালিকা",
         "supportStaffMembers": "{count} জন সহায়ক ও প্রশাসনিক কর্মী",
         "feeCollection": "ফি আদায়",
         "ofTarget": "লক্ষ্যমাত্রার {percent}%",
-        "feesTrend": "+১২.৪% চলতি মাসে",
-        "cashflowOnTrack": "চলতি পর্বের নগদ প্রবাহ লক্ষ্যমাত্রায়",
-        "details": "বিস্তারিত →"
+        "sectionLabel": "বিদ্যালয়ের নাড়ি",
+        "sectionsRecorded": "{total}টির মধ্যে {recorded}টি শাখায় নেওয়া হয়েছে",
+        "pointsSince": "{day}-এর তুলনায় {points} পয়েন্ট",
+        "teachersOnRoster": "{count} জন শিক্ষক কর্মরত",
+        "collectedThisMonth": "এ মাসে {amount} আদায়",
+        "vsLastMonth": "গত মাসের তুলনায় {percent}%"
       },
       "attendanceChart": {
         "title": "উপস্থিতির সার্বিক চিত্র",
-        "description": "শ্রেণি অধিবেশন জুড়ে উপস্থিতি ও সময়ানুবর্তিতার চিত্র",
+        "description": "প্রতিদিন কতজন শিক্ষার্থী আসছে",
         "range7d": "৭ দিন",
         "range30d": "৩০ দিন",
         "rangeTerm": "চলতি পর্ব",
@@ -274,7 +259,13 @@
         "absent": "অনুপস্থিত %",
         "presentLabel": "উপস্থিত:",
         "lateLabel": "দেরিতে:",
-        "absentLabel": "অনুপস্থিত:"
+        "absentLabel": "অনুপস্থিত:",
+        "rangeLabel": "সময়সীমা",
+        "todayLabel": "আজকের উপস্থিতি",
+        "notTakenYet": "এখনও নেওয়া হয়নি",
+        "pointsSince": "{day}-এর তুলনায় {points} পয়েন্ট",
+        "noTrendTitle": "এখনও যথেষ্ট তথ্য নেই",
+        "noTrendDetail": "এই সময়সীমায় অন্তত দুই দিন হাজিরা নেওয়া হলে প্রবণতা দেখা যাবে।"
       },
       "distribution": {
         "title": "শিক্ষার্থী বিন্যাস",
@@ -287,7 +278,7 @@
       },
       "feeAnalytics": {
         "title": "ফি আদায় বিশ্লেষণ",
-        "description": "প্রতিষ্ঠানের আয়, লক্ষ্যমাত্রা ও বকেয়ার বিবরণ",
+        "description": "কত এসেছে, কত ধার্য হয়েছে এবং কত বাকি",
         "billingDesk": "বিলিং ডেস্ক",
         "collectionPace": "আদায়ের গতি",
         "ofTarget": "লক্ষ্যমাত্রার {percent}%",
@@ -297,11 +288,13 @@
         "sessionTotal": "আদায় + বকেয়া",
         "pending": "বকেয়া",
         "invoicesActive": "চালান সক্রিয়",
-        "monthlyTrend": "মাসিক আদায় প্রবাহ (লাখ)",
-        "monthsRange": "জানু – সেপ্টে ২০২৬",
+        "monthlyTrend": "মাসিক আদায় (লাখ)",
         "intake": "আদায়:",
-        "targetLabel": "লক্ষ্যমাত্রা:",
-        "lakhSuffix": "লাখ"
+        "lakhSuffix": "লাখ",
+        "allCleared": "সব পরিশোধিত",
+        "vsLastMonth": "গত মাসের তুলনায় {percent}%",
+        "noTrendTitle": "এখনও আদায়ের প্রবণতা নেই",
+        "noTrendDetail": "অন্তত দুই মাসে পেমেন্ট রেকর্ড হলে মাসিক প্রবণতা দেখা যাবে।"
       },
       "academicPerformance": {
         "title": "একাডেমিক ফলাফল",
@@ -314,50 +307,61 @@
       },
       "activity": {
         "title": "সাম্প্রতিক কার্যক্রম",
-        "description": "প্রশাসনিক মডিউলসমূহের রিয়েল-টাইম কার্যক্রম",
+        "description": "বিদ্যালয়ে সবশেষ যেসব নথি তৈরি হয়েছে",
         "auditLog": "অডিট লগ",
         "studentAdmitted": "নতুন শিক্ষার্থী ভর্তি হয়েছে",
         "feeReceived": "ফি আদায় গৃহীত হয়েছে",
-        "attendanceDone": "উপস্থিতি সম্পন্ন হয়েছে",
-        "examScheduled": "পরীক্ষা নির্ধারিত হয়েছে",
-        "recently": "সম্প্রতি",
-        "today": "আজকে",
-        "minutesAgo": "{count} মিনিট আগে",
-        "hourAgo": "{count} ঘণ্টা আগে",
-        "databaseStream": "ডাটাবেজ থেকে সরাসরি হালনাগাদকৃত",
-        "liveConnected": "লাইভ ফিড যুক্ত",
-        "collectedFrom": "৳ {amount} collected • {student}",
-        "attendanceSummary": "{className} • {count} জন শিক্ষার্থীর হাজিরা গৃহীত ({percent}% উপস্থিত)",
-        "examRoutineFinalized": "৬ষ্ঠ-১০ম শ্রেণির মূল্যায়ন রুটিন চূড়ান্ত হয়েছে"
+        "noticePublished": "নোটিশ প্রকাশিত",
+        "roll": "রোল {roll}",
+        "emptyTitle": "এখনও কিছু রেকর্ড হয়নি",
+        "emptyDetail": "ভর্তি, পেমেন্ট ও নোটিশ রেকর্ড হলে এখানে দেখা যাবে।",
+        "group": {
+          "today": "আজ",
+          "yesterday": "গতকাল",
+          "earlier": "আগে"
+        }
       },
       "healthIndex": {
-        "title": "ক্যাম্পাস স্বাস্থ্য সূচক",
-        "description": "সকল প্রাতিষ্ঠানিক বিভাগের সার্বিক অবস্থা",
-        "nominal": "স্বাভাবিক",
+        "title": "ক্যাম্পাস স্বাস্থ্য",
+        "description": "চারটি সূচক যা বলে কোথাও সমস্যা আছে কিনা",
         "campusAttendance": "ক্যাম্পাস উপস্থিতি",
-        "optimal": "অনুকূল",
-        "feeCollectionPace": "ফি আদায়ের গতি",
-        "onTarget": "লক্ষ্যমাত্রায়",
-        "examResultPublication": "পরীক্ষার ফলাফল প্রকাশ",
-        "finalized": "চূড়ান্ত",
-        "facultyEngagement": "শিক্ষকদের সক্রিয়তা",
-        "active": "সক্রিয়",
-        "calculatedAt": "দৈনিক স্বাস্থ্য স্কোর সকাল ০৮:০০ টায় গণনাকৃত",
-        "compositeScore": "যৌথ স্কোর: ৯০.৫/১০০"
+        "feeCollectionPace": "ফি আদায়",
+        "examResultPublication": "ফলাফল প্রকাশ",
+        "activeEnrolment": "সক্রিয় ভর্তি",
+        "status": {
+          "healthy": "সুস্থ",
+          "onTarget": "লক্ষ্যমাত্রায়",
+          "needsAttention": "মনোযোগ প্রয়োজন",
+          "critical": "সঙ্কটাপন্ন",
+          "unknown": "এখনও রেকর্ড হয়নি"
+        },
+        "composite": "সামগ্রিক {score}/১০০",
+        "compositeCaption": "উপরের সূচকগুলোর গড়"
       },
       "notices": {
-        "title": "Recent Notices",
-        "description": "Latest institutional bulletins and announcements",
-        "viewAll": "View all",
-        "footer": "Posted by school administration",
-        "sampleBadge": "Sample data",
-        "emergencyTitle": "Emergency School Closure",
-        "emergencyScope": "School-wide",
-        "ptmTitle": "Parent Teacher Meeting",
-        "ptmScope": "Guardians",
-        "examRoutineTitle": "Mid-Term Examination Routine",
-        "examRoutineScope": "Classes 6-10",
-        "today": "Today"
+        "title": "সাম্প্রতিক নোটিশ",
+        "description": "সবশেষ প্রকাশিত বিজ্ঞপ্তি",
+        "viewAll": "সব দেখুন",
+        "emptyTitle": "কোনো নোটিশ প্রকাশিত হয়নি",
+        "emptyDetail": "প্রকাশিত নোটিশ এখানে দেখা যাবে।"
+      },
+      "attention": {
+        "title": "মনোযোগ প্রয়োজন",
+        "count": "{count}টি কাজ বাকি",
+        "registerTitle": "হাজিরা নেওয়া বাকি",
+        "registerDetail": "{total}টি শাখার মধ্যে {pending}টিতে আজ হাজিরা নেওয়া হয়নি",
+        "resultsTitle": "ফলাফল প্রকাশ বাকি",
+        "resultsDetail": "শেষ হওয়া {count}টি পরীক্ষার ফলাফল এখনও অপ্রকাশিত",
+        "duesTitle": "বকেয়া ফি",
+        "duesDetail": "{count} জন শিক্ষার্থীর {amount} বকেয়া",
+        "draftsTitle": "অপ্রকাশিত নোটিশ",
+        "draftsDetail": "{count}টি নোটিশ এখনও খসড়া হিসেবে রয়েছে",
+        "take": "নিন",
+        "review": "দেখুন",
+        "open": "খুলুন",
+        "publish": "প্রকাশ করুন",
+        "clearTitle": "সব ঠিক আছে",
+        "clearDetail": "এখন আপনার হস্তক্ষেপ প্রয়োজন এমন কোনো কাজ নেই।"
       }
     },
     "teacher": {
@@ -421,10 +425,11 @@
       "edit": "সম্পাদনা"
     },
     "empty": {
-      "title": "কোনো শিক্ষার্থী নেই",
-      "description": "শুরু করতে প্রথম শিক্ষার্থী যোগ করুন।",
-      "noResultsTitle": "কোনো মিল পাওয়া যায়নি",
-      "noResultsDescription": "ভিন্ন কিছু অনুসন্ধান করুন অথবা ফিল্টার পরিবর্তন করুন।"
+      "title": "এখনও কোনো শিক্ষার্থী নেই",
+      "description": "বিদ্যালয়ের শিক্ষার্থী তালিকা তৈরি করতে প্রথম শিক্ষার্থী যোগ করুন।",
+      "noResultsTitle": "কোনো শিক্ষার্থী পাওয়া যায়নি",
+      "noResultsDescription": "আপনার বর্তমান ফিল্টারের সাথে কোনো শিক্ষার্থী মেলেনি।",
+      "clearFilters": "ফিল্টার মুছুন"
     },
     "pagination": {
       "previous": "পূর্ববর্তী",
@@ -503,7 +508,8 @@
       "documentTitle": "নথির নাম",
       "documentType": "নথির ধরন",
       "uploadedDate": "আপলোডের তারিখ",
-      "file": "ফাইল"
+      "file": "ফাইল",
+      "photo": "ছবি"
     },
     "fileNotConfigured": "ফাইল সংযুক্ত করতে ক্লাউড স্টোরেজ প্রয়োজন, যা এখনও কনফিগার করা হয়নি। আপনি এখনও নথির নাম ও ধরন সংরক্ষণ করতে পারবেন।",
     "actions": {
@@ -512,10 +518,11 @@
       "save": "শিক্ষার্থী সংরক্ষণ করুন",
       "saving": "সংরক্ষণ হচ্ছে...",
       "saveChanges": "পরিবর্তন সংরক্ষণ করুন",
-      "addGuardian": "+ অভিভাবক যোগ করুন",
+      "addGuardian": "অভিভাবক যোগ করুন",
       "remove": "সরান",
-      "addDocument": "+ নথি যোগ করুন",
-      "adding": "যোগ হচ্ছে..."
+      "addDocument": "নথি যোগ করুন",
+      "adding": "যোগ হচ্ছে...",
+      "removePhoto": "ছবি সরান"
     },
     "success": {
       "created": "শিক্ষার্থী সফলভাবে তৈরি হয়েছে।",
@@ -539,7 +546,8 @@
       "duplicateAdmissionNumber": "এই ভর্তি নম্বরটি অন্য একজন শিক্ষার্থীর জন্য ব্যবহৃত হয়েছে।",
       "duplicateRoll": "নির্বাচিত শ্রেণি ও শাখায় এই রোল নম্বরটি ইতিমধ্যে ব্যবহৃত হয়েছে।",
       "saveFailed": "শিক্ষার্থীর তথ্য সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।",
-      "notFound": "শিক্ষার্থী পাওয়া যায়নি।"
+      "notFound": "শিক্ষার্থী পাওয়া যায়নি।",
+      "invalidPhoto": "২ MB-এর কম আকারের JPG, PNG বা WebP ছবি নির্বাচন করুন।"
     },
     "profile": {
       "overview": "সারসংক্ষেপ",
@@ -559,7 +567,9 @@
       "editStudent": "শিক্ষার্থী সম্পাদনা",
       "comingSoonTabDescription": "এই ট্যাবটি এখনও তৈরি হয়নি। এটি পরবর্তী ধাপে যুক্ত হবে।",
       "studentIdLabel": "শিক্ষার্থী আইডি",
-      "admissionNoLabel": "ভর্তি নম্বর"
+      "admissionNoLabel": "ভর্তি নম্বর",
+      "uploadDocument": "নথি আপলোড করুন",
+      "uploadHint": "PDF, JPG, PNG বা WebP · সর্বাধিক ১০ MB"
     },
     "results": {
       "subject": "বিষয়",
@@ -577,15 +587,34 @@
     "notFoundTitle": "শিক্ষার্থী পাওয়া যায়নি",
     "notFoundDescription": "এই শিক্ষার্থীকে সরিয়ে ফেলা হতে পারে, অথবা লিংকটি ভুল।",
     "eyebrow": "ব্যক্তিবর্গ",
-    "description": "শিক্ষার্থী ভর্তি, প্রোফাইল, অভিভাবক এবং একাডেমিক তথ্য পরিচালনা করুন।"
+    "description": "শিক্ষার্থী ভর্তি, প্রোফাইল, অভিভাবক এবং একাডেমিক তথ্য পরিচালনা করুন।",
+    "photoHint": "JPG, PNG বা WebP · সর্বাধিক ২ MB। ঐচ্ছিক — ছবি না দিলে নামের আদ্যক্ষর দেখানো হবে।"
   },
   "attendance": {
     "title": "উপস্থিতি",
+    "description": "দৈনন্দিন শিক্ষার্থীর উপস্থিতি গ্রহণ ও পরিচালনা করুন",
+    "eyebrow": "একাডেমিক",
     "viewHistory": "ইতিহাস দেখুন",
     "attendancePercentage": "উপস্থিতির হার",
     "recentAttendance": "সাম্প্রতিক উপস্থিতি",
-    "searchPlaceholder": "নাম বা রোল দিয়ে খুঁজুন",
+    "today": "আজ",
+    "goToToday": "আজকের তারিখে যান",
+    "searchPlaceholder": "নাম বা রোল দিয়ে খুঁজুন...",
     "alreadySubmitted": "এই তারিখের উপস্থিতি ইতিমধ্যে জমা দেওয়া হয়েছে। সর্বশেষ হালনাগাদ: {time}",
+    "submittedStatus": {
+      "title": "উপস্থিতি জমা দেওয়া হয়েছে",
+      "lastUpdated": "সর্বশেষ হালনাগাদ: {time}",
+      "canEdit": "আপনি এখনও আজকের উপস্থিতি হালনাগাদ করতে পারেন।"
+    },
+    "unsavedChanges": "অসংরক্ষিত পরিবর্তন",
+    "allSaved": "সব সংরক্ষিত",
+    "studentsCount": "{count} জন শিক্ষার্থী",
+    "showingCount": "{total} জনের মধ্যে {filtered} জন দেখানো হচ্ছে",
+    "clearSearch": "অনুসন্ধান মুছুন",
+    "noSearchResults": "\"{query}\"-এর সাথে মিলিয়ে কোনো শিক্ষার্থী পাওয়া যায়নি",
+    "rosterHeading": "শিক্ষার্থী তালিকা",
+    "liveSummaryHeading": "আজকের উপস্থিতি",
+    "rollLabel": "রোল {roll}",
     "fields": {
       "class": "শ্রেণি",
       "section": "শাখা",
@@ -1055,6 +1084,14 @@
       "view": "দেখুন",
       "search": "খুঁজুন"
     },
+    "structureDialog": {
+      "addTitle": "ফি কাঠামো যোগ করুন",
+      "editTitle": "ফি কাঠামো সম্পাদনা",
+      "description": "শ্রেণির ফি কাঠামো, আদায়ের সময় এবং জমার শেষ তারিখ নির্ধারণ করুন।",
+      "namePlaceholder": "যেমনঃ মাসিক বেতন",
+      "nameBnPlaceholder": "যেমনঃ মাসিক বেতন",
+      "amountPlaceholder": "০.০০"
+    },
     "list": {
       "empty": "কোনো তথ্য পাওয়া যায়নি।",
       "emptyStructures": "এখনো কোনো ফি কাঠামো নেই।",
@@ -1073,10 +1110,48 @@
       "to": "শেষ"
     },
     "dashboard": {
+      "subtitle": "শিক্ষাবর্ষ ২০২৬ · আর্থিক বিবরণী ও শিক্ষার্থী বিলিং",
       "totalOutstanding": "মোট বকেয়া",
       "paymentsToday": "আজকের পেমেন্ট",
       "paymentsThisMonth": "এই মাসের পেমেন্ট",
-      "studentsWithOutstanding": "বকেয়া থাকা শিক্ষার্থী"
+      "studentsWithOutstanding": "বকেয়া থাকা শিক্ষার্থী",
+      "reconciled": "সব শিক্ষার্থীর হিসাব পরিশোধিত",
+      "pendingFollowup": "পুনর্বিবেচনা প্রয়োজন",
+      "counterCollection": "দৈনিক কাউন্টার কালেকশন",
+      "receiptsCount": "আজকে {count} টি রশিদ ইস্যু",
+      "currentBillingCycle": "চলতি বিলিং চক্র",
+      "monthlyCollection": "মাসিক কালেকশন",
+      "allAccountsClear": "সব হিসাব পরিষ্কার",
+      "duesPending": "বকেয়া রয়েছে",
+      "quickActions": "দ্রুত আর্থিক কার্যক্রম",
+      "collectFee": "ফি সংগ্রহ করুন",
+      "collectFeeDesc": "শিক্ষার্থী খুঁজুন ও ফি গ্রহণ করুন",
+      "assignFees": "ফি নির্ধারণ",
+      "assignFeesDesc": "শ্রেণিতে ফি বরাদ্দ করুন",
+      "feeStructures": "ফি কাঠামো",
+      "feeStructuresDesc": "বেতন ও সেশন রেট",
+      "outstandingReport": "বকেয়া রিপোর্ট",
+      "outstandingReportDesc": "শ্রেণিভিত্তিক বকেয়া তালিকা",
+      "collectionsReport": "কালেকশন রিপোর্ট",
+      "collectionsReportDesc": "দৈনিক ও মাসিক হিসাব",
+      "recentPayments": "সাম্প্রতিক পেমেন্ট ও রশিদ",
+      "recentPaymentsDesc": "সর্বশেষ লেনদেন ও ইস্যুকৃত ভাউচার",
+      "viewAllPayments": "সব পেমেন্ট দেখুন",
+      "monthlyTrend": "মাসিক কালেকশন ট্রেন্ড",
+      "monthlyTrendDesc": "গত ৬ মাসের আর্থিক কালেকশন",
+      "sixMonthTotal": "৬ মাসের মোট আয়",
+      "avgMonthly": "গড় মাসিক কালেকশন",
+      "quickSearch": "দ্রুত শিক্ষার্থী খুঁজুন",
+      "quickSearchDesc": "ফি জমা দিতে শিক্ষার্থী খুঁজুন",
+      "quickSearchPlaceholder": "শিক্ষার্থীর নাম, আইডি বা রোল লিখুন...",
+      "activeStructures": "সক্রিয় ফি কাঠামো",
+      "activeStructuresDesc": "নির্ধারিত বেতন, সেশন ও পরীক্ষার ফি",
+      "manageStructures": "কাঠামো ব্যবস্থাপনা",
+      "paymentMethods": "পেমেন্ট পদ্ধতি বণ্টন",
+      "viewReceipt": "রশিদ",
+      "noRecentPayments": "এখনো কোনো পেমেন্ট রেকর্ড করা হয়নি",
+      "noRecentPaymentsDesc": "ক্যাশ কাউন্টারে বা অনলাইন ব্যাংকিংয়ে গ্রহণ করা পেমেন্টগুলো এখানে সরাসরি প্রদর্শিত হবে।",
+      "recordFirstPayment": "পেমেন্ট রেকর্ড করুন"
     },
     "assign": {
       "title": "ফি নির্ধারণ করুন",
@@ -1263,11 +1338,11 @@
       "updatedBy": "Updated By"
     },
     "audience": {
-      "ALL": "Everyone",
-      "STUDENTS": "Students",
-      "GUARDIANS": "Guardians",
-      "CLASS": "A Class",
-      "SECTION": "A Class Section"
+      "ALL": "সবার জন্য",
+      "STUDENTS": "শিক্ষার্থী",
+      "GUARDIANS": "অভিভাবক",
+      "CLASS": "একটি শ্রেণি",
+      "SECTION": "একটি শাখা"
     },
     "status": {
       "DRAFT": "Draft",
@@ -1484,105 +1559,157 @@
     }
   },
   "teachers": {
-    "title": "Teachers & Staff",
-    "description": "Manage teaching staff, assignments and academic responsibilities.",
-    "searchPlaceholder": "Search name, employee ID, email or phone",
+    "title": "শিক্ষক ও কর্মচারী",
+    "description": "শিক্ষকদের তথ্য, দায়িত্ব ও নিয়োগ পরিচালনা করুন।",
+    "searchPlaceholder": "নাম, কর্মচারী আইডি, ইমেইল বা ফোন নম্বর দিয়ে খুঁজুন",
+    "new": {
+      "subtitle": "নতুন শিক্ষক নিবন্ধন করুন, প্রাতিষ্ঠানিক দায়িত্ব নির্ধারণ করুন এবং পোর্টাল লগইন তৈরি করুন।"
+    },
+    "edit": {
+      "subtitle": "শিক্ষকের তথ্য, প্রাতিষ্ঠানিক পদবি বা পেশাগত প্রোফাইল হালনাগাদ করুন।"
+    },
     "sections": {
-      "basic": "Basic Information",
-      "employment": "Employment",
-      "academic": "Academic"
+      "basic": "ব্যক্তিগত তথ্য",
+      "employment": "নিয়োগ সংক্রান্ত তথ্য",
+      "academic": "পেশাগত তথ্য",
+      "account": "অ্যাকাউন্ট অ্যাক্সেস"
+    },
+    "sectionDescriptions": {
+      "basic": "মূল পরিচয়, যোগাযোগের নম্বর, লিঙ্গ ও আবাসিক ঠিকানা।",
+      "employment": "প্রাতিষ্ঠানিক অবস্থান, কর্মী কোড, বিভাগ ও যোগদানের বিবরণ।",
+      "academic": "শিক্ষাগত যোগ্যতা, বিশেষ দক্ষতার ক্ষেত্র ও অভিজ্ঞতার বিবরণ।",
+      "account": "টিচার্স পোর্টালের লগইন তথ্য ও সিস্টেমে প্রবেশের অনুমতি।"
     },
     "fields": {
-      "teacher": "Teacher",
-      "name": "Full Name",
-      "email": "Email",
-      "password": "Password",
-      "phone": "Phone",
-      "address": "Address",
-      "employeeId": "Employee ID",
-      "designation": "Designation",
-      "designationPlaceholder": "e.g. Senior Teacher",
-      "department": "Department",
-      "joiningDate": "Joining Date",
-      "employmentType": "Employment Type",
-      "employmentTypePlaceholder": "e.g. Full-time",
-      "qualifications": "Qualifications",
-      "specialization": "Specialization",
-      "assignments": "Assignments",
-      "status": "Status",
-      "actions": "Actions"
+      "teacher": "শিক্ষক",
+      "name": "পূর্ণ নাম",
+      "namePlaceholder": "যেমনঃ মোঃ রাহাত হোসেন",
+      "email": "ইমেইল",
+      "emailPlaceholder": "যেমনঃ teacher@school.edu.bd",
+      "password": "পাসওয়ার্ড",
+      "passwordPlaceholder": "নিরাপদ পাসওয়ার্ড দিন (কমপক্ষে ৮ অক্ষর)",
+      "phone": "ফোন",
+      "phonePlaceholder": "যেমনঃ ০১৭১২৩৪৫৬৭৮",
+      "gender": "লিঙ্গ",
+      "selectGender": "লিঙ্গ নির্বাচন করুন",
+      "selectEmploymentType": "নিয়োগের ধরন নির্বাচন করুন",
+      "dateOfBirth": "জন্ম তারিখ",
+      "address": "ঠিকানা",
+      "addressPlaceholder": "যেমনঃ বাড়ি ১২, রোড ৪, ধানমন্ডি, ঢাকা",
+      "employeeId": "কর্মচারী আইডি",
+      "employeeIdPlaceholder": "যেমন TCH-001",
+      "designation": "পদবি",
+      "designationPlaceholder": "যেমন সিনিয়র শিক্ষক",
+      "department": "বিভাগ",
+      "departmentPlaceholder": "যেমনঃ বিজ্ঞান / গণিত",
+      "joiningDate": "যোগদানের তারিখ",
+      "employmentType": "নিয়োগের ধরন",
+      "qualifications": "শিক্ষাগত যোগ্যতা",
+      "qualificationsPlaceholder": "যেমনঃ বিএসসি, এমএসসি (গণিত), বিএড",
+      "specialization": "বিশেষায়িত বিষয়",
+      "specializationPlaceholder": "যেমনঃ উচ্চতর গণিত, পদার্থবিজ্ঞান",
+      "experience": "অভিজ্ঞতা",
+      "experiencePlaceholder": "যেমন ৫ বছর",
+      "emailHint": "টিচার্স পোর্টালে লগইনের জন্য আবশ্যক",
+      "systemAccess": "শিক্ষককে সিস্টেমে প্রবেশাধিকার দিন",
+      "systemAccessHint": "তৈরি হলে শিক্ষক এই ইমেইল ও পাসওয়ার্ড দিয়ে লগইন করতে পারবেন।",
+      "requiredNote": "তারকা (*) চিহ্নিত ঘরগুলো পূরণ করা বাধ্যতামূলক",
+      "assignments": "নিয়োগকৃত ক্লাস",
+      "status": "অবস্থা",
+      "actions": "কার্যক্রম"
     },
     "status": {
-      "active": "Active",
-      "inactive": "Inactive"
+      "active": "সক্রিয়",
+      "inactive": "নিষ্ক্রিয়"
     },
     "filters": {
-      "allStatuses": "All statuses",
-      "allDepartments": "All departments",
-      "filter": "Filter"
+      "allStatuses": "সকল অবস্থা",
+      "allDepartments": "সকল বিভাগ",
+      "filter": "ফিল্টার"
     },
     "list": {
-      "empty": "No teachers found",
-      "emptyDescription": "Adjust the filters or add a teacher to begin.",
-      "unassigned": "Unassigned",
-      "assignmentsCount": "{count} assignments"
+      "empty": "কোনো শিক্ষক পাওয়া যায়নি",
+      "emptyDescription": "ফিল্টার পরিবর্তন করুন অথবা একজন শিক্ষক যোগ করুন।",
+      "unassigned": "নিয়োগ দেওয়া হয়নি",
+      "assignmentsCount": "{count}টি নিয়োগ"
     },
     "summary": {
-      "total": "Total Teachers",
-      "active": "Active",
-      "inactive": "Inactive",
-      "unassigned": "Unassigned"
+      "total": "মোট শিক্ষক",
+      "active": "সক্রিয়",
+      "inactive": "নিষ্ক্রিয়",
+      "unassigned": "নিয়োগ বাকি"
     },
     "actions": {
-      "addTeacher": "Add Teacher",
-      "editTeacher": "Edit Teacher",
-      "view": "View",
-      "edit": "Edit",
-      "manageAssignments": "Manage Assignments",
-      "activate": "Activate",
-      "deactivate": "Deactivate",
-      "save": "Save",
-      "saving": "Saving...",
-      "create": "Create Teacher"
+      "addTeacher": "শিক্ষক যোগ করুন",
+      "editTeacher": "শিক্ষকের তথ্য সম্পাদনা",
+      "view": "দেখুন",
+      "edit": "সম্পাদনা",
+      "manageAssignments": "নিয়োগ পরিচালনা করুন",
+      "activate": "সক্রিয় করুন",
+      "deactivate": "নিষ্ক্রিয় করুন",
+      "save": "সংরক্ষণ করুন",
+      "saving": "সংরক্ষণ করা হচ্ছে...",
+      "create": "শিক্ষক তৈরি করুন",
+      "cancel": "বাতিল"
     },
     "confirm": {
-      "deactivate": "Deactivate this teacher? This will prevent new academic assignments but preserve all historical records."
+      "deactivate": "এই শিক্ষককে নিষ্ক্রিয় করবেন? এতে নতুন ক্লাস নিয়োগ বন্ধ হবে, তবে পুরনো সব তথ্য অক্ষুণ্ণ থাকবে।"
     },
     "profile": {
-      "noEmployeeId": "No employee ID",
-      "noPhone": "No phone recorded",
-      "assignedClasses": "Assigned Classes",
-      "assignedSubjects": "Assigned Subjects",
-      "totalAssignments": "Assignments",
-      "employment": "Employment",
-      "noAssignments": "No assignments yet.",
-      "classTeacher": "Class teacher",
-      "legacy": "Legacy",
-      "department": "Department",
-      "qualifications": "Qualifications",
-      "specialization": "Specialization"
+      "noEmployeeId": "কর্মচারী আইডি নেই",
+      "noPhone": "ফোন নম্বর নেই",
+      "assignedClasses": "নিয়োগকৃত শ্রেণি",
+      "assignedSubjects": "নিয়োগকৃত বিষয়",
+      "totalAssignments": "মোট নিয়োগ",
+      "employment": "নিয়োগের ধরন",
+      "noAssignments": "এখনও কোনো নিয়োগ নেই।",
+      "classTeacher": "শ্রেণি শিক্ষক",
+      "legacy": "পুরাতন",
+      "department": "বিভাগ",
+      "qualifications": "শিক্ষাগত যোগ্যতা",
+      "specialization": "বিশেষায়িত বিষয়"
     },
     "pagination": {
-      "previous": "Previous",
-      "next": "Next",
-      "pageInfo": "Page {page} of {totalPages}"
+      "previous": "পূর্ববর্তী",
+      "next": "পরবর্তী",
+      "pageInfo": "{totalPages} পৃষ্ঠার মধ্যে {page} নং পৃষ্ঠা"
     },
     "success": {
-      "created": "Teacher account created.",
-      "activated": "Teacher activated.",
-      "deactivated": "Teacher deactivated."
+      "created": "শিক্ষক সফলভাবে তৈরি হয়েছে।",
+      "saved": "শিক্ষকের তথ্য সফলভাবে সংরক্ষণ করা হয়েছে।",
+      "activated": "শিক্ষক সক্রিয় করা হয়েছে।",
+      "deactivated": "শিক্ষক নিষ্ক্রিয় করা হয়েছে।"
     },
     "errors": {
-      "invalidForm": "Please check the form and try again.",
-      "nameRequired": "Name is required.",
-      "invalidEmail": "Enter a valid email address.",
-      "passwordTooShort": "Password must be at least 8 characters.",
-      "notFound": "Teacher not found.",
-      "emailTaken": "This email is already in use.",
-      "employeeIdTaken": "This employee ID is already in use.",
-      "saveFailed": "Something went wrong. Please try again."
+      "invalidForm": "ফর্মটি পরীক্ষা করে আবার চেষ্টা করুন।",
+      "nameRequired": "নাম আবশ্যক।",
+      "invalidEmail": "সঠিক ইমেইল ঠিকানা দিন।",
+      "passwordTooShort": "পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে।",
+      "notFound": "শিক্ষক পাওয়া যায়নি।",
+      "emailTaken": "এই ইমেইলটি ইতিমধ্যে ব্যবহৃত হচ্ছে।",
+      "employeeIdTaken": "এই কর্মচারী আইডি ইতিমধ্যে ব্যবহৃত হচ্ছে।",
+      "saveFailed": "কিছু একটা সমস্যা হয়েছে। আবার চেষ্টা করুন।",
+      "phoneRequired": "ফোন নম্বর আবশ্যক।",
+      "invalidPhone": "সঠিক ফোন নম্বর দিন।",
+      "employeeIdRequired": "কর্মচারী আইডি আবশ্যক।",
+      "designationRequired": "পদবি আবশ্যক।",
+      "joiningDateRequired": "যোগদানের তারিখ আবশ্যক।",
+      "employmentTypeRequired": "নিয়োগের ধরন নির্বাচন করুন।",
+      "invalidDate": "সঠিক তারিখ দিন।",
+      "futureDateOfBirth": "জন্ম তারিখ ভবিষ্যতের হতে পারবে না।"
     },
-    "eyebrow": "কর্মী"
+    "eyebrow": "কর্মী",
+    "gender": {
+      "MALE": "পুরুষ",
+      "FEMALE": "মহিলা",
+      "OTHER": "অন্যান্য"
+    },
+    "employmentType": {
+      "FULL_TIME": "পূর্ণকালীন",
+      "PART_TIME": "খণ্ডকালীন",
+      "CONTRACT": "চুক্তিভিত্তিক",
+      "TEMPORARY": "অস্থায়ী"
+    }
   },
   "settings": {
     "title": "সেটিংস",

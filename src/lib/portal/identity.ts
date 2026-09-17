@@ -79,6 +79,6 @@ export const requireGuardianChild = cache(
     })
     if (!link) notFound()
 
-    return link.student
+    return { student: link.student, relation: link.relation }
   }
 )

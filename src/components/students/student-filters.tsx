@@ -1,9 +1,9 @@
 "use client"
 
-import { useRef } from "react"
+import { useRef, useState } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useTranslations } from "next-intl"
-import { Search } from "lucide-react"
+import { Search, X } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
 import { STATUS_OPTIONS } from "@/lib/students/options"
@@ -41,6 +41,7 @@ function StudentFiltersInner({
   const searchParams = useSearchParams()
   const formRef = useRef<HTMLFormElement>(null)
 
+  const [query, setQuery] = useState(searchParams.get("q") ?? "")
   const currentClassId = searchParams.get("classId") ?? ""
   const availableSections = sections.filter((section) => section.classId === currentClassId)
 
@@ -51,12 +52,20 @@ function StudentFiltersInner({
     for (const [key, value] of formData.entries()) {
       if (typeof value === "string" && value) params.set(key, value)
     }
+    // Always reset page to 1 when filters change
+    params.delete("page")
+
     for (const [key, value] of Object.entries(overrides)) {
       if (value) params.set(key, value)
       else params.delete(key)
     }
 
     router.push(params.toString() ? `${pathname}?${params.toString()}` : pathname)
+  }
+
+  function clearSearch() {
+    setQuery("")
+    submit({ q: "" })
   }
 
   return (
@@ -66,57 +75,73 @@ function StudentFiltersInner({
         event.preventDefault()
         submit()
       }}
-      className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center"
+      className="flex flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:items-center"
     >
-      <div className="relative flex-1 sm:min-w-64">
-        <Search className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
+      <div className="relative flex-1 min-w-0 sm:min-w-64">
+        <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           name="q"
-          defaultValue={searchParams.get("q") ?? ""}
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
           placeholder={t("searchPlaceholder")}
           aria-label={t("searchLabel")}
-          className="pl-8"
+          className="h-9 w-full pl-9 pr-8 text-sm"
         />
+        {query && (
+          <button
+            type="button"
+            onClick={clearSearch}
+            aria-label={t("empty.clearFilters")}
+            className="absolute top-1/2 right-2.5 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+          >
+            <X className="size-4" />
+          </button>
+        )}
       </div>
 
-      <NativeSelect
-        name="classId"
-        defaultValue={currentClassId}
-        onChange={(event) => submit({ classId: event.target.value, sectionId: "" })}
-      >
-        <NativeSelectOption value="">{t("filters.allClasses")}</NativeSelectOption>
-        {classes.map((klass) => (
-          <NativeSelectOption key={klass.id} value={klass.id}>
-            {klass.name}
-          </NativeSelectOption>
-        ))}
-      </NativeSelect>
+      <div className="grid grid-cols-1 gap-2.5 sm:flex sm:flex-wrap sm:items-center">
+        <NativeSelect
+          name="classId"
+          defaultValue={currentClassId}
+          className="w-full sm:w-40"
+          onChange={(event) => submit({ classId: event.target.value, sectionId: "" })}
+        >
+          <NativeSelectOption value="">{t("filters.allClasses")}</NativeSelectOption>
+          {classes.map((klass) => (
+            <NativeSelectOption key={klass.id} value={klass.id}>
+              {klass.name}
+            </NativeSelectOption>
+          ))}
+        </NativeSelect>
 
-      <NativeSelect
-        name="sectionId"
-        defaultValue={searchParams.get("sectionId") ?? ""}
-        onChange={(event) => submit({ sectionId: event.target.value })}
-      >
-        <NativeSelectOption value="">{t("filters.allSections")}</NativeSelectOption>
-        {availableSections.map((section) => (
-          <NativeSelectOption key={section.id} value={section.id}>
-            {section.name}
-          </NativeSelectOption>
-        ))}
-      </NativeSelect>
+        <NativeSelect
+          name="sectionId"
+          defaultValue={searchParams.get("sectionId") ?? ""}
+          className="w-full sm:w-36"
+          onChange={(event) => submit({ sectionId: event.target.value })}
+        >
+          <NativeSelectOption value="">{t("filters.allSections")}</NativeSelectOption>
+          {availableSections.map((section) => (
+            <NativeSelectOption key={section.id} value={section.id}>
+              {section.name}
+            </NativeSelectOption>
+          ))}
+        </NativeSelect>
 
-      <NativeSelect
-        name="status"
-        defaultValue={searchParams.get("status") ?? ""}
-        onChange={(event) => submit({ status: event.target.value })}
-      >
-        <NativeSelectOption value="">{t("filters.allStatuses")}</NativeSelectOption>
-        {STATUS_OPTIONS.map((status) => (
-          <NativeSelectOption key={status} value={status}>
-            {t(`status.${status}`)}
-          </NativeSelectOption>
-        ))}
-      </NativeSelect>
+        <NativeSelect
+          name="status"
+          defaultValue={searchParams.get("status") ?? ""}
+          className="w-full sm:w-36"
+          onChange={(event) => submit({ status: event.target.value })}
+        >
+          <NativeSelectOption value="">{t("filters.allStatuses")}</NativeSelectOption>
+          {STATUS_OPTIONS.map((status) => (
+            <NativeSelectOption key={status} value={status}>
+              {t(`status.${status}`)}
+            </NativeSelectOption>
+          ))}
+        </NativeSelect>
+      </div>
     </form>
   )
 }

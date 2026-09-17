@@ -8,7 +8,7 @@ export default async function GuardianChildFeesPage({
 }) {
   const { user, guardian } = await requireGuardianIdentity()
   const { studentId } = await params
-  const student = await requireGuardianChild(guardian.id, studentId, user.schoolId)
+  const { student } = await requireGuardianChild(guardian.id, studentId, user.schoolId)
 
   return (
     <SharedFeesPage 

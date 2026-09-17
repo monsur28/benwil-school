@@ -71,7 +71,7 @@ export default async function StudentProfilePage({
       />
 
       <div className="flex flex-wrap items-center gap-4 rounded-xl border bg-card p-4">
-        <StudentAvatar name={student.name} size="lg" />
+        <StudentAvatar name={student.name} photoUrl={student.photoUrl} size="lg" />
         <div className="flex flex-1 flex-wrap items-center gap-x-6 gap-y-1 text-sm">
           <span>
             <span className="text-muted-foreground">{t("fields.class")}: </span>

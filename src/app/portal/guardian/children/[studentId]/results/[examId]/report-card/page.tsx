@@ -11,7 +11,7 @@ export default async function GuardianChildReportCardPage({
 }) {
   const { user, guardian } = await requireGuardianIdentity()
   const { studentId, examId } = await params
-  const student = await requireGuardianChild(guardian.id, studentId, user.schoolId)
+  const { student } = await requireGuardianChild(guardian.id, studentId, user.schoolId)
 
   const context = await getStudentExamResult({ schoolId: user.schoolId, examId, studentId: student.id })
   if (!context || context.exam.resultStatus !== "FINALIZED") notFound()

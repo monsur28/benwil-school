@@ -13,7 +13,7 @@ export default async function GuardianChildHomeworkDetailPage({
 }) {
   const { user, guardian } = await requireGuardianIdentity()
   const { studentId, homeworkId } = await params
-  const student = await requireGuardianChild(guardian.id, studentId, user.schoolId)
+  const { student } = await requireGuardianChild(guardian.id, studentId, user.schoolId)
   const t = await getTranslations("homework")
 
   const [homework, submission] = await Promise.all([

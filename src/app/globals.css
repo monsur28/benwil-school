@@ -414,9 +414,11 @@
     @apply font-heading text-[1.6rem] font-bold leading-[1.15] tracking-[-0.025em] text-foreground sm:text-[2rem];
   }
 
-  /* Section / panel title. */
+  /* Section / panel title. Small, bold and in the brand navy rather than
+     plain foreground - this is the one heading style every surface in the
+     product shares, so the portals and the admin screens read as one app. */
   .title-section {
-    @apply font-heading text-[0.95rem] font-semibold leading-snug tracking-[-0.01em] text-foreground;
+    @apply font-heading text-sm font-bold leading-snug tracking-[-0.01em] text-brand-navy;
   }
 
   /* A headline number — attendance %, taka collected, student counts. */
@@ -429,17 +431,49 @@
      and no shadow. Shadows are reserved for things that genuinely float
      (menus, dialogs, the mobile drawer). */
   .panel {
-    @apply rounded-2xl border border-border bg-card;
+    @apply rounded-xl border border-border bg-card;
   }
 
   /* A panel that recedes — used for supporting information next to a panel. */
   .panel-quiet {
-    @apply rounded-2xl border border-border-light bg-subtle;
+    @apply rounded-xl border border-border-light bg-subtle;
   }
 
   /* A sunken strip inside a panel: table headers, toolbars, footers. */
   .strip {
     @apply bg-subtle;
+  }
+
+  /* ---- Tone carriers ----------------------------------------------------
+     The leadership dashboard reads by colour before it reads by text: each
+     metric, shortcut, event and activity carries a *meaning tone* (people,
+     attendance, staffing, money, analytics, alert). These three classes are
+     the only chrome that carries it, so a component states the tone once as
+     a token pair (`bg-surface-blue text-surface-blue-foreground`) instead of
+     assembling a colour stack of its own.
+
+     `icon-chip` is the tinted square that fronts a metric or an action;
+     `icon-dot` is its round counterpart on a timeline; `meter` is a measured
+     ratio bar — a reading, never a decoration, so the track stays neutral
+     and only the fill carries the tone. */
+  .icon-chip {
+    @apply grid size-9 shrink-0 place-items-center rounded-[14px] [&_svg]:size-[1.125rem] [&_svg]:stroke-[2.25];
+  }
+
+  .icon-chip-sm {
+    @apply grid size-8 shrink-0 place-items-center rounded-[11px] [&_svg]:size-4 [&_svg]:stroke-[2.25];
+  }
+
+  .icon-dot {
+    @apply grid size-7 shrink-0 place-items-center rounded-[9px] [&_svg]:size-3.5 [&_svg]:stroke-[2.25];
+  }
+
+  .meter {
+    @apply h-1.5 w-full overflow-hidden rounded-full bg-muted;
+  }
+
+  .meter > span {
+    @apply block h-full rounded-full transition-[width] duration-500;
   }
 
   /* ---- Responsive record table ------------------------------------------
@@ -547,6 +581,17 @@
   }
   .scroll-thin::-webkit-scrollbar-track {
     background: transparent;
+  }
+
+  /* Clean touch/wheel scrollable track without browser scrollbar chrome */
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
   }
 }
 

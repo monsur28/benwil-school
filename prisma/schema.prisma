@@ -145,6 +145,13 @@ model User {
   employmentType String?
   qualifications String?
   specialization String?
+  // Phase 14: teacher personal/professional profile fields. Gender reuses
+  // the existing Student-facing enum rather than a second one; dateOfBirth
+  // and experience follow the same "optional, free enough for a real
+  // school" shape as the fields above them.
+  gender         Gender?
+  dateOfBirth    DateTime?
+  experience     String?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
@@ -166,6 +173,10 @@ model User {
   reviewedHomeworkSubmissions HomeworkSubmission[] @relation("ReviewedHomeworkSubmissions")
 
   @@index([schoolId])
+  // Employee ID must be unique within a school, not globally (multi-school
+  // architecture) - and stays uniquely-nullable so teachers without one yet
+  // don't collide with each other.
+  @@unique([schoolId, employeeId])
   @@map("users")
 }
 

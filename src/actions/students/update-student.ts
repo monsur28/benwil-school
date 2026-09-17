@@ -8,6 +8,7 @@ import { isUniqueConstraintError, uniqueConstraintTouches } from "@/lib/db/prism
 import { requireRole } from "@/lib/auth/dal"
 import { updateStudentSchema, type UpdateStudentInput } from "@/lib/validations/student"
 import { syncStudentGuardians } from "@/lib/students/guardians"
+import { isTrustedStudentPhotoUrl } from "@/lib/storage/cloudinary-student-documents"
 import type { StudentFormResult } from "@/actions/students/create-student"
 
 const CAN_MANAGE: Role[] = [Role.SUPER_ADMIN, Role.SCHOOL_ADMIN, Role.PRINCIPAL]
@@ -32,6 +33,13 @@ export async function updateStudent(
   }
   const data = parsed.data
 
+  // A photo URL arrives as a plain string from the browser, so it is only
+  // accepted when it points at this school's own Cloudinary photo folder -
+  // otherwise the field would be a free-form link to anywhere.
+  if (data.photoUrl && !isTrustedStudentPhotoUrl(data.photoUrl, user.schoolId)) {
+    return { success: false, error: t("errors.invalidPhoto") }
+  }
+
   const [academicYear, section] = await Promise.all([
     prisma.academicYear.findFirst({ where: { id: data.academicYearId, schoolId: user.schoolId } }),
     prisma.section.findFirst({
@@ -50,6 +58,7 @@ export async function updateStudent(
           admissionNumber: data.admissionNumber,
           name: data.name,
           nameBn: data.nameBn || null,
+          photoUrl: data.photoUrl || null,
           dateOfBirth: new Date(data.dateOfBirth),
           gender: data.gender,
           bloodGroup: data.bloodGroup || null,

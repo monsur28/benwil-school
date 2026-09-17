@@ -9,7 +9,7 @@ export default async function GuardianChildResultsPage({
 }) {
   const { user, guardian } = await requireGuardianIdentity()
   const { studentId } = await params
-  const student = await requireGuardianChild(guardian.id, studentId, user.schoolId)
+  const { student } = await requireGuardianChild(guardian.id, studentId, user.schoolId)
 
   const summaries = await getStudentResultSummaries({
     schoolId: user.schoolId,

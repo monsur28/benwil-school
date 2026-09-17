@@ -1,86 +1,156 @@
 "use client"
 
 import { useLocale, useTranslations } from "next-intl"
+import { CalendarCheck, HeartPulse, ScrollText, Users, WalletCards, type LucideIcon } from "lucide-react"
+import { cn } from "cn"
 import { Panel, PanelHeader } from "@/components/shared/panel"
 import { Badge } from "@/components/ui/badge"
 import { formatNumber } from "@/lib/format"
+import { IconBadge, type IconBadgeTone } from "@/components/ui/icon-badge"
 
 export interface SchoolHealthMetrics {
-  attendanceRate: number
+  /** Null until today's register is taken. */
+  attendanceRate: number | null
   feeCollectionRate: number
-  examCompletionRate: number
-  teacherActivityRate: number
+  /** Share of finished exams whose results are published. Null if none have
+      finished yet — there is nothing to be behind on. */
+  resultPublicationRate: number | null
+  /** Share of the roster that is still active. */
+  activeEnrolmentRate: number
 }
 
-interface SchoolHealthCardProps {
-  metrics?: SchoolHealthMetrics
+type Status = "healthy" | "onTarget" | "needsAttention" | "critical" | "unknown"
+
+/**
+ * One reading, one verdict. The thresholds are the same for every metric so a
+ * principal learns them once: at or above 90 is healthy, 75 is on target,
+ * below 50 needs acting on today. Status is always written as a word as well
+ * as a colour — colour is never the only carrier.
+ */
+function statusOf(value: number | null): Status {
+  if (value === null) return "unknown"
+  if (value >= 90) return "healthy"
+  if (value >= 75) return "onTarget"
+  if (value >= 50) return "needsAttention"
+  return "critical"
 }
 
-const DEFAULT_METRICS: SchoolHealthMetrics = {
-  attendanceRate: 94.8,
-  feeCollectionRate: 82.4,
-  examCompletionRate: 87.0,
-  teacherActivityRate: 98.0,
+const STATUS_STYLE: Record<Status, { bar: string; text: string }> = {
+  healthy: { bar: "bg-success", text: "text-success" },
+  onTarget: { bar: "bg-dashboard-blue", text: "text-info" },
+  needsAttention: { bar: "bg-warning", text: "text-warning" },
+  critical: { bar: "bg-danger", text: "text-danger" },
+  unknown: { bar: "bg-border-strong", text: "text-muted-foreground" },
+}
+
+const STATUS_TONE: Record<Status, IconBadgeTone> = {
+  healthy: "green",
+  onTarget: "blue",
+  needsAttention: "orange",
+  critical: "rose",
+  unknown: "muted",
+}
+
+const SEVERITY: Record<Status, number> = {
+  critical: 0,
+  needsAttention: 1,
+  onTarget: 2,
+  healthy: 3,
+  unknown: 4,
 }
 
 /**
- * Four ratios that say whether the school is running well.
+ * Is anything abnormal?
  *
- * Presented as a measured-bar list: the percentage sits at the end of each
- * label line and the bar underneath is thin and neutral — a reading, not a
- * decoration. Metrics that are illustrative rather than measured are marked
- * with an asterisk, as before.
+ * Four ratios the database can actually prove, each as a measured bar with a
+ * plain-language verdict beside it. Nothing here is illustrative: a metric
+ * with no data yet says so rather than showing a number that looks measured.
  */
-export function SchoolHealthCard({ metrics = DEFAULT_METRICS }: SchoolHealthCardProps) {
+export function SchoolHealthCard({ metrics }: { metrics: SchoolHealthMetrics }) {
   const t = useTranslations("dashboard.admin.healthIndex")
   const locale = useLocale()
 
-  const items = [
-    { label: t("campusAttendance"), value: metrics.attendanceRate, status: t("optimal"), bar: "bg-success" },
-    { label: t("feeCollectionPace"), value: metrics.feeCollectionRate, status: t("onTarget"), bar: "bg-dashboard-blue" },
-    // No exam-completion tracking exists in the data model - illustrative
-    // until that's built, marked as such rather than shown as real.
-    { label: `${t("examResultPublication")} *`, value: metrics.examCompletionRate, status: t("finalized"), bar: "bg-dashboard-purple" },
-    // Same for teacher-activity - no activity-tracking model exists yet.
-    { label: `${t("facultyEngagement")} *`, value: metrics.teacherActivityRate, status: t("active"), bar: "bg-dashboard-orange" },
+  const items: { label: string; value: number | null; icon: LucideIcon }[] = [
+    { label: t("campusAttendance"), value: metrics.attendanceRate, icon: CalendarCheck },
+    { label: t("feeCollectionPace"), value: metrics.feeCollectionRate, icon: WalletCards },
+    { label: t("examResultPublication"), value: metrics.resultPublicationRate, icon: ScrollText },
+    { label: t("activeEnrolment"), value: metrics.activeEnrolmentRate, icon: Users },
   ]
 
-  const composite = Math.round((items.reduce((sum, item) => sum + item.value, 0) / items.length) * 10) / 10
+  const measured = items.filter((item) => item.value !== null)
+  const composite =
+    measured.length > 0
+      ? Math.round((measured.reduce((sum, item) => sum + (item.value ?? 0), 0) / measured.length) * 10) / 10
+      : null
+
+  // The panel's own badge reports the worst thing in it — the principal should
+  // not have to read four rows to learn that one is on fire.
+  const worst = measured
+    .map((item) => statusOf(item.value))
+    .sort((a, b) => SEVERITY[a] - SEVERITY[b])[0] as Status | undefined
+  const overall = worst ?? "unknown"
 
   return (
     <Panel className="h-full">
       <PanelHeader
         title={t("title")}
         description={t("description")}
-        action={<Badge variant="success">{t("nominal")}</Badge>}
+        icon={<HeartPulse />}
+        iconTone="green"
+        action={
+          <Badge
+            variant={
+              overall === "healthy"
+                ? "success"
+                : overall === "onTarget"
+                  ? "info"
+                  : overall === "needsAttention"
+                    ? "warning"
+                    : overall === "critical"
+                      ? "destructive"
+                      : "muted"
+            }
+          >
+            {t(`status.${overall}`)}
+          </Badge>
+        }
       />
 
-      <div className="flex-1 space-y-5 px-4 py-4 sm:px-5">
-        {items.map((item) => (
-          <div key={item.label}>
-            <div className="flex items-baseline justify-between gap-3">
-              <span className="min-w-0 truncate text-[13px] font-medium text-foreground">{item.label}</span>
-              <span className="shrink-0 text-[13px] font-semibold tabular-nums text-foreground">
-                {formatNumber(item.value, locale)}%
-              </span>
+      <div className="flex-1 space-y-4 px-4 py-4 sm:px-5">
+        {items.map((item) => {
+          const status = statusOf(item.value)
+          const style = STATUS_STYLE[status]
+          return (
+            <div key={item.label}>
+              <div className="flex items-center gap-2.5">
+                <IconBadge icon={item.icon} tone={STATUS_TONE[status]} size="sm" />
+                <span className="min-w-0 flex-1 truncate text-[13px] font-medium text-foreground">
+                  {item.label}
+                </span>
+                <span className="metric shrink-0 text-[15px] text-foreground">
+                  {item.value === null ? "—" : `${formatNumber(item.value, locale)}%`}
+                </span>
+              </div>
+              <div className="meter mt-2">
+                <span
+                  className={style.bar}
+                  style={{ width: item.value === null ? "0%" : `${Math.min(item.value, 100)}%` }}
+                />
+              </div>
+              <p className={cn("mt-1.5 text-[11px] font-medium", style.text)}>{t(`status.${status}`)}</p>
             </div>
-            <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-muted">
-              <div
-                className={`h-full rounded-full ${item.bar}`}
-                style={{ width: `${Math.min(item.value, 100)}%` }}
-              />
-            </div>
-            <p className="mt-1.5 text-[11px] text-muted-foreground">{item.status}</p>
-          </div>
-        ))}
+          )
+        })}
       </div>
 
-      <div className="strip flex items-center justify-between gap-3 border-t border-border-light px-4 py-3 text-[11px] text-muted-foreground sm:px-5">
-        <span>* {t("calculatedAt")}</span>
-        <span className="font-semibold tabular-nums text-foreground">
-          {locale === "bn" ? `যৌথ স্কোর: ${formatNumber(composite, locale)}/১০০` : `Composite: ${composite}/100`}
-        </span>
-      </div>
+      {composite !== null && (
+        <div className="strip flex flex-wrap items-center justify-between gap-2 border-t border-border-light px-4 py-3 text-[11px] text-muted-foreground sm:px-5">
+          <span>{t("compositeCaption")}</span>
+          <Badge variant="muted">
+            {t("composite", { score: formatNumber(composite, locale) })}
+          </Badge>
+        </div>
+      )}
     </Panel>
   )
 }

@@ -11,7 +11,7 @@ export default async function GuardianChildFeeReceiptPage({
 }) {
   const { user, guardian } = await requireGuardianIdentity()
   const { studentId, paymentId } = await params
-  const student = await requireGuardianChild(guardian.id, studentId, user.schoolId)
+  const { student } = await requireGuardianChild(guardian.id, studentId, user.schoolId)
 
   const receipt = await getPaymentReceipt({ schoolId: user.schoolId, paymentId, studentId: student.id })
   if (!receipt) notFound()

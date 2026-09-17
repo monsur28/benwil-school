@@ -2,55 +2,63 @@
 
 import Link from "next/link"
 import { useTranslations } from "next-intl"
-import { UserPlus, ClipboardCheck, CalendarClock, Wallet, Megaphone, ArrowUpRight } from "lucide-react"
-
-const ACTIONS = [
-  { href: "/students/new", key: "addStudent", icon: UserPlus },
-  { href: "/attendance", key: "takeAttendance", icon: ClipboardCheck },
-  { href: "/exams", key: "createExam", icon: CalendarClock },
-  { href: "/fees", key: "collectFee", icon: Wallet },
-  { href: "/notices", key: "createNotice", icon: Megaphone },
-] as const
+import { IconBadge, type IconBadgeName, type IconBadgeTone } from "@/components/ui/icon-badge"
+import { cn } from "cn"
 
 /**
- * The five things staff start most often.
+ * Ordered by how often a principal actually starts each job, not by module
+ * order: the register is a daily duty, results and fees are weekly, a notice
+ * is occasional, and admitting a student is rare outside admission season.
  *
- * Presented as a single row of quiet chips sitting directly on the canvas —
- * not five more cards. They are shortcuts, so they read at the weight of
- * navigation, below the metrics and above the analysis.
+ * Rendered using unified reusable IconBadge squircles so both dashboards share
+ * one coherent visual language across the whole system.
  */
+const ACTIONS: {
+  href: string
+  key: string
+  name: IconBadgeName
+  tone: IconBadgeTone
+}[] = [
+  { href: "/attendance", key: "takeAttendance", name: "attendance", tone: "blue" },
+  { href: "/results", key: "reviewResults", name: "results", tone: "green" },
+  { href: "/fees/payments/new", key: "collectFee", name: "fees", tone: "orange" },
+  { href: "/notices", key: "createNotice", name: "notice", tone: "rose" },
+  { href: "/students/new", key: "addStudent", name: "student", tone: "purple" },
+]
+
 export function CompactQuickActions() {
   const t = useTranslations("dashboard.admin.quickActions")
 
   return (
-    <section aria-label={t("title")} className="flex flex-col gap-3">
+    <section aria-labelledby="quick-actions-heading" className="flex flex-col gap-3">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="eyebrow">{t("title")}</h2>
+        <h2 id="quick-actions-heading" className="eyebrow">
+          {t("title")}
+        </h2>
         <span className="text-xs text-muted-foreground">{t("subtitle")}</span>
       </div>
 
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
+      {/* Two-up on a phone (comfortable 44px+ targets), five across from lg. */}
+      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-5">
         {ACTIONS.map((action) => (
           <Link
             key={action.href}
             href={action.href}
-            className="group flex items-center gap-3 rounded-xl border border-border bg-card px-3.5 py-3 transition-colors hover:border-border-strong hover:bg-subtle"
+            className="group flex min-h-[92px] min-w-0 flex-col rounded-xl border border-border/70 bg-[#fafaf8] p-3.5 transition-all hover:-translate-y-0.5 hover:border-border hover:bg-card hover:shadow-xs"
           >
-            <action.icon className="size-4 shrink-0 text-muted-foreground transition-colors group-hover:text-primary" />
-            {/* Two-up on a phone leaves no room for a caption, so the label
-                gets the whole chip there and the description returns at sm. */}
-            <span className="min-w-0 flex-1">
-              <span className="block text-[13px] font-semibold leading-snug text-foreground">
-                {t(action.key)}
-              </span>
-              <span className="mt-0.5 hidden truncate text-[11px] text-muted-foreground sm:block">
-                {t(`${action.key}Desc`)}
-              </span>
+            <IconBadge name={action.name} tone={action.tone} size="md" />
+            <span className="mt-2.5 block truncate text-[13px] font-bold leading-snug text-brand-navy group-hover:text-primary">
+              {t(action.key)}
             </span>
-            <ArrowUpRight className="size-3.5 shrink-0 text-muted-foreground/0 transition-all group-hover:text-muted-foreground" />
+            {/* Two-up on a phone leaves no room for a caption, so the label
+                gets the whole tile there and the description returns at sm. */}
+            <span className="mt-0.5 hidden truncate text-[11px] text-muted-foreground sm:block">
+              {t(`${action.key}Desc`)}
+            </span>
           </Link>
         ))}
       </div>
     </section>
   )
 }
+

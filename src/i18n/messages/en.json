@@ -120,17 +120,17 @@
       "recentNotices": "Recent Notices",
       "quickActions": {
         "title": "Quick Actions",
-        "subtitle": "Frequently used commands",
+        "subtitle": "What you start most often",
         "addStudent": "Add Student",
-        "addStudentDesc": "Register new admission",
+        "addStudentDesc": "Register a new admission",
         "takeAttendance": "Take Attendance",
-        "takeAttendanceDesc": "Daily roll call register",
-        "createExam": "Create Exam",
-        "createExamDesc": "Schedule assessment routine",
+        "takeAttendanceDesc": "Today's roll call",
         "collectFee": "Collect Fee",
-        "collectFeeDesc": "Record student payment",
+        "collectFeeDesc": "Record a student payment",
         "createNotice": "Create Notice",
-        "createNoticeDesc": "Publish school bulletin"
+        "createNoticeDesc": "Publish a school bulletin",
+        "reviewResults": "Review Results",
+        "reviewResultsDesc": "Marks, grades and publication"
       },
       "addStudent": "Add Student",
       "takeAttendance": "Take Attendance",
@@ -191,25 +191,13 @@
       "standardCurriculum": "Standard NC",
       "sessionProgress": "Session Progress",
       "milestones": {
-        "title": "Upcoming Milestones",
-        "description": "Official calendar events and academic checkpoints",
+        "title": "Upcoming Exams",
+        "description": "Exams scheduled ahead",
         "calendar": "Calendar",
-        "termCalendar": "Term 1 Calendar • Session 2026",
-        "activeEvents": "{count} active events",
-        "midTermTitle": "Mid-Term Examination",
-        "midTermDesc": "Assessment routine commences for Classes 6–10",
         "badgeAcademic": "Academic",
-        "ptmTitle": "Parent-Teacher Conference",
-        "ptmDesc": "Primary & Secondary section performance review",
-        "badgeMeeting": "Meeting",
-        "scienceFairTitle": "Annual Science & Culture Fair",
-        "scienceFairDesc": "Campus exhibition and student project showcase",
-        "badgeCoCurricular": "Co-curricular",
-        "resultPubTitle": "Term 1 Result Publication",
-        "resultPubDesc": "Finalized transcript & report card distribution",
-        "badgeGrading": "Grading",
-        "sep": "SEP",
-        "oct": "OCT"
+        "thisWeek": "This week",
+        "emptyTitle": "No exams scheduled",
+        "emptyDetail": "Upcoming exams will appear here once a routine is created."
       },
       "collectionHealth": "Collection Health",
       "collectionHealthOnTarget": "{health}% on target",
@@ -234,7 +222,7 @@
         "greetingAfternoon": "Good afternoon",
         "greetingEvening": "Good evening",
         "liveCampus": "Live Campus",
-        "subtitle": "Here's what's happening at {schoolName} on {date}.",
+        "subtitle": "Here's what's happening at {schoolName} today.",
         "academicSession": "Academic Session {year}",
         "allSystemsNominal": "All systems nominal",
         "directory": "Directory",
@@ -243,29 +231,26 @@
       "kpi": {
         "totalStudents": "Total students",
         "active": "{count} active",
-        "studentsTrend": "+8.2% this term",
-        "acrossClasses": "Across {count} academic classes",
+        "acrossClasses": "Across {count} {n, plural, one {class} other {classes}}",
         "todaysAttendance": "Today's attendance",
         "open": "Open",
         "checkedIn": "{count} checked in",
         "registerPending": "Register pending",
-        "attendanceTrend": "+2.1% from yesterday",
         "awaitingRollCall": "Awaiting roll call",
-        "dailyRollCallInProgress": "Daily roll call in progress",
-        "pendingClassSubmission": "Pending class submission",
         "teachersAndStaff": "Teachers & staff",
-        "certified": "{count} certified",
-        "teachersTrend": "100% active roster",
-        "supportStaffMembers": "{count} support & admin members",
+        "supportStaffMembers": "{count} support & admin {n, plural, one {member} other {members}}",
         "feeCollection": "Fee collection",
         "ofTarget": "{percent}% of target",
-        "feesTrend": "+12.4% this month",
-        "cashflowOnTrack": "Cashflow on track for term",
-        "details": "Details →"
+        "sectionLabel": "School pulse",
+        "sectionsRecorded": "{recorded} of {total} {n, plural, one {section} other {sections}} recorded",
+        "pointsSince": "{points} pts vs {day}",
+        "teachersOnRoster": "{count} {n, plural, one {teacher} other {teachers}} on roster",
+        "collectedThisMonth": "{amount} collected this month",
+        "vsLastMonth": "{percent}% vs last month"
       },
       "attendanceChart": {
         "title": "Attendance Overview",
-        "description": "Campus presence and punctuality telemetry across school sessions",
+        "description": "How many students are turning up, day by day",
         "range7d": "7 Days",
         "range30d": "30 Days",
         "rangeTerm": "This Term",
@@ -274,7 +259,13 @@
         "absent": "Absent %",
         "presentLabel": "Present:",
         "lateLabel": "Late:",
-        "absentLabel": "Absent:"
+        "absentLabel": "Absent:",
+        "rangeLabel": "Time range",
+        "todayLabel": "Today's attendance",
+        "notTakenYet": "Not taken yet",
+        "pointsSince": "{points} pts vs {day}",
+        "noTrendTitle": "Not enough history yet",
+        "noTrendDetail": "The trend appears once the register has been taken on at least two days in this range."
       },
       "distribution": {
         "title": "Student Distribution",
@@ -287,7 +278,7 @@
       },
       "feeAnalytics": {
         "title": "Fee Collection Analytics",
-        "description": "Institutional revenue intake, targets & pending dues",
+        "description": "What has come in, what is assigned, and what is still owed",
         "billingDesk": "Billing Desk",
         "collectionPace": "Collection Pace",
         "ofTarget": "{percent}% of target",
@@ -297,11 +288,13 @@
         "sessionTotal": "Collected + Outstanding",
         "pending": "Pending",
         "invoicesActive": "Invoices active",
-        "monthlyTrend": "Monthly Intake Trend (Lakhs)",
-        "monthsRange": "Jan – Sep 2026",
+        "monthlyTrend": "Monthly intake (lakhs)",
         "intake": "Intake:",
-        "targetLabel": "Target:",
-        "lakhSuffix": "L"
+        "lakhSuffix": "L",
+        "allCleared": "All cleared",
+        "vsLastMonth": "{percent}% vs last month",
+        "noTrendTitle": "No collection trend yet",
+        "noTrendDetail": "Monthly trends appear once payments have been recorded in at least two months."
       },
       "academicPerformance": {
         "title": "Academic Performance",
@@ -314,50 +307,61 @@
       },
       "activity": {
         "title": "Recent Activity",
-        "description": "Real-time operational stream across administrative modules",
+        "description": "The latest records created across the school",
         "auditLog": "Audit Log",
         "studentAdmitted": "New student admitted",
         "feeReceived": "Fee payment received",
-        "attendanceDone": "Attendance completed",
-        "examScheduled": "Exam scheduled",
-        "recently": "Recently",
-        "today": "Today",
-        "minutesAgo": "{count} minutes ago",
-        "hourAgo": "{count} hour ago",
-        "databaseStream": "Events streamed from school database",
-        "liveConnected": "Live feed connected",
-        "collectedFrom": "৳ {amount} collected • {student}",
-        "attendanceSummary": "{className} • {count} students recorded ({percent}% present)",
-        "examRoutineFinalized": "Mid-Term Assessment routine finalized for Classes 6–10"
+        "noticePublished": "Notice published",
+        "roll": "Roll {roll}",
+        "emptyTitle": "Nothing recorded yet",
+        "emptyDetail": "Admissions, payments and notices will appear here as staff record them.",
+        "group": {
+          "today": "Today",
+          "yesterday": "Yesterday",
+          "earlier": "Earlier"
+        }
       },
       "healthIndex": {
-        "title": "Campus Health Index",
-        "description": "Operational status across all institutional departments",
-        "nominal": "Nominal",
-        "campusAttendance": "Campus Attendance",
-        "optimal": "Optimal",
-        "feeCollectionPace": "Fee Collection Pace",
-        "onTarget": "On Target",
-        "examResultPublication": "Exam Result Publication",
-        "finalized": "Finalized",
-        "facultyEngagement": "Faculty Engagement",
-        "active": "Active",
-        "calculatedAt": "Daily health score calculated at 08:00 AM",
-        "compositeScore": "Composite: 90.5/100"
+        "title": "Campus Health",
+        "description": "Four readings that say whether anything is off",
+        "campusAttendance": "Campus attendance",
+        "feeCollectionPace": "Fee collection",
+        "examResultPublication": "Result publication",
+        "activeEnrolment": "Active enrolment",
+        "status": {
+          "healthy": "Healthy",
+          "onTarget": "On target",
+          "needsAttention": "Needs attention",
+          "critical": "Critical",
+          "unknown": "Not recorded yet"
+        },
+        "composite": "Overall {score}/100",
+        "compositeCaption": "Averaged across the readings above"
       },
       "notices": {
         "title": "Recent Notices",
-        "description": "Latest institutional bulletins and announcements",
+        "description": "The latest published bulletins",
         "viewAll": "View all",
-        "footer": "Posted by school administration",
-        "sampleBadge": "Sample data",
-        "emergencyTitle": "Emergency School Closure",
-        "emergencyScope": "School-wide",
-        "ptmTitle": "Parent Teacher Meeting",
-        "ptmScope": "Guardians",
-        "examRoutineTitle": "Mid-Term Examination Routine",
-        "examRoutineScope": "Classes 6-10",
-        "today": "Today"
+        "emptyTitle": "No notices published",
+        "emptyDetail": "Published notices appear here for staff, students and guardians."
+      },
+      "attention": {
+        "title": "Needs attention",
+        "count": "{count} to act on",
+        "registerTitle": "Attendance register pending",
+        "registerDetail": "{pending} of {total} {n, plural, one {section} other {sections}} not recorded today",
+        "resultsTitle": "Results awaiting publication",
+        "resultsDetail": "{count} finished {n, plural, one {exam} other {exams}} still unpublished",
+        "duesTitle": "Outstanding fees",
+        "duesDetail": "{count} {n, plural, one {student owes} other {students owe}} {amount}",
+        "draftsTitle": "Unpublished notices",
+        "draftsDetail": "{count} {n, plural, one {notice is} other {notices are}} still saved as drafts",
+        "take": "Take",
+        "review": "Review",
+        "open": "Open",
+        "publish": "Publish",
+        "clearTitle": "Everything looks good",
+        "clearDetail": "No pending actions require your attention."
       }
     },
     "teacher": {
@@ -422,9 +426,10 @@
     },
     "empty": {
       "title": "No students yet",
-      "description": "Add your first student to get started.",
-      "noResultsTitle": "No matching students",
-      "noResultsDescription": "Try a different search term or filter."
+      "description": "Add your first student to begin building the school's student directory.",
+      "noResultsTitle": "No students found",
+      "noResultsDescription": "No students match your current filters.",
+      "clearFilters": "Clear filters"
     },
     "pagination": {
       "previous": "Previous",
@@ -503,7 +508,8 @@
       "documentTitle": "Document Name",
       "documentType": "Document Type",
       "uploadedDate": "Uploaded Date",
-      "file": "File"
+      "file": "File",
+      "photo": "Photo"
     },
     "fileNotConfigured": "File attachments require cloud storage, which isn't configured yet. You can still save the document's name and type.",
     "actions": {
@@ -512,10 +518,11 @@
       "save": "Save Student",
       "saving": "Saving...",
       "saveChanges": "Save Changes",
-      "addGuardian": "+ Add Guardian",
+      "addGuardian": "Add Guardian",
       "remove": "Remove",
-      "addDocument": "+ Add Document",
-      "adding": "Adding..."
+      "addDocument": "Add Document",
+      "adding": "Adding...",
+      "removePhoto": "Remove photo"
     },
     "success": {
       "created": "Student created successfully.",
@@ -539,7 +546,8 @@
       "duplicateAdmissionNumber": "This admission number is already used by another student.",
       "duplicateRoll": "This roll number is already used in the selected class and section.",
       "saveFailed": "Could not save the student. Please try again.",
-      "notFound": "Student not found."
+      "notFound": "Student not found.",
+      "invalidPhoto": "Choose a JPG, PNG or WebP image under 2 MB."
     },
     "profile": {
       "overview": "Overview",
@@ -559,7 +567,9 @@
       "editStudent": "Edit Student",
       "comingSoonTabDescription": "This tab isn't built yet. It will arrive in a later phase.",
       "studentIdLabel": "Student ID",
-      "admissionNoLabel": "Admission No."
+      "admissionNoLabel": "Admission No.",
+      "uploadDocument": "Upload Document",
+      "uploadHint": "PDF, JPG, PNG, or WebP · Max 10 MB"
     },
     "results": {
       "subject": "Subject",
@@ -577,15 +587,34 @@
     "notFoundTitle": "Student not found",
     "notFoundDescription": "This student may have been removed, or the link is incorrect.",
     "eyebrow": "People",
-    "description": "Manage student enrolment, profiles, guardians and academic records."
+    "description": "Manage student enrolment, profiles, guardians and academic records.",
+    "photoHint": "JPG, PNG or WebP · up to 2 MB. Optional — initials are shown until a photo is added."
   },
   "attendance": {
     "title": "Attendance",
+    "description": "Take and manage daily student attendance",
+    "eyebrow": "Academics",
     "viewHistory": "View History",
     "attendancePercentage": "Attendance",
     "recentAttendance": "Recent Attendance",
-    "searchPlaceholder": "Search by name or roll",
+    "today": "Today",
+    "goToToday": "Go to Today",
+    "searchPlaceholder": "Search by name or roll...",
     "alreadySubmitted": "Attendance already submitted for this date. Last updated: {time}",
+    "submittedStatus": {
+      "title": "Attendance submitted",
+      "lastUpdated": "Last updated {time}",
+      "canEdit": "You can still update today's attendance."
+    },
+    "unsavedChanges": "Unsaved changes",
+    "allSaved": "All changes saved",
+    "studentsCount": "{count} students",
+    "showingCount": "Showing {filtered} of {total} students",
+    "clearSearch": "Clear search",
+    "noSearchResults": "No students found matching \"{query}\"",
+    "rosterHeading": "Student Roster",
+    "liveSummaryHeading": "Today's Attendance",
+    "rollLabel": "Roll {roll}",
     "fields": {
       "class": "Class",
       "section": "Section",
@@ -1055,6 +1084,14 @@
       "view": "View",
       "search": "Search"
     },
+    "structureDialog": {
+      "addTitle": "Add Fee Structure",
+      "editTitle": "Edit Fee Structure",
+      "description": "Define fee rates, billing frequency, and class assignments.",
+      "namePlaceholder": "e.g. Monthly Tuition Fee",
+      "nameBnPlaceholder": "e.g. মাসিক বেতন",
+      "amountPlaceholder": "0.00"
+    },
     "list": {
       "empty": "No records found.",
       "emptyStructures": "No fee structures yet.",
@@ -1073,10 +1110,48 @@
       "to": "To"
     },
     "dashboard": {
+      "subtitle": "Session 2026 · Financial ledger & student billing overview",
       "totalOutstanding": "Total Outstanding",
       "paymentsToday": "Payments Today",
       "paymentsThisMonth": "Payments This Month",
-      "studentsWithOutstanding": "Students With Outstanding Fees"
+      "studentsWithOutstanding": "Students With Outstanding Fees",
+      "reconciled": "All student accounts cleared",
+      "pendingFollowup": "Requires follow-up",
+      "counterCollection": "Daily counter collection",
+      "receiptsCount": "{count} receipts today",
+      "currentBillingCycle": "Current billing cycle",
+      "monthlyCollection": "Monthly collection",
+      "allAccountsClear": "Accounts up to date",
+      "duesPending": "Pending settlement",
+      "quickActions": "Quick Financial Actions",
+      "collectFee": "Collect Fee",
+      "collectFeeDesc": "Search student & accept payment",
+      "assignFees": "Assign Fees",
+      "assignFeesDesc": "Batch allocate to class",
+      "feeStructures": "Fee Structures",
+      "feeStructuresDesc": "Tuition & session rates",
+      "outstandingReport": "Outstanding Dues",
+      "outstandingReportDesc": "Class-wise arrears",
+      "collectionsReport": "Collections Report",
+      "collectionsReportDesc": "Daily & monthly intake",
+      "recentPayments": "Recent Payments & Receipts",
+      "recentPaymentsDesc": "Latest transactions and issued vouchers",
+      "viewAllPayments": "View All Payments",
+      "monthlyTrend": "Monthly Collection Trend",
+      "monthlyTrendDesc": "Trailing 6-month financial intake",
+      "sixMonthTotal": "6-Month Revenue",
+      "avgMonthly": "Avg. Monthly Intake",
+      "quickSearch": "Quick Student Lookup",
+      "quickSearchDesc": "Look up student to record fees",
+      "quickSearchPlaceholder": "Search by student name, ID or roll...",
+      "activeStructures": "Active Fee Structures",
+      "activeStructuresDesc": "Tuition, session, and exam fees",
+      "manageStructures": "Manage Structures",
+      "paymentMethods": "Payment Methods Distribution",
+      "viewReceipt": "Receipt",
+      "noRecentPayments": "No recent payments recorded yet",
+      "noRecentPaymentsDesc": "Payments received at the cash counter or via mobile banking will appear here in real-time.",
+      "recordFirstPayment": "Record Payment"
     },
     "assign": {
       "title": "Assign Fee",
@@ -1487,30 +1562,61 @@
     "title": "Teachers & Staff",
     "description": "Manage teaching staff, assignments and academic responsibilities.",
     "searchPlaceholder": "Search name, employee ID, email or phone",
+    "new": {
+      "subtitle": "Register faculty members, set up institutional roles, and grant portal credentials."
+    },
+    "edit": {
+      "subtitle": "Update faculty details, institutional positioning, or academic profile."
+    },
     "sections": {
-      "basic": "Basic Information",
+      "basic": "Personal Information",
       "employment": "Employment",
-      "academic": "Academic"
+      "academic": "Professional Information",
+      "account": "Account Access"
+    },
+    "sectionDescriptions": {
+      "basic": "Primary identity, contact number, gender, and residential address.",
+      "employment": "Institutional positioning, employee code, department, and tenure.",
+      "academic": "Educational background, specialization areas, and years of experience.",
+      "account": "Login credentials and system permissions for the teacher portal."
     },
     "fields": {
       "teacher": "Teacher",
       "name": "Full Name",
+      "namePlaceholder": "e.g. Mohammad Rahat Hossain",
       "email": "Email",
+      "emailPlaceholder": "e.g. teacher@school.edu.bd",
       "password": "Password",
+      "passwordPlaceholder": "Enter secure password (min. 8 characters)",
       "phone": "Phone",
+      "phonePlaceholder": "e.g. 01712345678",
       "address": "Address",
+      "addressPlaceholder": "e.g. House 12, Road 4, Dhanmondi, Dhaka",
       "employeeId": "Employee ID",
       "designation": "Designation",
       "designationPlaceholder": "e.g. Senior Teacher",
       "department": "Department",
+      "departmentPlaceholder": "e.g. Science & Mathematics",
       "joiningDate": "Joining Date",
       "employmentType": "Employment Type",
-      "employmentTypePlaceholder": "e.g. Full-time",
       "qualifications": "Qualifications",
+      "qualificationsPlaceholder": "e.g. M.Sc. in Mathematics, B.Ed",
       "specialization": "Specialization",
+      "specializationPlaceholder": "e.g. Higher Mathematics, Physics",
       "assignments": "Assignments",
       "status": "Status",
-      "actions": "Actions"
+      "actions": "Actions",
+      "gender": "Gender",
+      "selectGender": "Select gender",
+      "selectEmploymentType": "Select employment type",
+      "dateOfBirth": "Date of Birth",
+      "employeeIdPlaceholder": "e.g. TCH-001",
+      "experience": "Experience",
+      "experiencePlaceholder": "e.g. 5 years",
+      "emailHint": "Required for teacher portal login",
+      "systemAccess": "Allow teacher to access the system",
+      "systemAccessHint": "The teacher can sign in with this email and password once created.",
+      "requiredNote": "Fields marked with an asterisk (*) are mandatory"
     },
     "status": {
       "active": "Active",
@@ -1543,7 +1649,8 @@
       "deactivate": "Deactivate",
       "save": "Save",
       "saving": "Saving...",
-      "create": "Create Teacher"
+      "create": "Create Teacher",
+      "cancel": "Cancel"
     },
     "confirm": {
       "deactivate": "Deactivate this teacher? This will prevent new academic assignments but preserve all historical records."
@@ -1568,7 +1675,8 @@
       "pageInfo": "Page {page} of {totalPages}"
     },
     "success": {
-      "created": "Teacher account created.",
+      "created": "Teacher created successfully.",
+      "saved": "Teacher profile updated successfully.",
       "activated": "Teacher activated.",
       "deactivated": "Teacher deactivated."
     },
@@ -1580,9 +1688,28 @@
       "notFound": "Teacher not found.",
       "emailTaken": "This email is already in use.",
       "employeeIdTaken": "This employee ID is already in use.",
-      "saveFailed": "Something went wrong. Please try again."
+      "saveFailed": "Something went wrong. Please try again.",
+      "phoneRequired": "Phone number is required.",
+      "invalidPhone": "Enter a valid phone number.",
+      "employeeIdRequired": "Employee ID is required.",
+      "designationRequired": "Designation is required.",
+      "joiningDateRequired": "Joining date is required.",
+      "employmentTypeRequired": "Select an employment type.",
+      "invalidDate": "Enter a valid date.",
+      "futureDateOfBirth": "Date of birth cannot be in the future."
     },
-    "eyebrow": "Staff"
+    "eyebrow": "Staff",
+    "gender": {
+      "MALE": "Male",
+      "FEMALE": "Female",
+      "OTHER": "Other"
+    },
+    "employmentType": {
+      "FULL_TIME": "Full-time",
+      "PART_TIME": "Part-time",
+      "CONTRACT": "Contract",
+      "TEMPORARY": "Temporary"
+    }
   },
   "settings": {
     "title": "Settings",

@@ -23,6 +23,8 @@ export default async function EditTeacherPage({
       id: true,
       name: true,
       phone: true,
+      gender: true,
+      dateOfBirth: true,
       address: true,
       employeeId: true,
       designation: true,
@@ -31,13 +33,19 @@ export default async function EditTeacherPage({
       employmentType: true,
       qualifications: true,
       specialization: true,
+      experience: true,
     },
   })
   if (!teacher) notFound()
 
   return (
-    <div className="mx-auto w-full max-w-3xl space-y-6">
-      <PageHeader title={t("actions.editTeacher")} />
+    <div className="mx-auto w-full max-w-4xl space-y-6 pb-12">
+      <PageHeader
+        title={t("actions.editTeacher")}
+        description={t("edit.subtitle")}
+        backHref={`/teachers/${teacher.id}`}
+        backLabel={teacher.name}
+      />
       <TeacherForm teacher={teacher} />
     </div>
   )

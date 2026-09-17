@@ -14,7 +14,7 @@ export default async function GuardianChildAttendancePage({
 }) {
   const { user, guardian } = await requireGuardianIdentity()
   const { studentId } = await params
-  const student = await requireGuardianChild(guardian.id, studentId, user.schoolId)
+  const { student } = await requireGuardianChild(guardian.id, studentId, user.schoolId)
   const query = await searchParams
 
   const getParam = (key: string) => {

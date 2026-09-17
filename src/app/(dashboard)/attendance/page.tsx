@@ -104,9 +104,11 @@ export default async function AttendancePage({
     <div className="space-y-6">
       <PageHeader
         title={t("title")}
+        description={t("description")}
+        eyebrow={t("eyebrow")}
         actions={
           <Button variant="outline" render={<Link href="/attendance/history" />} nativeButton={false}>
-            <History />
+            <History className="size-4" />
             {t("viewHistory")}
           </Button>
         }

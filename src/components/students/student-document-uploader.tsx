@@ -16,12 +16,20 @@ type CloudinaryUploadResponse = {
   error?: { message?: string }
 }
 
-export function StudentDocumentUploader({ value, onUploaded, onClear, disabled = false, inputId }: {
+export function StudentDocumentUploader({
+  value,
+  onUploaded,
+  onClear,
+  disabled = false,
+  inputId,
+  showHint = true,
+}: {
   value?: StudentDocumentUpload
   onUploaded: (document: StudentDocumentUpload) => void
   onClear: () => void
   disabled?: boolean
   inputId: string
+  showHint?: boolean
 }) {
   const t = useTranslations("students")
   const inputRef = useRef<HTMLInputElement>(null)
@@ -59,9 +67,24 @@ export function StudentDocumentUploader({ value, onUploaded, onClear, disabled =
 
   if (value) {
     return (
-      <div className="flex min-h-9 items-center justify-between gap-2 rounded-lg border border-emerald-200 bg-emerald-50/60 px-2.5 py-1.5 text-xs text-emerald-800">
-        <span className="flex min-w-0 items-center gap-1.5 truncate"><Check className="size-3.5 shrink-0" />{value.fileName}</span>
-        <Button type="button" variant="ghost" size="icon-xs" disabled={disabled} aria-label={t("actions.remove")} title={t("actions.remove")} onClick={() => { onClear(); if (inputRef.current) inputRef.current.value = "" }}>
+      <div className="flex h-9 items-center justify-between gap-2 rounded-lg border border-emerald-300 bg-emerald-50/80 px-2.5 text-xs text-emerald-800 shadow-2xs">
+        <span className="flex min-w-0 items-center gap-1.5 truncate font-medium">
+          <Check className="size-3.5 shrink-0 text-emerald-600" />
+          <span className="truncate">{value.fileName}</span>
+        </span>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-xs"
+          disabled={disabled}
+          aria-label={t("actions.remove")}
+          title={t("actions.remove")}
+          onClick={() => {
+            onClear()
+            if (inputRef.current) inputRef.current.value = ""
+          }}
+          className="hover:bg-emerald-100 hover:text-emerald-900"
+        >
           <X className="size-3.5" />
         </Button>
       </div>
@@ -69,13 +92,38 @@ export function StudentDocumentUploader({ value, onUploaded, onClear, disabled =
   }
 
   return (
-    <div className="space-y-1.5">
+    <div className="space-y-1">
       <div className="flex items-center gap-2">
-        <Input ref={inputRef} id={inputId} type="file" accept={ACCEPTED_FILES} disabled={disabled || isUploading} className="h-9 cursor-pointer text-xs file:mr-2 file:rounded-md file:border-0 file:bg-brand-navy-light file:px-2 file:py-1 file:text-xs file:font-semibold file:text-brand-navy" onChange={(event) => { const file = event.target.files?.[0]; if (file) void upload(file) }} />
-        {isUploading && <LoaderCircle className="size-4 shrink-0 animate-spin text-muted-foreground" aria-label={t("actions.adding")} />}
+        <Input
+          ref={inputRef}
+          id={inputId}
+          type="file"
+          accept={ACCEPTED_FILES}
+          disabled={disabled || isUploading}
+          className="h-9 cursor-pointer text-xs file:mr-2 file:rounded-md file:border-0 file:bg-brand-navy-light file:px-2 file:py-0.5 file:text-xs file:font-semibold file:text-brand-navy file:cursor-pointer"
+          onChange={(event) => {
+            const file = event.target.files?.[0]
+            if (file) void upload(file)
+          }}
+        />
+        {isUploading && (
+          <LoaderCircle
+            className="size-4 shrink-0 animate-spin text-primary"
+            aria-label={t("actions.adding")}
+          />
+        )}
       </div>
-      {!isUploading && <p className="flex items-center gap-1 text-[11px] text-muted-foreground"><FileUp className="size-3" />PDF, JPG, PNG, or WebP · 10 MB</p>}
-      {error && <p role="alert" className="text-xs text-destructive">{error}</p>}
+      {showHint && !isUploading && (
+        <p className="flex items-center gap-1 text-[11px] text-muted-foreground">
+          <FileUp className="size-3" />
+          PDF, JPG, PNG, or WebP · 10 MB
+        </p>
+      )}
+      {error && (
+        <p role="alert" className="text-xs text-destructive">
+          {error}
+        </p>
+      )}
     </div>
   )
 }
