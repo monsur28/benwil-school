@@ -185,6 +185,7 @@ export default async function MarksEntryPage({
         examScheduleId={access.schedule.id}
         sectionId={access.section.id}
         fullMarks={access.schedule.fullMarks}
+        homeworkMaxMarks={access.schedule.homeworkMaxMarks}
         roster={roster}
       />
     </div>

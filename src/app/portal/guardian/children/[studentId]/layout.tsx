@@ -29,6 +29,7 @@ export default async function GuardianChildLayout({
       iconKey: "profile" as const,
     },
     { href: `${base}/attendance`, label: t("nav.attendance"), iconKey: "attendance" as const },
+    { href: `${base}/routine`, label: t("nav.routine"), iconKey: "routine" as const },
     { href: `${base}/results`, label: t("nav.results"), iconKey: "results" as const },
     { href: `${base}/fees`, label: t("nav.fees"), iconKey: "fees" as const },
     { href: `${base}/homework`, label: t("nav.homework"), iconKey: "homework" as const },

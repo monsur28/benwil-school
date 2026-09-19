@@ -52,6 +52,7 @@
     "fees": "ফি",
     "homework": "বাড়ির কাজ",
     "notices": "নোটিশ",
+    "routine": "রুটিন",
     "library": "লাইব্রেরি",
     "transport": "পরিবহন",
     "reports": "রিপোর্ট",
@@ -66,9 +67,9 @@
       "insights": "প্রতিবেদন ও বিশ্লেষণ",
       "system": "সিস্টেম"
     },
-    "profile": "Profile",
-    "reportCard": "Report Card",
-    "myChildren": "My Children"
+    "profile": "আমার প্রোফাইল",
+    "reportCard": "রিপোর্ট কার্ড",
+    "myChildren": "আমার সন্তানরা"
   },
   "auth": {
     "loginTitle": "লগ ইন",
@@ -692,6 +693,7 @@
       "room": "কক্ষ",
       "fullMarks": "পূর্ণমান",
       "passMarks": "পাশ নম্বর",
+      "homeworkMaxMarks": "হোমওয়ার্ক সর্বোচ্চ নম্বর",
       "marks": "নম্বর",
       "absent": "অনুপস্থিত",
       "roll": "রোল",
@@ -742,13 +744,16 @@
     "schedule": {
       "createTitle": "পরীক্ষায় বিষয় যোগ করুন",
       "editTitle": "সময়সূচি সম্পাদনা করুন",
-      "noSubjectsForClass": "এই শ্রেণিতে এখনো কোনো বিষয় নির্ধারণ করা হয়নি। প্রথমে একাডেমিক ব্যবস্থাপনায় বিষয় নির্ধারণ করুন।"
+      "noSubjectsForClass": "এই শ্রেণিতে এখনো কোনো বিষয় নির্ধারণ করা হয়নি। প্রথমে একাডেমিক ব্যবস্থাপনায় বিষয় নির্ধারণ করুন।",
+      "homeworkMaxMarksPlaceholder": "হোমওয়ার্ক অংশ না থাকলে খালি রাখুন",
+      "homeworkMaxMarksHint": "এই বিষয়ে শিক্ষার্থীর পর্যালোচিত হোমওয়ার্ক থেকে স্বয়ংক্রিয়ভাবে নম্বর যুক্ত হবে, পূর্ণমানের মধ্যে থেকে। এই বিষয়ে হোমওয়ার্ক অংশ না থাকলে খালি রাখুন।"
     },
     "marks": {
       "markAllAbsent": "সবাইকে অনুপস্থিত করুন",
       "saveSuccess": "নম্বর সংরক্ষিত হয়েছে",
       "noScheduleSelected": "নম্বর প্রদানের জন্য একটি শ্রেণি ও নির্ধারিত বিষয় নির্বাচন করুন।",
-      "nothingToSave": "সংরক্ষণের আগে অন্তত একটি নম্বর দিন অথবা কোনো শিক্ষার্থীকে অনুপস্থিত চিহ্নিত করুন।"
+      "nothingToSave": "সংরক্ষণের আগে অন্তত একটি নম্বর দিন অথবা কোনো শিক্ষার্থীকে অনুপস্থিত চিহ্নিত করুন।",
+      "homeworkComponentHint": "লিখিত নম্বর {writtenMaxMarks} এর মধ্যে দিতে হবে। হোমওয়ার্ক ({homeworkMaxMarks} নম্বর) শিক্ষার্থীর পর্যালোচিত হোমওয়ার্ক থেকে স্বয়ংক্রিয়ভাবে যুক্ত হবে।"
     },
     "success": {
       "examTypeCreated": "পরীক্ষার ধরন তৈরি হয়েছে",
@@ -774,6 +779,7 @@
       "examDateRequired": "পরীক্ষার তারিখ আবশ্যক।",
       "fullMarksInvalid": "পূর্ণমান ০ এর বেশি হতে হবে।",
       "passMarksInvalid": "পাশ নম্বর ০ থেকে পূর্ণমানের মধ্যে হতে হবে।",
+      "homeworkMaxMarksInvalid": "হোমওয়ার্ক সর্বোচ্চ নম্বর ০ থেকে পূর্ণমানের মধ্যে হতে হবে।",
       "invalidTimeRange": "শেষের সময় শুরুর সময়ের পরে হতে হবে।",
       "subjectNotInClass": "এই বিষয়টি নির্বাচিত শ্রেণির জন্য নির্ধারিত নয়।",
       "duplicateSchedule": "এই বিষয়টি এই পরীক্ষায় এই শ্রেণির জন্য ইতিমধ্যে নির্ধারিত।",
@@ -806,6 +812,7 @@
       "subject": "বিষয়",
       "fullMarks": "পূর্ণমান",
       "obtainedMarks": "প্রাপ্ত নম্বর",
+      "marksBreakdown": "লিখিত: {written}, হোমওয়ার্ক: {homework}",
       "percentage": "শতকরা হার",
       "totalMarks": "মোট নম্বর",
       "gpa": "জিপিএ",
@@ -968,6 +975,13 @@
       "noSubjectsForClass": "এই শ্রেণিতে এখনও কোনো বিষয় যুক্ত করা হয়নি। প্রথমে শ্রেণি পাতা থেকে একটি যোগ করুন।",
       "viewAll": "View all assignments",
       "allYears": "All academic years"
+    },
+    "routine": {
+      "title": "ক্লাস রুটিন",
+      "description": "শ্রেণি ও সেকশনের সাপ্তাহিক সময়সূচি পরিচালনা করুন।",
+      "addTitle": "রুটিন এন্ট্রি যোগ করুন",
+      "editTitle": "রুটিন এন্ট্রি সম্পাদনা",
+      "empty": "এই সেকশনের জন্য এখনও কোনো রুটিন তৈরি করা হয়নি।"
     },
     "classDetail": {
       "backToClasses": "শ্রেণিতে ফিরে যান",
@@ -1784,6 +1798,7 @@
     },
     "fields": {
       "schoolName": "বিদ্যালয়ের নাম",
+      "schoolNameBangla": "বিদ্যালয়ের নাম (বাংলা)",
       "shortName": "সংক্ষিপ্ত নাম",
       "schoolCode": "স্কুল কোড",
       "motto": "নীতিবাক্য",
@@ -1829,6 +1844,134 @@
       "invalidWeekStart": "সঠিক দিন নির্বাচন করুন।",
       "invalidWorkingDay": "সঠিক কার্যদিবস নির্বাচন করুন।",
       "invalidPageSize": "৫ থেকে ২০০ এর মধ্যে একটি পেজ আকার দিন।"
+    }
+  },
+  "portal": {
+    "nav": {
+      "dashboard": "ড্যাশবোর্ড",
+      "profile": "প্রোফাইল",
+      "attendance": "উপস্থিতি",
+      "results": "ফলাফল",
+      "fees": "ফি",
+      "homework": "বাড়ির কাজ",
+      "notices": "নোটিশ",
+      "routine": "রুটিন",
+      "myChildren": "আমার সন্তানরা"
+    },
+    "cards": {
+      "attendance": "উপস্থিতি",
+      "latestResult": "সাম্প্রতিক ফলাফল",
+      "homework": "আসন্ন হোমওয়ার্ক",
+      "notices": "নোটিশ",
+      "fees": "ফি ব্যালেন্স"
+    },
+    "fields": {
+      "roll": "রোল",
+      "allFeesCleared": "সমস্ত ফি পরিশোধিত",
+      "lastPayment": "সর্বশেষ পরিশোধ",
+      "academicYear": "শিক্ষাবর্ষ",
+      "attendancePercentage": "উপস্থিতির হার"
+    },
+    "actions": {
+      "seeAll": "সব দেখুন",
+      "viewDetails": "বিস্তারিত দেখুন"
+    },
+    "filters": {
+      "allYears": "সকল বছর",
+      "from": "শুরু",
+      "to": "শেষ"
+    },
+    "empty": {
+      "noResultsTitle": "এখনও কোনো ফলাফল নেই",
+      "noResults": "ফলাফল প্রকাশিত হলে এখানে দেখা যাবে।",
+      "noHomeworkTitle": "কোনো হোমওয়ার্ক দেওয়া হয়নি",
+      "noHomework": "আপনি সব কাজ সম্পন্ন করেছেন! নতুন অ্যাসাইনমেন্টের জন্য পরে আবার দেখুন।",
+      "noNoticesTitle": "এখনও কোনো নোটিশ নেই",
+      "noNotices": "স্কুলের ঘোষণা এখানে দেখা যাবে।",
+      "noAttendance": "এখনও কোনো উপস্থিতির তথ্য নেই।",
+      "noChildren": "এই অ্যাকাউন্টের সাথে এখনও কোনো সন্তান যুক্ত নেই।",
+      "noChildrenTitle": "কোনো সন্তান নেই",
+      "noFees": "এখনও কোনো ফি নির্ধারণ করা হয়নি।",
+      "noFeesTitle": "কোনো ফি নেই"
+    }
+  },
+  "routine": {
+    "title": "ক্লাস রুটিন",
+    "description": "শ্রেণি ও সেকশনের সাপ্তাহিক সময়সূচি পরিচালনা করুন",
+    "myRoutine": "আমার রুটিন",
+    "viewSchedule": "ক্লাস রুটিন দেখুন",
+    "todaysSchedule": "আজকের সময়সূচি",
+    "noClassesToday": "আজ কোনো ক্লাস নির্ধারিত নেই",
+    "noRoutineFound": "এই সেকশনের জন্য কোনো রুটিন তৈরি করা হয়নি",
+    "noSubjectsAssigned": "কোনো বিষয় নির্ধারিত নেই",
+    "noTeacherAssigned": "এই বিষয়ের জন্য কোনো শিক্ষক নির্ধারিত নেই",
+    "roomPlaceholder": "যেমন: রুম ২০১",
+    "addEntry": "রুটিন এন্ট্রি যোগ করুন",
+    "editEntry": "রুটিন এন্ট্রি সম্পাদনা",
+    "deleteEntry": "রুটিন এন্ট্রি মুছুন",
+    "deleteConfirm": "আপনি কি নিশ্চিত যে এই রুটিন এন্ট্রিটি মুছে ফেলতে চান?",
+    "day": "দিন",
+    "period": "পিরিয়ড",
+    "periodNumber": "পিরিয়ড {number}",
+    "startTime": "শুরুর সময়",
+    "endTime": "শেষের সময়",
+    "room": "রুম",
+    "roomOptional": "রুম (ঐচ্ছিক)",
+    "subject": "বিষয়",
+    "teacher": "শিক্ষক",
+    "selectYear": "শিক্ষাবর্ষ",
+    "selectClass": "শ্রেণি",
+    "selectSection": "সেকশন",
+    "allDays": "সকল দিন",
+    "save": "সংরক্ষণ করুন",
+    "saving": "সংরক্ষণ করা হচ্ছে...",
+    "cancel": "বাতিল",
+    "delete": "মুছুন",
+    "days": {
+      "SATURDAY": "শনিবার",
+      "SUNDAY": "রবিবার",
+      "MONDAY": "সোমবার",
+      "TUESDAY": "মঙ্গলবার",
+      "WEDNESDAY": "বুধবার",
+      "THURSDAY": "বৃহস্পতিবার",
+      "FRIDAY": "শুক্রবার"
+    },
+    "shortDays": {
+      "SATURDAY": "শনি",
+      "SUNDAY": "রবি",
+      "MONDAY": "সোম",
+      "TUESDAY": "মঙ্গল",
+      "WEDNESDAY": "বুধ",
+      "THURSDAY": "বৃহঃ",
+      "FRIDAY": "শুক্র"
+    },
+    "errors": {
+      "academicYearRequired": "শিক্ষাবর্ষ নির্বাচন করুন।",
+      "classRequired": "শ্রেণি নির্বাচন করুন।",
+      "sectionRequired": "সেকশন নির্বাচন করুন।",
+      "subjectRequired": "বিষয় নির্বাচন করুন।",
+      "teacherRequired": "শিক্ষক নির্বাচন করুন।",
+      "dayRequired": "সপ্তাহের একটি দিন নির্বাচন করুন।",
+      "periodRequired": "সঠিক পিরিয়ড নম্বর দিন।",
+      "periodMin": "পিরিয়ড কমপক্ষে ১ হতে হবে।",
+      "periodMax": "পিরিয়ড ১২ এর বেশি হতে পারবে না।",
+      "startTimeInvalid": "সঠিক শুরুর সময় দিন (HH:mm)।",
+      "endTimeInvalid": "সঠিক শেষের সময় দিন (HH:mm)।",
+      "invalidTimeRange": "শেষের সময় অবশ্যই শুরুর সময়ের পরে হতে হবে।",
+      "roomTooLong": "রুমের নাম ৫০ অক্ষরের মধ্যে হতে হবে।",
+      "idRequired": "এন্ট্রি আইডি প্রয়োজন।",
+      "classConflict": "এই দিনে এবং পিরিয়ডে এই শ্রেণির ইতিমধ্যে একটি ক্লাস রয়েছে।",
+      "teacherConflict": "এই শিক্ষক এই সময়ে অন্য একটি শ্রেণিতে পাঠদানে নিযুক্ত আছেন।",
+      "timeConflict": "নির্ধারিত সময়টি অন্য একটি ক্লাসের সাথে মিলে যাচ্ছে।",
+      "teacherNotAssigned": "নির্বাচিত শিক্ষক এই শ্রেণি ও সেকশনে এই বিষয়টি পড়ানোর জন্য নিযুক্ত নন।",
+      "subjectNotInClass": "নির্বাচিত বিষয়টি এই শ্রেণিতে অন্তর্ভুক্ত নয়।",
+      "invalidForm": "অনুগ্রহ করে সকল তথ্য সঠিকভাবে পূরণ করুন।",
+      "notFound": "তথ্য পাওয়া যায়নি।",
+      "saveFailed": "রুটিন সংরক্ষণ করতে ব্যর্থ হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।"
+    },
+    "success": {
+      "saved": "রুটিন সফলভাবে সংরক্ষিত হয়েছে।",
+      "deleted": "রুটিন সফলভাবে মুছে ফেলা হয়েছে।"
     }
   }
 }

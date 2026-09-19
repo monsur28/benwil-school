@@ -3,6 +3,7 @@ import { requireAuth } from "@/lib/auth/dal"
 import { prisma } from "@/lib/db/client"
 import { getStudentExamResult } from "@/lib/results/get-results"
 import { checkResultAccess } from "@/lib/results/result-access"
+import { getSchoolIdentity } from "@/lib/settings/school-settings"
 import { ReportCardView } from "@/components/results/report-card-view"
 
 export default async function ReportCardPage({
@@ -22,9 +23,9 @@ export default async function ReportCardPage({
   const access = await checkResultAccess(user, exam.academicYearId, student.classId, student.sectionId)
   if (!access.ok) redirect("/unauthorized")
 
-  const school = await prisma.school.findFirstOrThrow({ where: { id: user.schoolId } })
+  const identity = await getSchoolIdentity(user.schoolId)
   const context = await getStudentExamResult({ schoolId: user.schoolId, examId, studentId })
   if (!context) notFound()
 
-  return <ReportCardView schoolName={school.name} context={context} />
+  return <ReportCardView identity={identity} context={context} />
 }

@@ -55,6 +55,10 @@ export function SchoolProfileForm({ settings }: { settings: SchoolProfileInput }
             <FieldError errors={[errors.schoolName && { message: t(errors.schoolName.message as never) }]} />
           </Field>
           <Field>
+            <FieldLabel htmlFor="school-name-bangla">{t("fields.schoolNameBangla")}</FieldLabel>
+            <Input id="school-name-bangla" {...register("schoolNameBangla")} />
+          </Field>
+          <Field>
             <FieldLabel htmlFor="school-short-name">{t("fields.shortName")}</FieldLabel>
             <Input id="school-short-name" {...register("shortName")} />
           </Field>

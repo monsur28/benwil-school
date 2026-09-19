@@ -7,6 +7,7 @@ import {
   calculateOverallResult,
   rangesOverlap,
   calculateStudentExamResult,
+  scaleHomeworkContribution,
   type GradeLookupRule,
   type ScheduleInput,
   type MarkInput,
@@ -119,10 +120,11 @@ describe("calculate-result: calculateSubjectResult", () => {
     subjectName: "Mathematics",
     fullMarks: 100,
     passMarks: 40,
+    homeworkMaxMarks: null,
   }
 
   it("calculates a passing subject result", () => {
-    const mark: MarkInput = { marks: 85, isAbsent: false }
+    const mark: MarkInput = { marks: 85, isAbsent: false, homeworkMarks: null }
     const result = calculateSubjectResult(schedule, mark, SAMPLE_GRADE_RULES)
 
     assert.equal(result.status, "PASS")
@@ -134,7 +136,7 @@ describe("calculate-result: calculateSubjectResult", () => {
   })
 
   it("calculates a failing subject result when marks < passMarks", () => {
-    const mark: MarkInput = { marks: 35, isAbsent: false }
+    const mark: MarkInput = { marks: 35, isAbsent: false, homeworkMarks: null }
     const result = calculateSubjectResult(schedule, mark, SAMPLE_GRADE_RULES)
 
     assert.equal(result.status, "FAIL")
@@ -145,7 +147,7 @@ describe("calculate-result: calculateSubjectResult", () => {
   })
 
   it("handles absent status correctly", () => {
-    const mark: MarkInput = { marks: null, isAbsent: true }
+    const mark: MarkInput = { marks: null, isAbsent: true, homeworkMarks: null }
     const result = calculateSubjectResult(schedule, mark, SAMPLE_GRADE_RULES)
 
     assert.equal(result.status, "ABSENT")
@@ -165,6 +167,80 @@ describe("calculate-result: calculateSubjectResult", () => {
   })
 })
 
+describe("calculate-result: calculateSubjectResult with a homework component", () => {
+  const scheduleWithHomework: ScheduleInput = {
+    scheduleId: "sch-2",
+    subjectId: "sub-math",
+    subjectName: "Mathematics",
+    fullMarks: 100,
+    passMarks: 40,
+    homeworkMaxMarks: 10,
+  }
+
+  it("adds the homework contribution to the written mark for the total", () => {
+    const mark: MarkInput = { marks: 80, isAbsent: false, homeworkMarks: 8 }
+    const result = calculateSubjectResult(scheduleWithHomework, mark, SAMPLE_GRADE_RULES)
+
+    assert.equal(result.status, "PASS")
+    assert.equal(result.marks, 88)
+    assert.equal(result.writtenMarks, 80)
+    assert.equal(result.homeworkMarks, 8)
+    assert.equal(result.homeworkMaxMarks, 10)
+    assert.equal(result.percentage, 88)
+  })
+
+  it("stays PENDING when the written mark is entered but homework hasn't been reviewed yet", () => {
+    const mark: MarkInput = { marks: 80, isAbsent: false, homeworkMarks: null }
+    const result = calculateSubjectResult(scheduleWithHomework, mark, SAMPLE_GRADE_RULES)
+
+    assert.equal(result.status, "PENDING")
+    assert.equal(result.marks, null)
+  })
+
+  it("ignores homeworkMarks entirely when the schedule has no homework component", () => {
+    const schedule: ScheduleInput = {
+      scheduleId: "sch-3",
+      subjectId: "sub-math",
+      subjectName: "Mathematics",
+      fullMarks: 100,
+      passMarks: 40,
+      homeworkMaxMarks: null,
+    }
+    // A stray homeworkMarks value must never leak into the total when the
+    // schedule itself has no homework allotment - zero behavior change for
+    // every schedule that predates this feature.
+    const mark: MarkInput = { marks: 80, isAbsent: false, homeworkMarks: 999 }
+    const result = calculateSubjectResult(schedule, mark, SAMPLE_GRADE_RULES)
+
+    assert.equal(result.marks, 80)
+    assert.equal(result.homeworkMarks, null)
+  })
+
+  it("stays ABSENT for the written exam regardless of homework availability", () => {
+    const mark: MarkInput = { marks: null, isAbsent: true, homeworkMarks: 8 }
+    const result = calculateSubjectResult(scheduleWithHomework, mark, SAMPLE_GRADE_RULES)
+
+    assert.equal(result.status, "ABSENT")
+    assert.equal(result.marks, null)
+  })
+})
+
+describe("calculate-result: scaleHomeworkContribution", () => {
+  it("scales a student's homework percentage into the schedule's allotment", () => {
+    // 16/20 = 80%, scaled into a 10-mark allotment -> 8
+    assert.equal(scaleHomeworkContribution(16, 20, 10), 8)
+  })
+
+  it("rounds to 2 decimal places", () => {
+    // 1/3 = 33.33...%, scaled into 10 -> 3.33
+    assert.equal(scaleHomeworkContribution(1, 3, 10), 3.33)
+  })
+
+  it("returns null when there is no graded homework to scale from", () => {
+    assert.equal(scaleHomeworkContribution(0, 0, 10), null)
+  })
+})
+
 describe("calculate-result: calculateOverallResult", () => {
   const mathSchedule: ScheduleInput = {
     scheduleId: "s1",
@@ -172,6 +248,7 @@ describe("calculate-result: calculateOverallResult", () => {
     subjectName: "Math",
     fullMarks: 100,
     passMarks: 40,
+    homeworkMaxMarks: null,
   }
   const englishSchedule: ScheduleInput = {
     scheduleId: "s2",
@@ -179,12 +256,13 @@ describe("calculate-result: calculateOverallResult", () => {
     subjectName: "English",
     fullMarks: 100,
     passMarks: 40,
+    homeworkMaxMarks: null,
   }
 
   it("returns PASS with averaged GPA when all subjects pass", () => {
     const subjects = [
-      calculateSubjectResult(mathSchedule, { marks: 80, isAbsent: false }, SAMPLE_GRADE_RULES), // A+, 5.0
-      calculateSubjectResult(englishSchedule, { marks: 60, isAbsent: false }, SAMPLE_GRADE_RULES), // A, 4.0
+      calculateSubjectResult(mathSchedule, { marks: 80, isAbsent: false, homeworkMarks: null }, SAMPLE_GRADE_RULES), // A+, 5.0
+      calculateSubjectResult(englishSchedule, { marks: 60, isAbsent: false, homeworkMarks: null }, SAMPLE_GRADE_RULES), // A, 4.0
     ]
     const overall = calculateOverallResult(subjects, true)
 
@@ -198,8 +276,8 @@ describe("calculate-result: calculateOverallResult", () => {
 
   it("returns FAIL if any subject fails", () => {
     const subjects = [
-      calculateSubjectResult(mathSchedule, { marks: 80, isAbsent: false }, SAMPLE_GRADE_RULES), // A+, 5.0
-      calculateSubjectResult(englishSchedule, { marks: 30, isAbsent: false }, SAMPLE_GRADE_RULES), // F, 0.0
+      calculateSubjectResult(mathSchedule, { marks: 80, isAbsent: false, homeworkMarks: null }, SAMPLE_GRADE_RULES), // A+, 5.0
+      calculateSubjectResult(englishSchedule, { marks: 30, isAbsent: false, homeworkMarks: null }, SAMPLE_GRADE_RULES), // F, 0.0
     ]
     const overall = calculateOverallResult(subjects, true)
 
@@ -210,8 +288,8 @@ describe("calculate-result: calculateOverallResult", () => {
 
   it("returns FAIL and excludes absent subject from GPA denominator", () => {
     const subjects = [
-      calculateSubjectResult(mathSchedule, { marks: 80, isAbsent: false }, SAMPLE_GRADE_RULES), // A+, 5.0
-      calculateSubjectResult(englishSchedule, { marks: null, isAbsent: true }, SAMPLE_GRADE_RULES), // ABSENT
+      calculateSubjectResult(mathSchedule, { marks: 80, isAbsent: false, homeworkMarks: null }, SAMPLE_GRADE_RULES), // A+, 5.0
+      calculateSubjectResult(englishSchedule, { marks: null, isAbsent: true, homeworkMarks: null }, SAMPLE_GRADE_RULES), // ABSENT
     ]
     const overall = calculateOverallResult(subjects, true)
 
@@ -223,7 +301,7 @@ describe("calculate-result: calculateOverallResult", () => {
 
   it("returns INCOMPLETE when any subject marks are pending", () => {
     const subjects = [
-      calculateSubjectResult(mathSchedule, { marks: 80, isAbsent: false }, SAMPLE_GRADE_RULES),
+      calculateSubjectResult(mathSchedule, { marks: 80, isAbsent: false, homeworkMarks: null }, SAMPLE_GRADE_RULES),
       calculateSubjectResult(englishSchedule, null, SAMPLE_GRADE_RULES), // PENDING
     ]
     const overall = calculateOverallResult(subjects, true)
@@ -243,7 +321,7 @@ describe("calculate-result: calculateOverallResult", () => {
 
   it("returns null GPA when hasGradingScale is false", () => {
     const subjects = [
-      calculateSubjectResult(mathSchedule, { marks: 80, isAbsent: false }, []),
+      calculateSubjectResult(mathSchedule, { marks: 80, isAbsent: false, homeworkMarks: null }, []),
     ]
     const overall = calculateOverallResult(subjects, false)
     assert.equal(overall.gpa, null)
@@ -270,12 +348,12 @@ describe("calculate-result: rangesOverlap", () => {
 describe("calculate-result: calculateStudentExamResult", () => {
   it("computes complete exam result for a student across multiple schedules", () => {
     const schedules: ScheduleInput[] = [
-      { scheduleId: "s1", subjectId: "sub-1", subjectName: "Bangla", fullMarks: 100, passMarks: 40 },
-      { scheduleId: "s2", subjectId: "sub-2", subjectName: "English", fullMarks: 100, passMarks: 40 },
+      { scheduleId: "s1", subjectId: "sub-1", subjectName: "Bangla", fullMarks: 100, passMarks: 40, homeworkMaxMarks: null },
+      { scheduleId: "s2", subjectId: "sub-2", subjectName: "English", fullMarks: 100, passMarks: 40, homeworkMaxMarks: null },
     ]
     const marks = new Map<string, MarkInput>([
-      ["s1", { marks: 75, isAbsent: false }],
-      ["s2", { marks: 85, isAbsent: false }],
+      ["s1", { marks: 75, isAbsent: false, homeworkMarks: null }],
+      ["s2", { marks: 85, isAbsent: false, homeworkMarks: null }],
     ])
 
     const result = calculateStudentExamResult("student-123", schedules, marks, SAMPLE_GRADE_RULES)

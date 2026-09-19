@@ -64,15 +64,32 @@ test.describe("Student portal", () => {
   test("login redirects to the student portal and shows the right dashboard", async ({ page }) => {
     await login(page, ACCOUNTS.student.email, ACCOUNTS.student.password)
     await expect(page).toHaveURL(/\/portal\/student$/)
-    await expect(page.getByRole("heading", { name: "Welcome, Nusrat Jahan" })).toBeVisible()
-    await expect(page.getByText("Class 5 A • Roll 90 • 2026")).toBeVisible()
+    // The dashboard redesign (src/app/portal/student/page.tsx) changed the
+    // greeting to "<Good morning/evening>, <first name>." (was "Welcome,
+    // <full name>") - only the first name is real data.
+    await expect(page.getByRole("heading", { name: "Nusrat." })).toBeVisible()
+
+    // Phase 14/14.1 wired identity, routine, homework, results, fees, and
+    // notices to real data (see e2e/student-dashboard-data.spec.ts for the
+    // dedicated, fixture-driven coverage of each). STU-0501 is genuinely
+    // Class 5 Section A / Roll 90 / academic year 2026 - spot-check that
+    // here too since this is the canonical seeded portal login.
+    //
+    // KNOWN APPLICATION ISSUE: the Attendance widget on this page is still
+    // hardcoded demo content (92% / 22 days present / etc.), not backed by
+    // real Attendance records - out of scope for Phase 14.1, tracked
+    // separately.
+    await expect(page.getByText("Class 5").first()).toBeVisible()
+    await expect(page.getByText("Roll 90")).toBeVisible()
   })
 
   test("profile shows the student's own information, read-only", async ({ page }) => {
     await login(page, ACCOUNTS.student.email, ACCOUNTS.student.password)
     await page.goto("/portal/student/profile")
-    await expect(page.getByText("STU-0501")).toBeVisible()
-    await expect(page.getByText("ADM-0501")).toBeVisible()
+    // The student ID appears more than once on this page (e.g. a header
+    // badge and a details table) - .first() rather than an exact match.
+    await expect(page.getByText("STU-0501").first()).toBeVisible()
+    await expect(page.getByText("ADM-0501").first()).toBeVisible()
     // Read-only: no edit affordance anywhere on this page.
     await expect(page.getByRole("button", { name: /edit/i })).toHaveCount(0)
   })
@@ -115,15 +132,23 @@ test.describe("Student portal", () => {
 
   test("Bangla/English toggle and logout work", async ({ page }) => {
     await login(page, ACCOUNTS.student.email, ACCOUNTS.student.password)
-    await expect(page.getByRole("heading", { name: "Welcome, Nusrat Jahan" })).toBeVisible()
+    await expect(page.getByRole("heading", { name: "Nusrat." })).toBeVisible()
 
+    // Phase 14/14.1 added getLocale()-driven i18n to the routine/homework/
+    // results/fees/notices sections of this page - "Upcoming Homework"
+    // becomes "আসন্ন হোমওয়ার্ক" in Bangla.
+    //
+    // KNOWN APPLICATION ISSUE: the Attendance widget's static English labels
+    // ("Attendance", "Present", "Great consistency!"...) are not localized -
+    // out of scope for Phase 14.1, tracked separately.
     await page.getByRole("button", { name: "Language" }).click()
     await page.getByRole("menuitem", { name: "বাংলা" }).click()
-    await expect(page.getByRole("heading", { name: "স্বাগতম, Nusrat Jahan" })).toBeVisible()
+    await expect(page.getByRole("button", { name: "ভাষা" })).toBeVisible()
+    await expect(page.getByText("আসন্ন হোমওয়ার্ক")).toBeVisible()
 
     await page.getByRole("button", { name: "ভাষা" }).click()
     await page.getByRole("menuitem", { name: "English" }).click()
-    await expect(page.getByRole("heading", { name: "Welcome, Nusrat Jahan" })).toBeVisible()
+    await expect(page.getByRole("button", { name: "Language" })).toBeVisible()
 
     await logout(page)
     await expect(page).toHaveURL(/\/login$/)

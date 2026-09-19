@@ -103,7 +103,7 @@ export default async function GuardianChildDashboardPage({
       {/* Top Hero Section: Welcome Banner + Quick Actions Grid */}
       <section className="grid gap-3 lg:grid-cols-12">
         {/* Left Hero Card: Cream paper backdrop with campus illustration */}
-        <div className="relative flex min-h-[250px] flex-col justify-between overflow-hidden rounded-2xl border border-border bg-[#f7f7f2] p-6 shadow-xs sm:p-7 lg:col-span-8 xl:col-span-9">
+        <div className="relative flex min-h-[250px] flex-col justify-between overflow-hidden rounded-2xl border border-border bg-[#f7f7f2] p-6 shadow-xs sm:p-7 lg:col-span-8 xl:col-span-9 min-w-0">
           {/* School Vector Campus Illustration on the right */}
           <div
             aria-hidden="true"
@@ -188,7 +188,7 @@ export default async function GuardianChildDashboardPage({
         </div>
 
         {/* Right Card: Quick Actions 2x2 Grid with Solid Squircle Badges */}
-        <aside className="flex flex-col justify-between rounded-2xl border border-border bg-card p-4.5 shadow-xs sm:p-5 lg:col-span-4 xl:col-span-3">
+        <aside className="flex flex-col justify-between rounded-2xl border border-border bg-card p-4.5 shadow-xs sm:p-5 lg:col-span-4 xl:col-span-3 min-w-0">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-bold text-brand-navy">
               {locale === "bn" ? "দ্রুত লিঙ্ক" : "Quick Actions"}
@@ -248,7 +248,7 @@ export default async function GuardianChildDashboardPage({
       {/* Middle Bento Row: Attendance Performance + Latest Result Slip + Fee Balance */}
       <section className="grid gap-3 lg:grid-cols-12">
         {/* Attendance Performance Gauge */}
-        <div className="flex flex-col justify-between rounded-2xl border border-border bg-card p-5 shadow-xs lg:col-span-4">
+        <div className="flex flex-col justify-between rounded-2xl border border-border bg-card p-5 shadow-xs lg:col-span-4 min-w-0">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <IconBadge icon={CalendarCheck} tone="blue" size="xs" />
@@ -321,7 +321,7 @@ export default async function GuardianChildDashboardPage({
         </div>
 
         {/* Latest Result Card */}
-        <div className="flex flex-col justify-between rounded-2xl border border-border bg-card p-5 shadow-xs lg:col-span-4">
+        <div className="flex flex-col justify-between rounded-2xl border border-border bg-card p-5 shadow-xs lg:col-span-4 min-w-0">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <IconBadge icon={Award} tone="green" size="xs" />
@@ -391,7 +391,7 @@ export default async function GuardianChildDashboardPage({
         </div>
 
         {/* Fee Balance Card */}
-        <div className="flex flex-col justify-between rounded-2xl border border-border bg-card p-5 shadow-xs lg:col-span-4">
+        <div className="flex flex-col justify-between rounded-2xl border border-border bg-card p-5 shadow-xs lg:col-span-4 min-w-0">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <IconBadge icon={Wallet} tone={feeOverview.summary.totalOutstanding > 0 ? "rose" : "emerald"} size="xs" />
@@ -474,7 +474,7 @@ export default async function GuardianChildDashboardPage({
       {/* Bottom Bento Row: Upcoming Homework + School Announcements */}
       <section className="grid gap-3 lg:grid-cols-12">
         {/* Upcoming Homework */}
-        <div className="flex flex-col justify-between rounded-2xl border border-border bg-card p-5 shadow-xs lg:col-span-6">
+        <div className="flex flex-col justify-between rounded-2xl border border-border bg-card p-5 shadow-xs lg:col-span-6 min-w-0">
           <div className="flex items-center justify-between border-b border-border pb-3">
             <div className="flex items-center gap-2">
               <IconBadge icon={NotebookPen} tone="orange" size="xs" />
@@ -527,7 +527,7 @@ export default async function GuardianChildDashboardPage({
         </div>
 
         {/* School Announcements */}
-        <div className="flex flex-col justify-between rounded-2xl border border-border bg-card p-5 shadow-xs lg:col-span-6">
+        <div className="flex flex-col justify-between rounded-2xl border border-border bg-card p-5 shadow-xs lg:col-span-6 min-w-0">
           <div className="flex items-center justify-between border-b border-border pb-3">
             <div className="flex items-center gap-2">
               <IconBadge icon={Megaphone} tone="blue" size="xs" />

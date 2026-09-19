@@ -23,14 +23,25 @@ type MarksEntryFormProps = {
   examScheduleId: string
   sectionId: string
   fullMarks: number
+  homeworkMaxMarks: number | null
   roster: RosterRow[]
 }
 
-export function MarksEntryForm({ examScheduleId, sectionId, fullMarks, roster }: MarksEntryFormProps) {
+export function MarksEntryForm({
+  examScheduleId,
+  sectionId,
+  fullMarks,
+  homeworkMaxMarks,
+  roster,
+}: MarksEntryFormProps) {
   const t = useTranslations("exams")
   const router = useRouter()
   const [rows, setRows] = useState(roster)
   const [isPending, startTransition] = useTransition()
+  // The homework portion is never typed in here - it's pulled automatically
+  // from the student's own reviewed homework for this subject (spec Phase 12
+  // §9/§21), so the written mark entered below is capped at what's left.
+  const writtenMaxMarks = fullMarks - (homeworkMaxMarks ?? 0)
 
   function updateMarks(studentId: string, value: string) {
     const numeric = value === "" ? null : Number(value)
@@ -95,6 +106,11 @@ export function MarksEntryForm({ examScheduleId, sectionId, fullMarks, roster }:
 
   return (
     <div className="space-y-4">
+      {homeworkMaxMarks ? (
+        <p className="rounded-md border border-dashed bg-muted/40 p-3 text-sm text-muted-foreground">
+          {t("marks.homeworkComponentHint", { writtenMaxMarks, homeworkMaxMarks })}
+        </p>
+      ) : null}
       <div className="panel overflow-hidden">
         <Table>
           <TableHeader>
@@ -103,7 +119,7 @@ export function MarksEntryForm({ examScheduleId, sectionId, fullMarks, roster }:
               <TableHead>{t("fields.admissionNumber")}</TableHead>
               <TableHead>{t("fields.name")}</TableHead>
               <TableHead>
-                {t("fields.marks")} (/{fullMarks})
+                {t("fields.marks")} (/{writtenMaxMarks})
               </TableHead>
               <TableHead>{t("fields.absent")}</TableHead>
             </TableRow>
@@ -118,7 +134,7 @@ export function MarksEntryForm({ examScheduleId, sectionId, fullMarks, roster }:
                   <Input
                     type="number"
                     min={0}
-                    max={fullMarks}
+                    max={writtenMaxMarks}
                     disabled={row.isAbsent}
                     value={row.marks ?? ""}
                     onChange={(event) => updateMarks(row.studentId, event.target.value)}

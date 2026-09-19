@@ -33,6 +33,6 @@ export async function checkResultAccess(
   if (user.role !== Role.TEACHER) {
     return { ok: false, reason: "unauthorized" }
   }
-  const assigned = await isTeacherAssignedToSection(user.userId, academicYearId, classId, sectionId)
+  const assigned = await isTeacherAssignedToSection(user.userId, user.schoolId, academicYearId, classId, sectionId)
   return assigned ? { ok: true } : { ok: false, reason: "unauthorized" }
 }

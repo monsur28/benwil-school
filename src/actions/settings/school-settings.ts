@@ -49,6 +49,7 @@ export async function updateSchoolProfile(input: SchoolProfileInput): Promise<Ac
       create: {
         schoolId: user.schoolId,
         schoolName: data.schoolName,
+        schoolNameBangla: data.schoolNameBangla,
         shortName: data.shortName,
         schoolCode: data.schoolCode,
         motto: data.motto,
@@ -66,6 +67,7 @@ export async function updateSchoolProfile(input: SchoolProfileInput): Promise<Ac
       },
       update: {
         schoolName: data.schoolName,
+        schoolNameBangla: data.schoolNameBangla ?? null,
         shortName: data.shortName ?? null,
         schoolCode: data.schoolCode ?? null,
         motto: data.motto ?? null,

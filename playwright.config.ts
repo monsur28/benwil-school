@@ -10,9 +10,9 @@ export default defineConfig({
   // longer than Playwright's 5s default under a full-suite run, even
   // though nothing is actually wrong - raise the defaults rather than
   // patch timeouts on every assertion.
-  timeout: 60_000,
+  timeout: 180_000,
   expect: {
-    timeout: 15_000,
+    timeout: 30_000,
   },
   use: {
     baseURL: "http://localhost:3000",
@@ -22,7 +22,7 @@ export default defineConfig({
     command: "npm run dev",
     url: "http://localhost:3000",
     reuseExistingServer: true,
-    timeout: 120_000,
+    timeout: 180_000,
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
 })

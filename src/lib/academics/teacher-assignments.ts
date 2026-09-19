@@ -31,8 +31,16 @@ export type TeacherAssignmentContext = {
 // A per-section permission (any subject in that section is enough) - used
 // by attendance and results, which don't care which specific subject a
 // teacher's assignment is for.
+//
+// schoolId is required and filtered on directly (TeacherAssignment carries
+// its own schoolId column) so this check is self-contained authorization,
+// not merely "correct as long as every caller already validated the ids" -
+// a classId/sectionId that doesn't actually belong to schoolId can never
+// produce a false positive here, regardless of what a future caller forgets
+// to check first.
 export async function isTeacherAssignedToSection(
   teacherId: string,
+  schoolId: string,
   academicYearId: string,
   classId: string,
   sectionId: string
@@ -40,6 +48,7 @@ export async function isTeacherAssignedToSection(
   const match = await prisma.teacherAssignment.findFirst({
     where: {
       teacherId,
+      schoolId,
       classId,
       sectionId,
       OR: [{ academicYearId }, { academicYearId: null }],
@@ -51,8 +60,11 @@ export async function isTeacherAssignedToSection(
 
 // Exam marks entry and homework are subject-specific (a teacher may only
 // act on the exact subject they're assigned to teach in that class/section).
+// See isTeacherAssignedToSection above for why schoolId is filtered here
+// directly rather than left to callers.
 export async function isTeacherAssignedToSubjectInSection(
   teacherId: string,
+  schoolId: string,
   academicYearId: string,
   classId: string,
   sectionId: string,
@@ -61,6 +73,7 @@ export async function isTeacherAssignedToSubjectInSection(
   const match = await prisma.teacherAssignment.findFirst({
     where: {
       teacherId,
+      schoolId,
       classId,
       sectionId,
       subjectId,

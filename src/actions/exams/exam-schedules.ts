@@ -63,6 +63,7 @@ export async function createExamSchedule(input: unknown): Promise<ExamActionResu
         room: parsed.data.room || null,
         fullMarks: parsed.data.fullMarks,
         passMarks: parsed.data.passMarks,
+        homeworkMaxMarks: parsed.data.homeworkMaxMarks ?? null,
       },
     })
   } catch (error) {
@@ -108,6 +109,7 @@ export async function updateExamSchedule(input: unknown): Promise<ExamActionResu
         room: parsed.data.room || null,
         fullMarks: parsed.data.fullMarks,
         passMarks: parsed.data.passMarks,
+        homeworkMaxMarks: parsed.data.homeworkMaxMarks ?? null,
       },
     })
   } catch (error) {

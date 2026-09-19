@@ -57,8 +57,13 @@ export async function saveExamMarks(input: unknown): Promise<SaveExamMarksResult
     return { success: false, error: t("errors.invalidStudent") }
   }
 
+  // A schedule with a homework component reserves part of fullMarks for it -
+  // the written mark entered here is capped at what's left over, not the
+  // full total (the homework portion is never typed in directly; see
+  // getStudentHomeworkAssessmentSummary / buildMarksByStudentId).
+  const writtenMaxMarks = schedule.fullMarks - (schedule.homeworkMaxMarks ?? 0)
   for (const entry of parsed.data.entries) {
-    if (!entry.isAbsent && (entry.marks === null || entry.marks < 0 || entry.marks > schedule.fullMarks)) {
+    if (!entry.isAbsent && (entry.marks === null || entry.marks < 0 || entry.marks > writtenMaxMarks)) {
       return { success: false, error: t("errors.marksOutOfRange") }
     }
   }

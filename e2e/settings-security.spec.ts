@@ -189,6 +189,90 @@ test.describe("School settings security, validation, and persistence", () => {
     await expect(page.getByRole("heading", { name: newTitle })).toBeVisible()
   })
 
+  test("a Bangla school name displays instead of the English one when the interface language is Bangla", async ({
+    page,
+  }) => {
+    await login(page, ACCOUNTS.admin.email, ACCOUNTS.admin.password)
+    await page.goto("/settings/school")
+
+    const banglaName = `${RUN_PREFIX} বাংলা নাম`
+    await fillReplace(page.locator("#school-name-bangla"), banglaName)
+    await page.getByRole("button", { name: "Save Changes" }).click()
+    await expect(page.getByText("Settings saved.")).toBeVisible()
+
+    await page.goto("/dashboard")
+    await page.getByRole("button", { name: "Language" }).click()
+    await page.getByRole("menuitem", { name: "বাংলা" }).click()
+    // Branding propagates to more than one surface at once (sidebar, dashboard
+    // greeting, route announcer) - that's the point of this phase, so
+    // .first() rather than a locator coupled to exactly one of them.
+    await expect(page.getByText(banglaName).first()).toBeVisible()
+
+    // logout()'s "Account"/"Log out" labels are English-only (see
+    // portal-student.spec.ts's own Bangla/English toggle test) - switch back
+    // before calling it, same convention as that test.
+    await page.getByRole("button", { name: "ভাষা" }).click()
+    await page.getByRole("menuitem", { name: "English" }).click()
+    await logout(page)
+  })
+
+  test("the report card shows the settings-configured school name, not the raw School record name", async ({
+    page,
+  }) => {
+    const overrideName = `${RUN_PREFIX} Report Card School Name`
+    // upsert, not update - this test must not depend on an earlier test in
+    // this file having already created the settings row.
+    await prisma.schoolSettings.upsert({
+      where: { schoolId },
+      create: { schoolId, schoolName: overrideName },
+      update: { schoolName: overrideName },
+    })
+
+    const academicYear = await prisma.academicYear.findFirstOrThrow({ where: { schoolId, name: "2026" } })
+    const class5 = await prisma.class.findFirstOrThrow({ where: { schoolId, name: "Class 5" } })
+    const sectionA = await prisma.section.findFirstOrThrow({ where: { classId: class5.id, name: "A" } })
+    const mathSubject = await prisma.subject.findFirstOrThrow({ where: { schoolId, code: "MATH" } })
+    const student = await prisma.student.findFirstOrThrow({
+      where: { schoolId, classId: class5.id, sectionId: sectionA.id, academicYearId: academicYear.id },
+    })
+    const teacher = await prisma.user.findFirstOrThrow({ where: { schoolId, email: ACCOUNTS.teacher.email } })
+    const examType = await prisma.examType.create({ data: { schoolId, name: `${RUN_PREFIX} Report Card Type` } })
+    const exam = await prisma.exam.create({
+      data: {
+        schoolId,
+        academicYearId: academicYear.id,
+        examTypeId: examType.id,
+        name: `${RUN_PREFIX} Report Card Exam`,
+        startDate: new Date("2026-12-01"),
+        endDate: new Date("2026-12-05"),
+      },
+    })
+    const schedule = await prisma.examSchedule.create({
+      data: {
+        schoolId,
+        examId: exam.id,
+        classId: class5.id,
+        subjectId: mathSubject.id,
+        examDate: new Date("2026-12-02"),
+        fullMarks: 100,
+        passMarks: 33,
+      },
+    })
+    await prisma.examMark.create({
+      data: { schoolId, examScheduleId: schedule.id, studentId: student.id, marks: 80, enteredById: teacher.id },
+    })
+
+    await login(page, ACCOUNTS.admin.email, ACCOUNTS.admin.password)
+    await page.goto(`/results/${exam.id}/student/${student.id}/report-card`)
+    await expect(page.getByRole("heading", { name: overrideName })).toBeVisible()
+
+    await prisma.examMark.deleteMany({ where: { examScheduleId: schedule.id } })
+    await prisma.examSchedule.delete({ where: { id: schedule.id } })
+    await prisma.exam.delete({ where: { id: exam.id } })
+    await prisma.examType.delete({ where: { id: examType.id } })
+    await logout(page)
+  })
+
   test("saving School A's settings never modifies School B's settings row", async ({ page }) => {
     await login(page, ACCOUNTS.admin.email, ACCOUNTS.admin.password)
     await page.goto("/settings/branding")

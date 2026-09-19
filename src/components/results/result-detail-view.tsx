@@ -59,7 +59,19 @@ export async function ResultDetailView({
                     <TableCell>
                       {subject.status === "ABSENT" && t("status.absent")}
                       {subject.status === "PENDING" && t("status.pending")}
-                      {(subject.status === "PASS" || subject.status === "FAIL") && subject.marks}
+                      {(subject.status === "PASS" || subject.status === "FAIL") && (
+                        <>
+                          {subject.marks}
+                          {subject.homeworkMaxMarks ? (
+                            <span className="block text-xs text-muted-foreground">
+                              {t("fields.marksBreakdown", {
+                                written: subject.writtenMarks ?? 0,
+                                homework: subject.homeworkMarks ?? 0,
+                              })}
+                            </span>
+                          ) : null}
+                        </>
+                      )}
                     </TableCell>
                     <TableCell>{subject.percentage !== null ? `${subject.percentage}%` : "—"}</TableCell>
                     <TableCell>{subject.grade ?? "—"}</TableCell>

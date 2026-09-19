@@ -11,6 +11,7 @@ const errors = {
   examDateRequired: "errors.examDateRequired",
   fullMarksInvalid: "errors.fullMarksInvalid",
   passMarksInvalid: "errors.passMarksInvalid",
+  homeworkMaxMarksInvalid: "errors.homeworkMaxMarksInvalid",
   invalidTimeRange: "errors.invalidTimeRange",
   marksAbsentMismatch: "errors.marksAbsentMismatch",
 }
@@ -60,10 +61,24 @@ export const examScheduleSchema = z
     room: optionalText,
     fullMarks: z.coerce.number().int().positive({ error: errors.fullMarksInvalid }),
     passMarks: z.coerce.number().int().min(0, { error: errors.passMarksInvalid }),
+    // Optional: the portion of fullMarks sourced from reviewed homework
+    // instead of a typed exam mark. Left blank (undefined) means this
+    // subject has no homework component - same as every schedule that
+    // existed before this field was added.
+    homeworkMaxMarks: z
+      .preprocess(
+        (v) => (v === "" || v === null || v === undefined ? undefined : Number(v)),
+        z.number().int().min(0, { error: errors.homeworkMaxMarksInvalid }).optional()
+      )
+      .optional(),
   })
   .refine((data) => data.passMarks <= data.fullMarks, {
     error: errors.passMarksInvalid,
     path: ["passMarks"],
+  })
+  .refine((data) => data.homeworkMaxMarks === undefined || data.homeworkMaxMarks <= data.fullMarks, {
+    error: errors.homeworkMaxMarksInvalid,
+    path: ["homeworkMaxMarks"],
   })
   .refine((data) => !data.startTime || !data.endTime || data.endTime > data.startTime, {
     error: errors.invalidTimeRange,

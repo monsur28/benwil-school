@@ -13,6 +13,7 @@ export type ScheduleAccessSchedule = {
   subjectId: string
   fullMarks: number
   passMarks: number
+  homeworkMaxMarks: number | null
   academicYearId: string
   resultStatus: "DRAFT" | "FINALIZED"
 }
@@ -40,6 +41,7 @@ export async function checkScheduleAccess(
       subjectId: true,
       fullMarks: true,
       passMarks: true,
+      homeworkMaxMarks: true,
       exam: { select: { academicYearId: true, resultStatus: true } },
     },
   })
@@ -61,6 +63,7 @@ export async function checkScheduleAccess(
     }
     const allowed = await isTeacherAssignedToSubjectInSection(
       user.userId,
+      user.schoolId,
       schedule.exam.academicYearId,
       schedule.classId,
       sectionId,
@@ -80,6 +83,7 @@ export async function checkScheduleAccess(
       subjectId: schedule.subjectId,
       fullMarks: schedule.fullMarks,
       passMarks: schedule.passMarks,
+      homeworkMaxMarks: schedule.homeworkMaxMarks,
       academicYearId: schedule.exam.academicYearId,
       resultStatus: schedule.exam.resultStatus,
     },

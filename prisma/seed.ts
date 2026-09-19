@@ -196,7 +196,11 @@ async function main() {
   })
 
   console.log(
-    `Linked student@benwil.test to student ${linkedStudent.name} (${linkedStudent.studentUid}), and guardian@benwil.test to "Portal Test Guardian" as that student's guardian. Password for both: ${DEV_PASSWORD}`
+    // portalGuardian.name, not the hardcoded "Portal Test Guardian" above -
+    // the upsert above only patches userId on an already-existing row (e.g.
+    // one created through real admission testing under its own real name),
+    // so the create-branch's name is not guaranteed to be what's printed here.
+    `Linked student@benwil.test to student ${linkedStudent.name} (${linkedStudent.studentUid}), and guardian@benwil.test to "${portalGuardian.name}" as that student's guardian. Password for both: ${DEV_PASSWORD}`
   )
 
   // --- Phase 6 fixture: one default grading scale, explicitly labeled as ---

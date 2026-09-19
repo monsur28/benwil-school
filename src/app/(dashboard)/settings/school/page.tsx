@@ -25,6 +25,7 @@ export default async function SchoolProfileSettingsPage() {
           <SchoolProfileForm
             settings={{
               schoolName: settings?.schoolName ?? school.name,
+              schoolNameBangla: settings?.schoolNameBangla ?? "",
               shortName: settings?.shortName ?? "",
               schoolCode: settings?.schoolCode ?? "",
               motto: settings?.motto ?? "",

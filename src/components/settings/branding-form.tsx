@@ -4,6 +4,7 @@ import { useState, useTransition } from "react"
 import { useTranslations } from "next-intl"
 import { brandingColorsSchema, type BrandingColorsInput } from "@/lib/validations/school-settings"
 import { updateBrandingColors } from "@/actions/settings/school-settings"
+import { SETTINGS_DEFAULTS } from "@/lib/settings/defaults"
 import { ColorInput } from "@/components/settings/color-input"
 import { BrandingImageUploader } from "@/components/settings/branding-image-uploader"
 import { BrandingPreview } from "@/components/settings/branding-preview"
@@ -108,9 +109,9 @@ export function BrandingForm({
 
         <BrandingPreview
           schoolName={schoolName}
-          primaryColor={colors.primaryColor || "#18315a"}
-          secondaryColor={colors.secondaryColor || "#bb1f23"}
-          sidebarColor={colors.sidebarColor || colors.primaryColor || "#18315a"}
+          primaryColor={colors.primaryColor || SETTINGS_DEFAULTS.primaryColor}
+          secondaryColor={colors.secondaryColor || SETTINGS_DEFAULTS.secondaryColor}
+          sidebarColor={colors.sidebarColor || colors.primaryColor || SETTINGS_DEFAULTS.primaryColor}
         />
       </div>
 

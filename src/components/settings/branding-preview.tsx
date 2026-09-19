@@ -1,6 +1,7 @@
 "use client"
 
 import { useTranslations } from "next-intl"
+import { SETTINGS_DEFAULTS } from "@/lib/settings/defaults"
 
 const HEX_COLOR = /^#[0-9A-Fa-f]{6}$/
 
@@ -16,8 +17,8 @@ export function BrandingPreview({
   sidebarColor: string
 }) {
   const t = useTranslations("settings")
-  const safePrimary = HEX_COLOR.test(primaryColor) ? primaryColor : "#18315a"
-  const safeSecondary = HEX_COLOR.test(secondaryColor) ? secondaryColor : "#bb1f23"
+  const safePrimary = HEX_COLOR.test(primaryColor) ? primaryColor : SETTINGS_DEFAULTS.primaryColor
+  const safeSecondary = HEX_COLOR.test(secondaryColor) ? secondaryColor : SETTINGS_DEFAULTS.secondaryColor
   const safeSidebar = HEX_COLOR.test(sidebarColor) ? sidebarColor : safePrimary
 
   return (

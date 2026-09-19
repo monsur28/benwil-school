@@ -52,6 +52,7 @@
     "fees": "Fees",
     "homework": "Homework",
     "notices": "Notices",
+    "routine": "Routine",
     "library": "Library",
     "transport": "Transport",
     "reports": "Reports",
@@ -692,6 +693,7 @@
       "room": "Room",
       "fullMarks": "Full Marks",
       "passMarks": "Pass Marks",
+      "homeworkMaxMarks": "Homework Max Marks",
       "marks": "Marks",
       "absent": "Absent",
       "roll": "Roll",
@@ -742,13 +744,16 @@
     "schedule": {
       "createTitle": "Add Subject to Exam",
       "editTitle": "Edit Schedule",
-      "noSubjectsForClass": "No subjects are assigned to this class yet. Assign subjects in Academic Management first."
+      "noSubjectsForClass": "No subjects are assigned to this class yet. Assign subjects in Academic Management first.",
+      "homeworkMaxMarksPlaceholder": "Leave blank for no homework component",
+      "homeworkMaxMarksHint": "Marks sourced automatically from the student's reviewed homework for this subject, out of Full Marks. Leave blank if this subject has no homework component."
     },
     "marks": {
       "markAllAbsent": "Mark All Absent",
       "saveSuccess": "Marks saved",
       "noScheduleSelected": "Select a class and subject with a scheduled exam to enter marks.",
-      "nothingToSave": "Enter at least one mark or mark a student absent before saving."
+      "nothingToSave": "Enter at least one mark or mark a student absent before saving.",
+      "homeworkComponentHint": "Written marks are out of {writtenMaxMarks}. Homework ({homeworkMaxMarks} marks) is added automatically from the student's reviewed homework."
     },
     "success": {
       "examTypeCreated": "Exam type created",
@@ -774,6 +779,7 @@
       "examDateRequired": "Exam date is required.",
       "fullMarksInvalid": "Full marks must be greater than 0.",
       "passMarksInvalid": "Pass marks must be between 0 and full marks.",
+      "homeworkMaxMarksInvalid": "Homework max marks must be between 0 and full marks.",
       "invalidTimeRange": "End time must be after start time.",
       "subjectNotInClass": "This subject is not assigned to the selected class.",
       "duplicateSchedule": "This subject is already scheduled for this class in this exam.",
@@ -806,6 +812,7 @@
       "subject": "Subject",
       "fullMarks": "Full Marks",
       "obtainedMarks": "Obtained Marks",
+      "marksBreakdown": "Written: {written}, Homework: {homework}",
       "percentage": "Percentage",
       "totalMarks": "Total Marks",
       "gpa": "GPA",
@@ -968,6 +975,13 @@
       "noSubjectsForClass": "This class has no subjects assigned yet. Add one from the class page first.",
       "viewAll": "View all assignments",
       "allYears": "All academic years"
+    },
+    "routine": {
+      "title": "Class Routine",
+      "description": "Define and manage weekly timetable for classes and sections.",
+      "addTitle": "Add Routine Entry",
+      "editTitle": "Edit Routine Entry",
+      "empty": "No routine entries yet for this section."
     },
     "classDetail": {
       "backToClasses": "Back to Classes",
@@ -1784,6 +1798,7 @@
     },
     "fields": {
       "schoolName": "School Name",
+      "schoolNameBangla": "School Name (Bangla)",
       "shortName": "Short Name",
       "schoolCode": "School Code",
       "motto": "Motto",
@@ -1830,5 +1845,134 @@
       "invalidWorkingDay": "Select valid working days.",
       "invalidPageSize": "Enter a page size between 5 and 200."
     }
+  },
+  "portal": {
+    "nav": {
+      "dashboard": "Dashboard",
+      "profile": "Profile",
+      "attendance": "Attendance",
+      "results": "Results",
+      "fees": "Fees",
+      "homework": "Homework",
+      "notices": "Notices",
+      "routine": "Routine",
+      "myChildren": "My Children"
+    },
+    "cards": {
+      "attendance": "Attendance",
+      "latestResult": "Latest Result",
+      "homework": "Upcoming Homework",
+      "notices": "Notices",
+      "fees": "Fee Balance"
+    },
+    "fields": {
+      "roll": "Roll",
+      "allFeesCleared": "All Fees Cleared",
+      "lastPayment": "Last Payment",
+      "academicYear": "Academic Year",
+      "attendancePercentage": "Attendance Percentage"
+    },
+    "actions": {
+      "seeAll": "See all",
+      "viewDetails": "View details"
+    },
+    "filters": {
+      "allYears": "All Years",
+      "from": "From",
+      "to": "To"
+    },
+    "empty": {
+      "noResultsTitle": "No results yet",
+      "noResults": "Results will appear here once published.",
+      "noHomeworkTitle": "No homework assigned",
+      "noHomework": "You're all caught up! Check back later for new assignments.",
+      "noNoticesTitle": "No notices yet",
+      "noNotices": "School announcements will appear here.",
+      "noAttendance": "No attendance records yet.",
+      "noChildren": "No children are linked to this account yet.",
+      "noChildrenTitle": "No Children",
+      "noFees": "No fees have been assigned yet.",
+      "noFeesTitle": "No Fees"
+    }
+  },
+  "routine": {
+    "title": "Class Routine",
+    "description": "Define and manage weekly timetable for classes and sections",
+    "myRoutine": "My Routine",
+    "viewSchedule": "View Class Schedule",
+    "todaysSchedule": "Today's Schedule",
+    "noClassesToday": "No classes scheduled today",
+    "noRoutineFound": "No routine entries created yet for this section",
+    "noSubjectsAssigned": "No subjects assigned",
+    "noTeacherAssigned": "No teacher assigned to this subject",
+    "roomPlaceholder": "e.g. Room 201",
+    "addEntry": "Add Routine Entry",
+    "editEntry": "Edit Routine Entry",
+    "deleteEntry": "Delete Routine Entry",
+    "deleteConfirm": "Are you sure you want to delete this routine entry?",
+    "day": "Day",
+    "period": "Period",
+    "periodNumber": "Period {number}",
+    "startTime": "Start Time",
+    "endTime": "End Time",
+    "room": "Room",
+    "roomOptional": "Room (Optional)",
+    "subject": "Subject",
+    "teacher": "Teacher",
+    "selectYear": "Academic Year",
+    "selectClass": "Class",
+    "selectSection": "Section",
+    "allDays": "All Days",
+    "save": "Save",
+    "saving": "Saving...",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "days": {
+      "SATURDAY": "Saturday",
+      "SUNDAY": "Sunday",
+      "MONDAY": "Monday",
+      "TUESDAY": "Tuesday",
+      "WEDNESDAY": "Wednesday",
+      "THURSDAY": "Thursday",
+      "FRIDAY": "Friday"
+    },
+    "shortDays": {
+      "SATURDAY": "Sat",
+      "SUNDAY": "Sun",
+      "MONDAY": "Mon",
+      "TUESDAY": "Tue",
+      "WEDNESDAY": "Wed",
+      "THURSDAY": "Thu",
+      "FRIDAY": "Fri"
+    },
+    "errors": {
+      "academicYearRequired": "Select an academic year.",
+      "classRequired": "Select a class.",
+      "sectionRequired": "Select a section.",
+      "subjectRequired": "Select a subject.",
+      "teacherRequired": "Select a teacher.",
+      "dayRequired": "Select a day of the week.",
+      "periodRequired": "Enter a valid period number.",
+      "periodMin": "Period must be at least 1.",
+      "periodMax": "Period cannot exceed 12.",
+      "startTimeInvalid": "Enter a valid start time (HH:mm).",
+      "endTimeInvalid": "Enter a valid end time (HH:mm).",
+      "invalidTimeRange": "End time must be after start time.",
+      "roomTooLong": "Room must be 50 characters or less.",
+      "idRequired": "Entry ID is required.",
+      "classConflict": "A class entry already exists for this day and period.",
+      "teacherConflict": "This teacher is already assigned to another class during this period.",
+      "timeConflict": "The specified time range overlaps with another scheduled class.",
+      "teacherNotAssigned": "The selected teacher is not assigned to teach this subject for this class and section.",
+      "subjectNotInClass": "The selected subject is not assigned to this class.",
+      "invalidForm": "Please fix the highlighted fields.",
+      "notFound": "Record not found.",
+      "saveFailed": "Unable to save routine entry. Please try again."
+    },
+    "success": {
+      "saved": "Routine entry saved successfully.",
+      "deleted": "Routine entry deleted successfully."
+    }
   }
 }
+

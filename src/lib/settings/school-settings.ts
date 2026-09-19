@@ -1,7 +1,24 @@
 import "server-only"
 import { cache } from "react"
+import { getLocale } from "next-intl/server"
 import { prisma } from "@/lib/db/client"
+import { pickLocalized } from "@/lib/format"
 import { SETTINGS_DEFAULTS } from "./defaults"
+
+// getLocale() needs next-intl's request-scoped config, which only exists
+// inside an actual Next.js request - the DB-backed unit tests for this file
+// call getSchoolIdentity() directly under plain node:test, with no such
+// request/context. Falling back to "en" there (rather than throwing) keeps
+// this function safe to call from anywhere, exactly like every other
+// fallback in this module - production callers always run inside a real
+// request and get the real locale.
+async function currentLocale(): Promise<string> {
+  try {
+    return await getLocale()
+  } catch {
+    return "en"
+  }
+}
 
 // Memoized per request (React cache()) - the sidebar, header, dashboard, and
 // any portal layout can all call this in the same request tree and it only
@@ -25,6 +42,7 @@ export const getPrimarySchoolId = cache(async (): Promise<string | null> => {
 
 export type SchoolIdentity = {
   schoolName: string
+  schoolNameBangla: string | null
   shortName: string | null
   schoolCode: string | null
   motto: string | null
@@ -44,12 +62,18 @@ export type SchoolIdentity = {
 }
 
 // Fallback hierarchy (spec §15): SchoolSettings -> School.name -> app default.
+// schoolName itself is locale-aware (spec §37 of the branding phase) - every
+// caller (sidebar, dashboard, login, portals, report cards) gets whichever
+// name matches the current locale automatically, without knowing about
+// schoolNameBangla at all.
 export async function getSchoolIdentity(schoolId: string): Promise<SchoolIdentity> {
-  const school = await getSchoolWithSettings(schoolId)
+  const [school, locale] = await Promise.all([getSchoolWithSettings(schoolId), currentLocale()])
   const settings = school?.settings ?? null
+  const englishName = settings?.schoolName || school?.name || SETTINGS_DEFAULTS.schoolName
 
   return {
-    schoolName: settings?.schoolName || school?.name || SETTINGS_DEFAULTS.schoolName,
+    schoolName: pickLocalized(englishName, settings?.schoolNameBangla, locale),
+    schoolNameBangla: settings?.schoolNameBangla ?? null,
     shortName: settings?.shortName ?? null,
     schoolCode: settings?.schoolCode ?? null,
     motto: settings?.motto ?? null,

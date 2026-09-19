@@ -180,8 +180,14 @@ test.describe("Homework security and grading validation", () => {
     // The (dashboard) layout redirects STUDENT/GUARDIAN sessions to their
     // own portal before this page's own requireRole() ever runs - the page
     // itself is simply never reached, whichever portal home they land on.
+    //
+    // Not asserted here: that "${RUN_PREFIX} Graded Assignment" is absent
+    // from wherever they land. It legitimately IS visible - the redirect
+    // lands the student on their own /portal/student dashboard, which (since
+    // Phase 14.1) shows real published homework for the student's own
+    // class/section, and this fixture is exactly that for this exact
+    // student. That's correct behavior, not a leak of the admin page.
     await expect(page).not.toHaveURL(new RegExp(`/homework/${homeworkWithSubmissionId}`))
-    await expect(page.getByText(`${RUN_PREFIX} Graded Assignment`)).toHaveCount(0)
     await logout(page)
   })
 

@@ -32,7 +32,7 @@ export async function checkHomeworkWriteAccess(
   if (user.role !== Role.TEACHER) {
     return { ok: false, reason: "unauthorized" }
   }
-  const assigned = await isTeacherAssignedToSubjectInSection(user.userId, academicYearId, classId, sectionId, subjectId)
+  const assigned = await isTeacherAssignedToSubjectInSection(user.userId, user.schoolId, academicYearId, classId, sectionId, subjectId)
   return assigned ? { ok: true } : { ok: false, reason: "unauthorized" }
 }
 

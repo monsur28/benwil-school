@@ -29,11 +29,21 @@ export type ScheduleInput = {
   subjectName: string
   fullMarks: number
   passMarks: number
+  // Phase 12: the portion of fullMarks sourced from homework instead of a
+  // typed exam mark. Null/0 means this subject has no homework component -
+  // every existing schedule, and the only case this file's callers had to
+  // handle before this phase.
+  homeworkMaxMarks: number | null
 }
 
 export type MarkInput = {
   marks: number | null
   isAbsent: boolean
+  // The homework contribution already scaled into this schedule's
+  // homeworkMaxMarks allotment - live-computed while the exam is DRAFT, or
+  // the frozen finalization-time snapshot once FINALIZED. Null means "not
+  // available yet" (no reviewed homework), not zero - see resolveTotalMarks.
+  homeworkMarks: number | null
 } | null
 
 export type SubjectResult = {
@@ -49,6 +59,12 @@ export type SubjectResult = {
   gradeBn: string | null
   gradePoint: number | null
   status: SubjectStatus
+  // Phase 12 breakdown - only meaningful when homeworkMaxMarks is set. marks
+  // above is always the total (written + homework) so existing percentage/
+  // grade/GPA consumers need no changes.
+  homeworkMaxMarks: number | null
+  writtenMarks: number | null
+  homeworkMarks: number | null
 }
 
 export type StudentExamResult = {
@@ -94,11 +110,29 @@ export function calculatePercentage(marks: number, fullMarks: number): number | 
   return Math.round((marks / fullMarks) * 10000) / 100
 }
 
-function calculateSubjectStatus(mark: MarkInput, passMarks: number): SubjectStatus {
+// Whether this schedule actually has a homework component - centralized so
+// "null" and "0" are always treated identically everywhere below.
+function hasHomeworkComponent(homeworkMaxMarks: number | null): boolean {
+  return homeworkMaxMarks !== null && homeworkMaxMarks > 0
+}
+
+// The written exam mark plus its homework contribution, or null if either
+// piece isn't available yet. A schedule with no homework component ignores
+// homeworkMarks entirely, so this is exactly `mark.marks` for every schedule
+// that predates this phase - zero behavior change for them.
+function resolveTotalMarks(mark: MarkInput, homeworkMaxMarks: number | null): number | null {
+  if (!mark || mark.marks === null) return null
+  if (!hasHomeworkComponent(homeworkMaxMarks)) return mark.marks
+  if (mark.homeworkMarks === null) return null
+  return mark.marks + mark.homeworkMarks
+}
+
+function calculateSubjectStatus(mark: MarkInput, passMarks: number, homeworkMaxMarks: number | null): SubjectStatus {
   if (!mark) return "PENDING"
   if (mark.isAbsent) return "ABSENT"
-  if (mark.marks === null) return "PENDING"
-  return mark.marks >= passMarks ? "PASS" : "FAIL"
+  const total = resolveTotalMarks(mark, homeworkMaxMarks)
+  if (total === null) return "PENDING"
+  return total >= passMarks ? "PASS" : "FAIL"
 }
 
 export function calculateSubjectResult(
@@ -106,9 +140,9 @@ export function calculateSubjectResult(
   mark: MarkInput,
   gradeRules: GradeLookupRule[]
 ): SubjectResult {
-  const status = calculateSubjectStatus(mark, schedule.passMarks)
+  const status = calculateSubjectStatus(mark, schedule.passMarks, schedule.homeworkMaxMarks)
   const hasNumericMarks = status === "PASS" || status === "FAIL"
-  const marksValue = hasNumericMarks ? mark!.marks! : null
+  const marksValue = hasNumericMarks ? resolveTotalMarks(mark, schedule.homeworkMaxMarks) : null
 
   const percentage = hasNumericMarks ? calculatePercentage(marksValue!, schedule.fullMarks) : null
   const matchedRule = hasNumericMarks ? findGradeForMarks(marksValue!, schedule.fullMarks, gradeRules) : null
@@ -126,7 +160,27 @@ export function calculateSubjectResult(
     gradeBn: matchedRule?.gradeBn ?? null,
     gradePoint: matchedRule?.gradePoint ?? null,
     status,
+    homeworkMaxMarks: schedule.homeworkMaxMarks,
+    writtenMarks: hasNumericMarks ? mark!.marks : null,
+    homeworkMarks: hasNumericMarks && hasHomeworkComponent(schedule.homeworkMaxMarks) ? mark!.homeworkMarks : null,
   }
+}
+
+// Scales a student's aggregate homework performance (raw totalMarks out of
+// totalMaxMarks, summed across every reviewed homework for one subject in
+// one academic year - see getHomeworkAssessmentSummaries) into one
+// ExamSchedule's own homeworkMaxMarks allotment. Rounded to 2 decimal
+// places, the same granularity ExamMark.homeworkMarks and
+// HomeworkSubmission.marks are already stored at - not a new rounding
+// convention, and never used for grade-boundary comparison (findGradeForMarks
+// still does that in exact integer arithmetic against the resulting total).
+export function scaleHomeworkContribution(
+  totalMarks: number,
+  totalMaxMarks: number,
+  homeworkMaxMarks: number
+): number | null {
+  if (totalMaxMarks <= 0) return null
+  return Math.round((totalMarks / totalMaxMarks) * homeworkMaxMarks * 100) / 100
 }
 
 // Overall rules, deliberately simple and explicit (see AGENTS notes in the

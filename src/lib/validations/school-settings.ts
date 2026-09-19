@@ -57,6 +57,7 @@ export const LANGUAGE_CODES = ["en", "bn"] as const
 
 export const schoolProfileSchema = z.object({
   schoolName: z.string().trim().min(1, { error: errors.nameRequired }).max(255),
+  schoolNameBangla: optionalText(255),
   shortName: optionalText(100),
   schoolCode: optionalText(50),
   motto: optionalText(255),

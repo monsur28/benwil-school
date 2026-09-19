@@ -45,6 +45,7 @@ type ExamScheduleDialogProps = {
     room: string | null
     fullMarks: number
     passMarks: number
+    homeworkMaxMarks: number | null
   }
 }
 
@@ -81,6 +82,7 @@ export function ExamScheduleDialog({ examId, classes, classSubjects, schedule }:
           room: schedule!.room ?? "",
           fullMarks: schedule!.fullMarks,
           passMarks: schedule!.passMarks,
+          homeworkMaxMarks: schedule!.homeworkMaxMarks ?? "",
         }
       : {
           examId,
@@ -92,6 +94,7 @@ export function ExamScheduleDialog({ examId, classes, classSubjects, schedule }:
           room: "",
           fullMarks: 100,
           passMarks: 33,
+          homeworkMaxMarks: "",
         },
   })
 
@@ -205,6 +208,20 @@ export function ExamScheduleDialog({ examId, classes, classSubjects, schedule }:
               <FieldLabel htmlFor="schedule-pass-marks">{t("fields.passMarks")}</FieldLabel>
               <Input id="schedule-pass-marks" type="number" min={0} {...register("passMarks", { valueAsNumber: true })} />
               <FieldError errors={[errors.passMarks && { message: t(errors.passMarks.message as never) }]} />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="schedule-homework-max-marks">{t("fields.homeworkMaxMarks")}</FieldLabel>
+              <Input
+                id="schedule-homework-max-marks"
+                type="number"
+                min={0}
+                placeholder={t("schedule.homeworkMaxMarksPlaceholder")}
+                {...register("homeworkMaxMarks")}
+              />
+              <p className="text-xs text-muted-foreground">{t("schedule.homeworkMaxMarksHint")}</p>
+              <FieldError
+                errors={[errors.homeworkMaxMarks && { message: t(errors.homeworkMaxMarks.message as never) }]}
+              />
             </Field>
           </FieldGroup>
           <DialogFooter>

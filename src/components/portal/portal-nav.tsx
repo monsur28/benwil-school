@@ -10,6 +10,7 @@ import {
   Wallet,
   NotebookPen,
   Megaphone,
+  Clock,
 } from "lucide-react"
 import { cn } from "cn"
 
@@ -21,6 +22,7 @@ export type PortalNavIconKey =
   | "fees"
   | "homework"
   | "notices"
+  | "routine"
 
 export type PortalNavLink = {
   href: string
@@ -37,6 +39,7 @@ const ICON_MAP: Record<PortalNavIconKey, React.ComponentType<{ className?: strin
   fees: Wallet,
   homework: NotebookPen,
   notices: Megaphone,
+  routine: Clock,
 }
 
 function resolveIcon(link: PortalNavLink) {
@@ -50,6 +53,7 @@ function resolveIcon(link: PortalNavLink) {
   if (link.href.endsWith("/fees")) return Wallet
   if (link.href.endsWith("/homework")) return NotebookPen
   if (link.href.endsWith("/notices")) return Megaphone
+  if (link.href.endsWith("/routine")) return Clock
   return null
 }
 

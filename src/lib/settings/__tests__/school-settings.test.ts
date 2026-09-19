@@ -35,7 +35,11 @@ describe("school settings service (DB-backed)", () => {
     const schoolWithOverride = await prisma.school.create({ data: { name: `${RUN_PREFIX} Real Name Ignored` } })
     schoolWithOverrideId = schoolWithOverride.id
     await prisma.schoolSettings.create({
-      data: { schoolId: schoolWithOverrideId, schoolName: `${RUN_PREFIX} Override Name` },
+      data: {
+        schoolId: schoolWithOverrideId,
+        schoolName: `${RUN_PREFIX} Override Name`,
+        schoolNameBangla: `${RUN_PREFIX} Bangla Name`,
+      },
     })
 
     const schoolA = await prisma.school.create({ data: { name: `${RUN_PREFIX} School A` } })
@@ -96,6 +100,16 @@ describe("school settings service (DB-backed)", () => {
     it("uses settings.schoolName over School.name when explicitly set", async () => {
       const identity = await getSchoolIdentity(schoolWithOverrideId)
       assert.equal(identity.schoolName, `${RUN_PREFIX} Override Name`)
+    })
+
+    it("exposes the raw schoolNameBangla alongside the resolved schoolName", async () => {
+      const identity = await getSchoolIdentity(schoolWithOverrideId)
+      assert.equal(identity.schoolNameBangla, `${RUN_PREFIX} Bangla Name`)
+    })
+
+    it("schoolNameBangla is null when never set", async () => {
+      const identity = await getSchoolIdentity(schoolAId)
+      assert.equal(identity.schoolNameBangla, null)
     })
   })
 

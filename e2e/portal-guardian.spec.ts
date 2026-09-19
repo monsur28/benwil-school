@@ -26,7 +26,13 @@ test.describe("Guardian portal", () => {
     const academicYear = await prisma.academicYear.findFirstOrThrow({ where: { schoolId: school.id, name: "2026" } })
     const student = await prisma.student.findUniqueOrThrow({ where: { studentUid: "STU-0501" } })
     studentId = student.id
-    const guardian = await prisma.guardian.findFirstOrThrow({ where: { schoolId: school.id, name: "Portal Test Guardian" } })
+    // Looked up by email, not name - guardian@benwil.test's Guardian row is
+    // upserted in seed.ts keyed by phone, and that upsert only ever patches
+    // userId on an existing row, never name. In this shared dev database the
+    // row already existed (created through real admission testing) under a
+    // real display name, so `name` was never a stable fixture identifier -
+    // email is (see prisma/seed.ts's guardian.upsert).
+    const guardian = await prisma.guardian.findFirstOrThrow({ where: { schoolId: school.id, email: "guardian@benwil.test" } })
     guardianId = guardian.id
     const unrelated = await prisma.student.findUniqueOrThrow({ where: { studentUid: "STU-0503" } })
     unrelatedStudentId = unrelated.id
@@ -109,14 +115,23 @@ test.describe("Guardian portal", () => {
   test("login redirects straight to the sole child's dashboard", async ({ page }) => {
     await login(page, ACCOUNTS.guardian.email, ACCOUNTS.guardian.password)
     await expect(page).toHaveURL(new RegExp(`/portal/guardian/children/${studentId}$`))
-    await expect(page.getByRole("heading", { name: "Nusrat Jahan" })).toBeVisible()
+    // The dashboard's own H1 is now the guardian's own greeting ("Good
+    // evening, Mrs./Mr. <guardian name>.") rather than the child's name -
+    // see the Mr./Mrs. honorific commit. The subtitle paragraph ("Tracking
+    // <name>'s academic journey...") is a single contiguous text node
+    // naming the resolved child, so it's the stable per-child signal here -
+    // unlike the sidebar's "Student: <name>" tag, which is split across
+    // adjacent sibling spans with no text-node space between them, so
+    // getByText's substring match (DOM textContent, not the a11y-snapshot
+    // rendering) never finds "Student: <name>" as one string.
+    await expect(page.getByText(/Tracking Nusrat Jahan/)).toBeVisible()
   })
 
   test("profile, attendance, and finalized results work for the linked child", async ({ page }) => {
     await login(page, ACCOUNTS.guardian.email, ACCOUNTS.guardian.password)
 
     await page.goto(`/portal/guardian/children/${studentId}/profile`)
-    await expect(page.getByText("STU-0501")).toBeVisible()
+    await expect(page.getByText("STU-0501").first()).toBeVisible()
 
     await page.goto(`/portal/guardian/children/${studentId}/attendance`)
     await expect(page.getByText("Attendance Percentage")).toBeVisible()
@@ -152,14 +167,18 @@ test.describe("Guardian portal", () => {
       await expect(page.getByText("Nusrat Jahan")).toBeVisible()
       await expect(page.getByText("Tania Akter")).toBeVisible()
 
-      await page.getByText("Nusrat Jahan").click()
+      // Each child on this list is a <button>, not a link - click the
+      // button itself rather than its inner text paragraph.
+      await page.getByRole("button", { name: /Nusrat Jahan/ }).click()
       await expect(page).toHaveURL(new RegExp(`/portal/guardian/children/${studentId}$`))
 
       const switcher = page.locator("#portal-child-switcher")
       await expect(switcher).toBeVisible()
       await switcher.selectOption(unrelatedStudentId)
       await expect(page).toHaveURL(new RegExp(`/portal/guardian/children/${unrelatedStudentId}$`))
-      await expect(page.getByRole("heading", { name: "Tania Akter" })).toBeVisible()
+      // See the identical comment on the single-child login test above -
+      // the H1 is the guardian's own greeting, not the child's name.
+      await expect(page.getByText(/Tracking Tania Akter/)).toBeVisible()
     } finally {
       await prisma.studentGuardian.delete({ where: { id: link.id } })
       secondChildLinkId = null
@@ -168,15 +187,15 @@ test.describe("Guardian portal", () => {
 
   test("Bangla/English toggle and logout work", async ({ page }) => {
     await login(page, ACCOUNTS.guardian.email, ACCOUNTS.guardian.password)
-    await expect(page.getByRole("heading", { name: "Nusrat Jahan" })).toBeVisible()
+    await expect(page.getByText(/Tracking Nusrat Jahan/)).toBeVisible()
 
     await page.getByRole("button", { name: "Language" }).click()
     await page.getByRole("menuitem", { name: "বাংলা" }).click()
-    await expect(page.getByRole("link", { name: "আমার সন্তানরা" })).toBeVisible()
+    await expect(page.getByRole("link", { name: "আমার সন্তানরা" }).first()).toBeVisible()
 
     await page.getByRole("button", { name: "ভাষা" }).click()
     await page.getByRole("menuitem", { name: "English" }).click()
-    await expect(page.getByRole("heading", { name: "Nusrat Jahan" })).toBeVisible()
+    await expect(page.getByText(/Tracking Nusrat Jahan/)).toBeVisible()
 
     await logout(page)
     await expect(page).toHaveURL(/\/login$/)

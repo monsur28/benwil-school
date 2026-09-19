@@ -1,20 +1,30 @@
 import { getTranslations } from "next-intl/server"
 import type { StudentResultContext } from "@/lib/results/get-results"
+import type { SchoolIdentity } from "@/lib/settings/school-settings"
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table"
 import { PrintReportCardButton } from "@/components/results/print-report-card-button"
+import { SchoolCrest } from "@/components/shared/school-crest"
 
 // The printable report card body, shared by the admin route and the
 // student/guardian portal route - one place renders it, so print layout
 // and calculation stay in exactly one component.
+//
+// `identity` is the same settings-resolved SchoolIdentity the sidebar/login/
+// dashboard already use (see src/lib/settings/school-settings.ts) - never
+// the raw School.name - so a school's configured name/logo/address/phone
+// shows here too, not just on-screen. Only the fields that already fit this
+// header (spec Phase 13 §15) are used; everything else on SchoolIdentity is
+// ignored.
 export async function ReportCardView({
-  schoolName,
+  identity,
   context,
 }: {
-  schoolName: string
+  identity: Pick<SchoolIdentity, "schoolName" | "logoUrl" | "address" | "phone">
   context: StudentResultContext
 }) {
   const t = await getTranslations("results")
   const { result } = context
+  const contactLine = [identity.address, identity.phone].filter(Boolean).join(" | ")
 
   return (
     <div className="mx-auto w-full max-w-3xl space-y-6 rounded-xl border bg-card p-6 print:max-w-none print:border-0 print:p-0 print:shadow-none">
@@ -24,8 +34,17 @@ export async function ReportCardView({
       </div>
 
       <div className="space-y-1 border-b pb-4 text-center">
-        <h1 className="font-heading text-xl font-bold">{schoolName}</h1>
+        <div className="flex items-center justify-center gap-2">
+          {identity.logoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element -- printable page: a plain <img> avoids next/image's remote-pattern/layout constraints for an admin-supplied URL.
+            <img src={identity.logoUrl} alt={identity.schoolName} className="h-8 w-8 object-contain" />
+          ) : (
+            <SchoolCrest size="sm" className="size-6" />
+          )}
+          <h1 className="font-heading text-xl font-bold">{identity.schoolName}</h1>
+        </div>
         <p className="text-sm text-muted-foreground">{t("reportCard.title")}</p>
+        {contactLine && <p className="text-xs text-muted-foreground">{contactLine}</p>}
       </div>
 
       <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-sm sm:grid-cols-3">
@@ -81,7 +100,19 @@ export async function ReportCardView({
               <TableCell>
                 {subject.status === "ABSENT" && t("status.absent")}
                 {subject.status === "PENDING" && t("status.pending")}
-                {(subject.status === "PASS" || subject.status === "FAIL") && subject.marks}
+                {(subject.status === "PASS" || subject.status === "FAIL") && (
+                  <>
+                    {subject.marks}
+                    {subject.homeworkMaxMarks ? (
+                      <span className="block text-xs text-muted-foreground">
+                        {t("fields.marksBreakdown", {
+                          written: subject.writtenMarks ?? 0,
+                          homework: subject.homeworkMarks ?? 0,
+                        })}
+                      </span>
+                    ) : null}
+                  </>
+                )}
               </TableCell>
               <TableCell>{subject.percentage !== null ? `${subject.percentage}%` : "—"}</TableCell>
               <TableCell>{subject.grade ?? "—"}</TableCell>

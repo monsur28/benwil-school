@@ -75,6 +75,7 @@ export default async function ExamDetailPage({
               <TableHead>{t("fields.examDate")}</TableHead>
               <TableHead>{t("fields.fullMarks")}</TableHead>
               <TableHead>{t("fields.passMarks")}</TableHead>
+              <TableHead>{t("fields.homeworkMaxMarks")}</TableHead>
               <TableHead>{t("detail.scheduledSubjects")}</TableHead>
               <TableHead className="text-right">{t("actions.label")}</TableHead>
             </TableRow>
@@ -82,7 +83,7 @@ export default async function ExamDetailPage({
           <TableBody>
             {schedules.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center text-muted-foreground">
+                <TableCell colSpan={8} className="text-center text-muted-foreground">
                   {t("detail.empty")}
                 </TableCell>
               </TableRow>
@@ -97,6 +98,7 @@ export default async function ExamDetailPage({
                     <TableCell>{schedule.examDate.toLocaleDateString()}</TableCell>
                     <TableCell>{schedule.fullMarks}</TableCell>
                     <TableCell>{schedule.passMarks}</TableCell>
+                    <TableCell>{schedule.homeworkMaxMarks ?? "—"}</TableCell>
                     <TableCell className="text-xs text-muted-foreground">
                       {completion
                         ? t("detail.completion", {

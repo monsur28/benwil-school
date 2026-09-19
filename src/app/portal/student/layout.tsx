@@ -1,6 +1,6 @@
 import type { ReactNode } from "react"
 import { getTranslations } from "next-intl/server"
-import { LayoutDashboard, User, ClipboardCheck, Award, Wallet, Megaphone, NotebookPen } from "lucide-react"
+import { LayoutDashboard, User, ClipboardCheck, Award, Wallet, Megaphone, NotebookPen, Clock } from "lucide-react"
 import { requireStudentIdentity } from "@/lib/portal/identity"
 import { AppShell } from "@/components/shared/app-shell"
 
@@ -21,6 +21,7 @@ export default async function StudentPortalLayout({ children }: { children: Reac
       titleKey: "nav.groups.academics",
       title: t("nav.groups.academics", { fallback: "Academics" }),
       items: [
+        { href: "/portal/student/routine", label: t("nav.routine", { fallback: "Routine" }), icon: <Clock className="size-4" /> },
         { href: "/portal/student/attendance", label: t("nav.attendance"), icon: <ClipboardCheck className="size-4" /> },
         { href: "/portal/student/results", label: t("nav.examsResults", { fallback: "Results" }), icon: <Award className="size-4" /> },
         { href: "/portal/student/homework", label: t("nav.homework"), icon: <NotebookPen className="size-4" /> },

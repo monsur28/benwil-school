@@ -30,7 +30,9 @@ test.describe("Portal mobile layout (390px)", () => {
     const academicYear = await prisma.academicYear.findFirstOrThrow({ where: { schoolId: school.id, name: "2026" } })
     const student = await prisma.student.findUniqueOrThrow({ where: { studentUid: "STU-0501" } })
     studentId = student.id
-    const guardian = await prisma.guardian.findFirstOrThrow({ where: { schoolId: school.id, name: "Portal Test Guardian" } })
+    // Looked up by email, not name - see the identical comment in
+    // portal-guardian.spec.ts for why name is not a stable fixture identifier.
+    const guardian = await prisma.guardian.findFirstOrThrow({ where: { schoolId: school.id, email: "guardian@benwil.test" } })
     const secondChild = await prisma.student.findUniqueOrThrow({ where: { studentUid: "STU-0503" } })
     const link = await prisma.studentGuardian.create({
       data: { studentId: secondChild.id, guardianId: guardian.id, relation: "GUARDIAN", isPrimary: false },

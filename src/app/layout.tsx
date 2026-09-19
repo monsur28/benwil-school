@@ -21,7 +21,7 @@ const dmMono = DM_Mono({
 
 const notoSansBengali = Noto_Sans_Bengali({
   variable: "--font-bengali",
-  subsets: ["bengali"],
+  subsets: ["bengali", "latin"],
   display: "swap",
 });
 

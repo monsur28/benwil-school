@@ -15,6 +15,7 @@ import {
   Settings,
   Award,
   SlidersHorizontal,
+  CalendarDays,
 } from "lucide-react"
 import { Role } from "@prisma/client"
 
@@ -112,6 +113,7 @@ const ADDITIONAL_ROLE_ROUTES: NavItem[] = [
   { href: "/fees/reports/collections", labelKey: "fees.subnav.collections", icon: BarChart3, roles: FEE_STAFF_ROLES },
   { href: "/notices/categories", labelKey: "notices.subnav.categories", icon: Megaphone, roles: NOTICE_ADMIN_ROLES },
   { href: "/homework/categories", labelKey: "homework.subnav.categories", icon: NotebookPen, roles: ADMIN_ROLES },
+  { href: "/academics/routine", labelKey: "academics.routine.title", icon: CalendarDays, roles: ADMIN_ROLES },
 ]
 
 export const NAV_ITEMS: NavItem[] = [

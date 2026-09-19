@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation"
 import { requireGuardianIdentity, requireGuardianChild } from "@/lib/portal/identity"
-import { prisma } from "@/lib/db/client"
 import { getStudentExamResult } from "@/lib/results/get-results"
+import { getSchoolIdentity } from "@/lib/settings/school-settings"
 import { ReportCardView } from "@/components/results/report-card-view"
 
 export default async function GuardianChildReportCardPage({
@@ -16,7 +16,7 @@ export default async function GuardianChildReportCardPage({
   const context = await getStudentExamResult({ schoolId: user.schoolId, examId, studentId: student.id })
   if (!context || context.exam.resultStatus !== "FINALIZED") notFound()
 
-  const school = await prisma.school.findFirstOrThrow({ where: { id: user.schoolId } })
+  const identity = await getSchoolIdentity(user.schoolId)
 
-  return <ReportCardView schoolName={school.name} context={context} />
+  return <ReportCardView identity={identity} context={context} />
 }

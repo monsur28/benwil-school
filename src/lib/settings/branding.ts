@@ -1,6 +1,19 @@
 import "server-only"
+import { getLocale } from "next-intl/server"
 import { getPrimarySchoolId, getSchoolWithSettings } from "./school-settings"
+import { pickLocalized } from "@/lib/format"
 import { SETTINGS_DEFAULTS } from "./defaults"
+
+// See the identical helper/comment in ./school-settings.ts - getLocale()
+// throws outside a real Next.js request; this keeps that from ever crashing
+// resolvePublicBranding() (e.g. under a future direct unit test).
+async function currentLocale(): Promise<string> {
+  try {
+    return await getLocale()
+  } catch {
+    return "en"
+  }
+}
 
 // Everything in here is safe to reach an unauthenticated visitor (the login
 // page, the root layout before any session exists). Never add email, phone,
@@ -22,12 +35,13 @@ export type PublicBranding = {
 }
 
 async function resolvePublicBranding(): Promise<PublicBranding> {
-  const schoolId = await getPrimarySchoolId()
+  const [schoolId, locale] = await Promise.all([getPrimarySchoolId(), currentLocale()])
   const school = schoolId ? await getSchoolWithSettings(schoolId) : null
   const settings = school?.settings ?? null
+  const englishName = settings?.schoolName || school?.name || SETTINGS_DEFAULTS.schoolName
 
   return {
-    schoolName: settings?.schoolName || school?.name || SETTINGS_DEFAULTS.schoolName,
+    schoolName: pickLocalized(englishName, settings?.schoolNameBangla, locale),
     logoUrl: settings?.logoUrl || SETTINGS_DEFAULTS.logoUrl,
     faviconUrl: settings?.faviconUrl || SETTINGS_DEFAULTS.faviconUrl,
     loginLogoUrl: settings?.loginLogoUrl || settings?.logoUrl || SETTINGS_DEFAULTS.loginLogoUrl,

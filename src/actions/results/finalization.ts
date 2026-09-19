@@ -7,7 +7,8 @@ import { getTranslations } from "next-intl/server"
 import { requireRole } from "@/lib/auth/dal"
 import { prisma } from "@/lib/db/client"
 import { RESULT_ADMIN_ROLES } from "@/lib/results/result-access"
-import type { GradeLookupRule } from "@/lib/results/calculate-result"
+import { scaleHomeworkContribution, type GradeLookupRule } from "@/lib/results/calculate-result"
+import { getHomeworkAssessmentSummaries } from "@/lib/homework/homework-assessment-summary"
 
 export type GradingActionResult = ActionResult
 
@@ -27,7 +28,7 @@ export async function finalizeExamResults(examId: string): Promise<GradingAction
   const [exam, scale] = await Promise.all([
     prisma.exam.findFirst({
       where: { id: examId, schoolId: user.schoolId },
-      select: { id: true, resultStatus: true },
+      select: { id: true, resultStatus: true, academicYearId: true },
     }),
     prisma.gradingScale.findFirst({
       where: { schoolId: user.schoolId, isActive: true },
@@ -54,16 +55,58 @@ export async function finalizeExamResults(examId: string): Promise<GradingAction
     }))
     .sort((a, b) => a.minPercentageScaled - b.minPercentageScaled)
 
-  await prisma.exam.update({
-    where: { id: examId },
-    data: {
-      resultStatus: "FINALIZED",
-      resultStatusChangedAt: new Date(),
-      resultStatusChangedById: user.userId,
-      gradingScaleName: scale.name,
-      gradingRulesSnapshot: rules,
-    },
+  // Phase 12: freeze each student's homework contribution for every
+  // schedule that has a homework component, so a later homework mark edit
+  // never silently changes this now-finalized result (see
+  // src/lib/results/get-results.ts buildMarksByStudentId, which reads this
+  // frozen value instead of recomputing live once the exam is FINALIZED).
+  const homeworkSchedules = await prisma.examSchedule.findMany({
+    where: { examId, schoolId: user.schoolId, homeworkMaxMarks: { not: null, gt: 0 } },
+    select: { id: true, classId: true, subjectId: true, homeworkMaxMarks: true },
   })
+
+  const homeworkMarkUpdates: { id: string; homeworkMarks: number | null }[] = []
+  for (const schedule of homeworkSchedules) {
+    const marks = await prisma.examMark.findMany({
+      where: { examScheduleId: schedule.id },
+      select: { id: true, studentId: true },
+    })
+    if (marks.length === 0) continue
+
+    const summaries = await getHomeworkAssessmentSummaries({
+      schoolId: user.schoolId,
+      studentIds: marks.map((mark) => mark.studentId),
+      classId: schedule.classId,
+      subjectId: schedule.subjectId,
+      academicYearId: exam.academicYearId,
+    })
+
+    for (const mark of marks) {
+      const summary = summaries.get(mark.studentId)
+      homeworkMarkUpdates.push({
+        id: mark.id,
+        homeworkMarks: summary
+          ? scaleHomeworkContribution(summary.totalMarks, summary.totalMaxMarks, schedule.homeworkMaxMarks!)
+          : null,
+      })
+    }
+  }
+
+  await prisma.$transaction([
+    prisma.exam.update({
+      where: { id: examId },
+      data: {
+        resultStatus: "FINALIZED",
+        resultStatusChangedAt: new Date(),
+        resultStatusChangedById: user.userId,
+        gradingScaleName: scale.name,
+        gradingRulesSnapshot: rules,
+      },
+    }),
+    ...homeworkMarkUpdates.map((update) =>
+      prisma.examMark.update({ where: { id: update.id }, data: { homeworkMarks: update.homeworkMarks } })
+    ),
+  ])
 
   revalidatePath("/results")
   return { success: true }
@@ -80,16 +123,24 @@ export async function reopenExamResults(examId: string): Promise<GradingActionRe
   if (!exam) return { success: false, error: t("errors.notFound") }
   if (exam.resultStatus === "DRAFT") return { success: false, error: t("errors.alreadyDraft") }
 
-  await prisma.exam.update({
-    where: { id: examId },
-    data: {
-      resultStatus: "DRAFT",
-      resultStatusChangedAt: new Date(),
-      resultStatusChangedById: user.userId,
-      gradingScaleName: null,
-      gradingRulesSnapshot: Prisma.DbNull,
-    },
-  })
+  await prisma.$transaction([
+    prisma.exam.update({
+      where: { id: examId },
+      data: {
+        resultStatus: "DRAFT",
+        resultStatusChangedAt: new Date(),
+        resultStatusChangedById: user.userId,
+        gradingScaleName: null,
+        gradingRulesSnapshot: Prisma.DbNull,
+      },
+    }),
+    // Clear the frozen homework snapshot too, so it goes back to being
+    // computed live from HomeworkSubmission while the exam is DRAFT again.
+    prisma.examMark.updateMany({
+      where: { examSchedule: { examId }, homeworkMarks: { not: null } },
+      data: { homeworkMarks: null },
+    }),
+  ])
 
   revalidatePath("/results")
   return { success: true }

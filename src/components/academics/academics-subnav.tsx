@@ -1,7 +1,7 @@
 "use client"
 
 import { useTranslations } from "next-intl"
-import { Calendar, GraduationCap, BookOpen, UserCheck } from "lucide-react"
+import { Calendar, GraduationCap, BookOpen, UserCheck, Clock } from "lucide-react"
 import { SubNav } from "@/components/shared/sub-nav"
 
 const LINKS = [
@@ -9,6 +9,7 @@ const LINKS = [
   { href: "/academics/classes", labelKey: "classes.title", icon: GraduationCap },
   { href: "/academics/subjects", labelKey: "subjects.title", icon: BookOpen },
   { href: "/academics/assignments", labelKey: "assignments.title", icon: UserCheck },
+  { href: "/academics/routine", labelKey: "routine.title", icon: Clock },
 ]
 
 export function AcademicsSubNav() {

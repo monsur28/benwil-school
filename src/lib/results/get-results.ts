@@ -3,11 +3,98 @@ import { prisma } from "@/lib/db/client"
 import {
   calculateStudentExamResult,
   findGradeForMarks,
+  scaleHomeworkContribution,
   type GradeLookupRule,
+  type MarkInput,
   type OverallStatus,
   type ScheduleInput,
   type StudentExamResult,
 } from "@/lib/results/calculate-result"
+import { getHomeworkAssessmentSummaries } from "@/lib/homework/homework-assessment-summary"
+
+type ScheduleMeta = {
+  scheduleId: string
+  subjectId: string
+  classId: string
+  homeworkMaxMarks: number | null
+}
+
+type RawExamMark = {
+  studentId: string
+  examScheduleId: string
+  marks: number | null
+  isAbsent: boolean
+  homeworkMarks: { toNumber(): number } | null
+}
+
+// The single place that turns raw ExamMark rows + (for homework-enabled
+// schedules) reviewed HomeworkSubmission rows into the MarkInput map
+// calculate-result.ts consumes - shared by every call site below so DRAFT
+// vs FINALIZED homework sourcing is decided in exactly one place.
+//
+// DRAFT: homework contribution is computed live from HomeworkSubmission on
+// every read, so a teacher grading homework mid-term sees an up-to-date
+// preview (spec Phase 12 §14).
+// FINALIZED: the contribution is read from ExamMark.homeworkMarks, frozen at
+// finalization time - a later homework mark edit must never silently change
+// an already-finalized result (spec Phase 12 §13/§57).
+async function buildMarksByStudentId(params: {
+  schoolId: string
+  academicYearId: string
+  resultStatus: "DRAFT" | "FINALIZED"
+  schedules: ScheduleMeta[]
+  examMarks: RawExamMark[]
+  studentIds: string[]
+}): Promise<Map<string, Map<string, MarkInput>>> {
+  const { schoolId, academicYearId, resultStatus, schedules, examMarks, studentIds } = params
+
+  const rawByKey = new Map<string, RawExamMark>()
+  for (const mark of examMarks) {
+    rawByKey.set(`${mark.studentId}:${mark.examScheduleId}`, mark)
+  }
+
+  const liveContribution = new Map<string, Map<string, number | null>>()
+  if (resultStatus === "DRAFT") {
+    for (const schedule of schedules) {
+      if (!schedule.homeworkMaxMarks || schedule.homeworkMaxMarks <= 0) continue
+      const summaries = await getHomeworkAssessmentSummaries({
+        schoolId,
+        studentIds,
+        classId: schedule.classId,
+        subjectId: schedule.subjectId,
+        academicYearId,
+      })
+      const perStudent = new Map<string, number | null>()
+      for (const studentId of studentIds) {
+        const summary = summaries.get(studentId)
+        perStudent.set(
+          studentId,
+          summary
+            ? scaleHomeworkContribution(summary.totalMarks, summary.totalMaxMarks, schedule.homeworkMaxMarks)
+            : null
+        )
+      }
+      liveContribution.set(schedule.scheduleId, perStudent)
+    }
+  }
+
+  const result = new Map<string, Map<string, MarkInput>>()
+  for (const studentId of studentIds) {
+    const perSchedule = new Map<string, MarkInput>()
+    for (const schedule of schedules) {
+      const raw = rawByKey.get(`${studentId}:${schedule.scheduleId}`)
+      const hasHomework = Boolean(schedule.homeworkMaxMarks && schedule.homeworkMaxMarks > 0)
+      const homeworkMarks = !hasHomework
+        ? null
+        : resultStatus === "FINALIZED"
+          ? raw?.homeworkMarks?.toNumber() ?? null
+          : liveContribution.get(schedule.scheduleId)?.get(studentId) ?? null
+      perSchedule.set(schedule.scheduleId, raw ? { marks: raw.marks, isAbsent: raw.isAbsent, homeworkMarks } : null)
+    }
+    result.set(studentId, perSchedule)
+  }
+  return result
+}
 
 // Converts a school's active GradingScale + GradeRule rows into the plain-
 // number lookup shape calculate-result.ts operates on. One query, reused by
@@ -104,6 +191,7 @@ export async function getClassSectionResults(params: {
     subjectName: schedule.subject.name,
     fullMarks: schedule.fullMarks,
     passMarks: schedule.passMarks,
+    homeworkMaxMarks: schedule.homeworkMaxMarks,
   }))
 
   const marks = await prisma.examMark.findMany({
@@ -112,13 +200,20 @@ export async function getClassSectionResults(params: {
       studentId: { in: students.map((student) => student.id) },
     },
   })
-  const marksByStudentId = new Map<string, Map<string, { marks: number | null; isAbsent: boolean }>>()
-  for (const mark of marks) {
-    if (!marksByStudentId.has(mark.studentId)) {
-      marksByStudentId.set(mark.studentId, new Map())
-    }
-    marksByStudentId.get(mark.studentId)!.set(mark.examScheduleId, { marks: mark.marks, isAbsent: mark.isAbsent })
-  }
+
+  const marksByStudentId = await buildMarksByStudentId({
+    schoolId,
+    academicYearId,
+    resultStatus: exam?.resultStatus ?? "DRAFT",
+    schedules: scheduleRows.map((schedule) => ({
+      scheduleId: schedule.id,
+      subjectId: schedule.subjectId,
+      classId,
+      homeworkMaxMarks: schedule.homeworkMaxMarks,
+    })),
+    examMarks: marks,
+    studentIds: students.map((student) => student.id),
+  })
 
   const rows: ClassSectionResultsRow[] = students.map((student) => {
     const result = calculateStudentExamResult(
@@ -267,7 +362,7 @@ export async function getStudentResultSummaries(params: {
   const marks = await prisma.examMark.findMany({
     where: { studentId, examScheduleId: { in: schedules.map((schedule) => schedule.id) } },
   })
-  const marksByScheduleId = new Map(marks.map((mark) => [mark.examScheduleId, { marks: mark.marks, isAbsent: mark.isAbsent }]))
+  const rawMarksByScheduleId = new Map(marks.map((mark) => [mark.examScheduleId, mark]))
 
   const schedulesByExam = new Map<string, typeof schedules>()
   for (const schedule of schedules) {
@@ -292,7 +387,25 @@ export async function getStudentResultSummaries(params: {
       subjectName: schedule.subject.name,
       fullMarks: schedule.fullMarks,
       passMarks: schedule.passMarks,
+      homeworkMaxMarks: schedule.homeworkMaxMarks,
     }))
+    const marksByStudentId = await buildMarksByStudentId({
+      schoolId,
+      academicYearId: exam.academicYearId,
+      resultStatus: exam.resultStatus,
+      schedules: examSchedules.map((schedule) => ({
+        scheduleId: schedule.id,
+        subjectId: schedule.subjectId,
+        classId,
+        homeworkMaxMarks: schedule.homeworkMaxMarks,
+      })),
+      examMarks: examSchedules
+        .map((schedule) => rawMarksByScheduleId.get(schedule.id))
+        .filter((mark): mark is NonNullable<typeof mark> => Boolean(mark))
+        .map((mark) => ({ ...mark, studentId })),
+      studentIds: [studentId],
+    })
+    const marksByScheduleId = marksByStudentId.get(studentId) ?? new Map()
     const result = calculateStudentExamResult(studentId, scheduleInputs, marksByScheduleId, examGradeRules)
     summaries.push({
       examId: exam.id,
@@ -369,12 +482,26 @@ export async function getStudentExamResult(params: {
     subjectName: schedule.subject.name,
     fullMarks: schedule.fullMarks,
     passMarks: schedule.passMarks,
+    homeworkMaxMarks: schedule.homeworkMaxMarks,
   }))
 
   const marks = await prisma.examMark.findMany({
     where: { studentId, examScheduleId: { in: schedules.map((schedule) => schedule.scheduleId) } },
   })
-  const marksByScheduleId = new Map(marks.map((mark) => [mark.examScheduleId, { marks: mark.marks, isAbsent: mark.isAbsent }]))
+  const marksByStudentId = await buildMarksByStudentId({
+    schoolId,
+    academicYearId: exam.academicYearId,
+    resultStatus: exam.resultStatus,
+    schedules: scheduleRows.map((schedule) => ({
+      scheduleId: schedule.id,
+      subjectId: schedule.subjectId,
+      classId: student.classId,
+      homeworkMaxMarks: schedule.homeworkMaxMarks,
+    })),
+    examMarks: marks,
+    studentIds: [studentId],
+  })
+  const marksByScheduleId = marksByStudentId.get(studentId) ?? new Map()
 
   const result = calculateStudentExamResult(studentId, schedules, marksByScheduleId, gradeRules)
 
@@ -444,11 +571,6 @@ export async function getClassPerformanceOverview(
       studentId: { in: students.map((student) => student.id) },
     },
   })
-  const marksByStudentId = new Map<string, Map<string, { marks: number | null; isAbsent: boolean }>>()
-  for (const mark of marks) {
-    if (!marksByStudentId.has(mark.studentId)) marksByStudentId.set(mark.studentId, new Map())
-    marksByStudentId.get(mark.studentId)!.set(mark.examScheduleId, { marks: mark.marks, isAbsent: mark.isAbsent })
-  }
 
   const schedulesByClassId = new Map<string, ScheduleInput[]>()
   const classMeta = new Map<string, { name: string; order: number; passBenchmark: number }>()
@@ -460,6 +582,7 @@ export async function getClassPerformanceOverview(
       subjectName: schedule.subject.name,
       fullMarks: schedule.fullMarks,
       passMarks: schedule.passMarks,
+      homeworkMaxMarks: schedule.homeworkMaxMarks,
     })
     schedulesByClassId.set(schedule.classId, list)
   }
@@ -484,6 +607,22 @@ export async function getClassPerformanceOverview(
   const ranked: { order: number; row: ClassPerformanceRow }[] = []
   for (const [classId, schedules] of schedulesByClassId) {
     const studentIds = studentIdsByClassId.get(classId) ?? []
+    // FINALIZED-only query above guarantees every homework contribution
+    // here is read from the frozen ExamMark.homeworkMarks snapshot, never
+    // live-computed - see buildMarksByStudentId.
+    const marksByStudentId = await buildMarksByStudentId({
+      schoolId,
+      academicYearId: exam.academicYearId,
+      resultStatus: "FINALIZED",
+      schedules: schedules.map((schedule) => ({
+        scheduleId: schedule.scheduleId,
+        subjectId: schedule.subjectId,
+        classId,
+        homeworkMaxMarks: schedule.homeworkMaxMarks,
+      })),
+      examMarks: marks.filter((mark) => studentIds.includes(mark.studentId)),
+      studentIds,
+    })
     const percentages: number[] = []
     for (const studentId of studentIds) {
       const result = calculateStudentExamResult(studentId, schedules, marksByStudentId.get(studentId) ?? new Map(), gradeRules)

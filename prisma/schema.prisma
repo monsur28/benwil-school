@@ -39,6 +39,7 @@ model School {
   homeworks           Homework[]
   homeworkSubmissions HomeworkSubmission[]
   settings            SchoolSettings?
+  routineEntries      RoutineEntry[]
 
   @@map("schools")
 }
@@ -55,6 +56,11 @@ model SchoolSettings {
 
   // Identity
   schoolName      String?
+  // Phase 13 follow-up: the Bangla counterpart to schoolName, shown instead
+  // of it wherever branding is displayed and the active locale is "bn" (see
+  // pickLocalized usage in getSchoolIdentity/resolvePublicBranding) - same
+  // convention as Student.nameBn, Subject.nameBn, etc. elsewhere in the schema.
+  schoolNameBangla String?
   shortName       String?
   schoolCode      String?
   motto           String?
@@ -171,6 +177,7 @@ model User {
   noticesUpdated          Notice[]            @relation("NoticeUpdatedBy")
   homeworksTeaching           Homework[]           @relation("HomeworkTeacher")
   reviewedHomeworkSubmissions HomeworkSubmission[] @relation("ReviewedHomeworkSubmissions")
+  routineEntriesTeaching      RoutineEntry[]       @relation("RoutineTeacher")
 
   @@index([schoolId])
   // Employee ID must be unique within a school, not globally (multi-school
@@ -197,6 +204,7 @@ model AcademicYear {
   studentFees   StudentFee[]
   homeworks     Homework[]
   teacherAssignments TeacherAssignment[]
+  routineEntries     RoutineEntry[]
 
   @@unique([schoolId, name])
   @@index([schoolId])
@@ -221,6 +229,7 @@ model Class {
   feeStructures      FeeStructure[]
   notices            Notice[]
   homeworks          Homework[]
+  routineEntries     RoutineEntry[]
 
   @@unique([schoolId, name])
   @@index([schoolId])
@@ -239,6 +248,7 @@ model Section {
   teacherAssignments TeacherAssignment[]
   notices            Notice[]
   homeworks          Homework[]
+  routineEntries     RoutineEntry[]
 
   @@unique([classId, name])
   @@index([classId])
@@ -450,6 +460,7 @@ model Subject {
   teacherAssignments TeacherAssignment[]
   examSchedules      ExamSchedule[]
   homeworks          Homework[]
+  routineEntries     RoutineEntry[]
 
   @@unique([schoolId, code])
   @@unique([schoolId, name])
@@ -476,7 +487,7 @@ model ClassSubject {
 // The smallest additive model needed to connect a teacher to what they
 // teach: no separate Teacher/Employee table exists yet (that's full Teacher
 // & Staff Management, a later phase), so this links directly to User (role
-// TEACHER). A teacher can have any number of these rows ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â multiple classes,
+// TEACHER). A teacher can have any number of these rows -- spanning multiple classes,
 // sections, and subjects.
 model TeacherAssignment {
   id        String @id @default(cuid())
@@ -638,6 +649,17 @@ model ExamSchedule {
   room      String?
   fullMarks Int
   passMarks Int
+  // Phase 12: the portion of fullMarks (still the subject's grand total)
+  // sourced from the student's own reviewed Homework for this subject+class+
+  // academic year, rather than typed directly into ExamMark. Null/0 means
+  // this subject has no homework component - the default for every schedule
+  // created before this phase, so nothing about existing exams changes.
+  // Written marks entered via ExamMark.marks are capped at
+  // fullMarks - homeworkMaxMarks, not fullMarks, once this is set (see
+  // saveExamMarks). There is still exactly one ExamSchedule per subject per
+  // exam (@@unique below is unchanged) - this is a weight within that one
+  // row, not a second schedule/grading path.
+  homeworkMaxMarks Int?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -654,7 +676,7 @@ model ExamSchedule {
 }
 
 // A student's result for one exam schedule. No classId/sectionId/academicYearId
-// denormalization here (unlike Attendance) ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â marks are never read after a
+// denormalization here (unlike Attendance) because marks are never read after a
 // student's later promotion in a way that requires point-in-time class/section,
 // and Phase 5 explicitly excludes promotion/report-card logic that would need it.
 model ExamMark {
@@ -665,6 +687,16 @@ model ExamMark {
   marks          Int?
   isAbsent       Boolean  @default(false)
   enteredById    String
+  // Phase 12: the homework contribution actually counted toward this
+  // student's subject total, frozen at the moment the exam is FINALIZED
+  // (mirrors Exam.gradingRulesSnapshot, but per student+schedule since the
+  // contribution is student-specific). Null while the exam is DRAFT - the
+  // live value is computed on read from HomeworkSubmission instead, so a
+  // teacher grading homework mid-term sees an up-to-date preview. Once set,
+  // a later homework mark change must never silently change this row -
+  // reopening the exam (see reopenExamResults) clears it back to null so it
+  // gets recomputed live again, and re-finalizing snapshots it again.
+  homeworkMarks  Decimal? @db.Decimal(5, 2)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
@@ -1123,4 +1155,48 @@ model RateLimit {
   lastAttempt  DateTime
 
   @@map("rate_limits")
+}
+
+enum DayOfWeek {
+  SATURDAY
+  SUNDAY
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+}
+
+// Phase 14: Class Routine / Timetable entry.
+// Represents a single scheduled class period in the school's weekly routine.
+model RoutineEntry {
+  id             String      @id @default(cuid())
+  schoolId       String
+  academicYearId String
+  classId        String
+  sectionId      String
+  subjectId      String
+  teacherId      String
+  dayOfWeek      DayOfWeek
+  periodNumber   Int
+  startTime      String      // 24-hour format "HH:mm" e.g. "09:00"
+  endTime        String      // 24-hour format "HH:mm" e.g. "09:45"
+  room           String?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  school       School       @relation(fields: [schoolId], references: [id])
+  academicYear AcademicYear @relation(fields: [academicYearId], references: [id])
+  class        Class        @relation(fields: [classId], references: [id])
+  section      Section      @relation(fields: [sectionId], references: [id])
+  subject      Subject      @relation(fields: [subjectId], references: [id])
+  teacher      User         @relation("RoutineTeacher", fields: [teacherId], references: [id])
+
+  @@unique([schoolId, academicYearId, classId, sectionId, dayOfWeek, periodNumber])
+  @@index([schoolId])
+  @@index([academicYearId])
+  @@index([classId, sectionId])
+  @@index([teacherId, dayOfWeek, periodNumber])
+  @@index([dayOfWeek])
+  @@map("routine_entries")
 }
