@@ -4,6 +4,7 @@ import { Award, CalendarDays, CreditCard, Megaphone, NotebookPen, Target, Users,
 import { requireStudentIdentity } from "@/lib/portal/identity"
 import { getSchoolIdentity } from "@/lib/settings/school-settings"
 import { getTodaysStudentSchedule } from "@/lib/academics/routine"
+import { getStudentAttendanceSummary } from "@/lib/attendance/get-attendance"
 import { getVisibleHomeworkForStudent } from "@/lib/homework/homework-visibility"
 import { getStudentResultSummaries } from "@/lib/results/get-results"
 import { getVisibleNoticesForStudent } from "@/lib/notices/notice-visibility"
@@ -30,7 +31,9 @@ export default async function StudentDashboardPage() {
     tResults,
     tHomework,
     tFees,
+    tAttendance,
     todaySchedule,
+    attendanceSummary,
     { homework },
     results,
     notices,
@@ -43,9 +46,14 @@ export default async function StudentDashboardPage() {
     getTranslations("results"),
     getTranslations("homework"),
     getTranslations("fees"),
+    getTranslations("attendance"),
     getTodaysStudentSchedule({
       schoolId: user.schoolId,
       studentId: student.id,
+    }),
+    getStudentAttendanceSummary({
+      studentId: student.id,
+      academicYearId: student.academicYearId,
     }),
     getVisibleHomeworkForStudent({
       schoolId: user.schoolId,
@@ -171,7 +179,44 @@ export default async function StudentDashboardPage() {
             </div>
           )}
         </div>
-        <div className="rounded-xl border border-border bg-card p-4 lg:col-span-4 min-w-0"><div className="flex items-center justify-between"><h2 className="text-sm font-bold text-brand-navy">Attendance</h2><button className="rounded border border-border px-2 py-1 text-[10px] text-muted-foreground">This Month</button></div><div className="mt-4 flex items-center justify-center gap-6"><div className="grid size-32 place-items-center rounded-full bg-[conic-gradient(#20a66a_0_92%,#e9a23b_92%_96%,#e7ebf0_96%)] p-3"><div className="grid size-full place-items-center rounded-full bg-card text-center"><b className="text-3xl text-brand-navy">92%</b><span className="-mt-2 text-[10px] text-muted-foreground">Present</span></div></div><div className="space-y-3 text-[11px]"><p className="flex items-center gap-2"><i className="size-2 rounded-full bg-emerald-500" />Present <b className="ml-auto">22 days</b></p><p className="flex items-center gap-2"><i className="size-2 rounded-full bg-slate-300" />Absent <b className="ml-auto">1 day</b></p><p className="flex items-center gap-2"><i className="size-2 rounded-full bg-amber-400" />Late <b className="ml-auto">1 day</b></p></div></div><div className="mt-4 flex gap-2 rounded-lg bg-blue-50 p-3"><CalendarDays className="size-5 text-blue-600" /><p className="text-[11px] text-blue-700"><b>Great consistency!</b><br />You&apos;ve maintained 92% attendance this month.</p></div></div>
+        <div className="rounded-xl border border-border bg-card p-4 lg:col-span-4 min-w-0">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-bold text-brand-navy">{tPortal("cards.attendance")}</h2>
+            <Link href="/portal/student/attendance" className="text-[11px] font-semibold text-blue-600">{tPortal("actions.viewDetails")}</Link>
+          </div>
+          {attendanceSummary.total === 0 ? (
+            <div className="py-8 text-center text-xs text-muted-foreground">{tPortal("empty.noAttendance")}</div>
+          ) : (
+            <>
+              <div className="mt-4 flex items-center justify-center gap-6">
+                <div
+                  className="grid size-32 place-items-center rounded-full p-3"
+                  style={{
+                    background: `conic-gradient(#20a66a 0 ${attendanceSummary.percentage ?? 0}%, #e7ebf0 ${attendanceSummary.percentage ?? 0}% 100%)`,
+                  }}
+                >
+                  <div className="grid size-full place-items-center rounded-full bg-card text-center">
+                    <b className="text-3xl text-brand-navy">{attendanceSummary.percentage ?? 0}%</b>
+                    <span className="-mt-2 text-[10px] text-muted-foreground">{tAttendance("status.PRESENT")}</span>
+                  </div>
+                </div>
+                <div className="space-y-3 text-[11px]">
+                  <p className="flex items-center gap-2"><i className="size-2 rounded-full bg-emerald-500" />{tAttendance("status.PRESENT")} <b className="ml-auto">{attendanceSummary.counts.PRESENT}</b></p>
+                  <p className="flex items-center gap-2"><i className="size-2 rounded-full bg-slate-300" />{tAttendance("status.ABSENT")} <b className="ml-auto">{attendanceSummary.counts.ABSENT}</b></p>
+                  <p className="flex items-center gap-2"><i className="size-2 rounded-full bg-amber-400" />{tAttendance("status.LATE")} <b className="ml-auto">{attendanceSummary.counts.LATE}</b></p>
+                </div>
+              </div>
+              <div className="mt-4 flex gap-2 rounded-lg bg-blue-50 p-3">
+                <CalendarDays className="size-5 text-blue-600" />
+                <p className="text-[11px] text-blue-700">
+                  <b>{tPortal("fields.attendancePercentage")}</b>
+                  <br />
+                  {student.academicYear.name} &middot; {attendanceSummary.percentage}%
+                </p>
+              </div>
+            </>
+          )}
+        </div>
         <div className="rounded-xl border border-border bg-card p-4 lg:col-span-3 min-w-0">
           <div className="flex items-center justify-between border-b border-border pb-3">
             <h2 className="text-sm font-bold text-brand-navy">{tPortal("cards.homework")}</h2>

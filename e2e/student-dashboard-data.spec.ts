@@ -53,6 +53,7 @@ let noticeVisibleId: string
 let noticeDraftId: string
 let noticeExpiredId: string
 let noticeOtherClassId: string
+let attendanceIds: string[] = []
 
 test.describe("Student Dashboard - real data wiring", () => {
   test.beforeAll(async () => {
@@ -326,9 +327,40 @@ test.describe("Student Dashboard - real data wiring", () => {
       },
     })
     noticeOtherClassId = otherClassNotice.id
+
+    // Attendance: Student A gets 3 PRESENT, 1 ABSENT, 1 LATE (real percentage
+    // = round(3/5*100) = 60%, per getStudentAttendanceSummary's own
+    // definition - deliberately not 82/75/92 to avoid colliding with other
+    // decorative/fixture strings already on this dashboard). Student B gets
+    // none, to prove the empty state doesn't fall back to fabricated numbers.
+    const attendanceRows = await prisma.$transaction(
+      [
+        { date: new Date("2026-01-05"), status: "PRESENT" as const },
+        { date: new Date("2026-01-06"), status: "PRESENT" as const },
+        { date: new Date("2026-01-07"), status: "PRESENT" as const },
+        { date: new Date("2026-01-08"), status: "ABSENT" as const },
+        { date: new Date("2026-01-09"), status: "LATE" as const },
+      ].map(({ date, status }) =>
+        prisma.attendance.create({
+          data: {
+            schoolId,
+            studentId: studentAId,
+            classId: class5Id,
+            sectionId: section5AId,
+            academicYearId,
+            date,
+            status,
+            markedById: teacherId,
+          },
+        })
+      )
+    )
+    attendanceIds = attendanceRows.map((row) => row.id)
   })
 
   test.afterAll(async () => {
+    await prisma.attendance.deleteMany({ where: { id: { in: attendanceIds } } })
+
     await prisma.notice.deleteMany({ where: { id: { in: [noticeVisibleId, noticeDraftId, noticeExpiredId, noticeOtherClassId] } } })
     await prisma.noticeCategory.deleteMany({ where: { id: noticeCategoryId } })
 
@@ -422,6 +454,23 @@ test.describe("Student Dashboard - real data wiring", () => {
     await expect(page.getByText(`${RUN_PREFIX} Draft Notice`)).toHaveCount(0)
     await expect(page.getByText(`${RUN_PREFIX} Expired Notice`)).toHaveCount(0)
     await expect(page.getByText(`${RUN_PREFIX} Other Class Notice`)).toHaveCount(0)
+    await logout(page)
+  })
+
+  test("attendance widget shows the student's real percentage and counts, not the old fabricated demo values", async ({ page }) => {
+    await login(page, accountA.email, accountA.password)
+    await expect(page.getByText("60%").first()).toBeVisible()
+    // Old hardcoded demo values must never appear.
+    await expect(page.getByText("92%")).toHaveCount(0)
+    await expect(page.getByText("22 days")).toHaveCount(0)
+    await logout(page)
+  })
+
+  test("student with no attendance records sees the real empty state, not a fabricated percentage", async ({ page }) => {
+    await login(page, accountB.email, accountB.password)
+    await expect(page.getByText("No attendance records yet.")).toBeVisible()
+    await expect(page.getByText("92%")).toHaveCount(0)
+    await expect(page.getByText("60%")).toHaveCount(0)
     await logout(page)
   })
 

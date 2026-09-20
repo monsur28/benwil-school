@@ -69,16 +69,12 @@ test.describe("Student portal", () => {
     // <full name>") - only the first name is real data.
     await expect(page.getByRole("heading", { name: "Nusrat." })).toBeVisible()
 
-    // Phase 14/14.1 wired identity, routine, homework, results, fees, and
-    // notices to real data (see e2e/student-dashboard-data.spec.ts for the
-    // dedicated, fixture-driven coverage of each). STU-0501 is genuinely
-    // Class 5 Section A / Roll 90 / academic year 2026 - spot-check that
-    // here too since this is the canonical seeded portal login.
-    //
-    // KNOWN APPLICATION ISSUE: the Attendance widget on this page is still
-    // hardcoded demo content (92% / 22 days present / etc.), not backed by
-    // real Attendance records - out of scope for Phase 14.1, tracked
-    // separately.
+    // Phase 14/14.1/14.2 wired identity, routine, homework, results, fees,
+    // notices, and attendance to real data (see
+    // e2e/student-dashboard-data.spec.ts for the dedicated, fixture-driven
+    // coverage of each). STU-0501 is genuinely Class 5 Section A / Roll 90 /
+    // academic year 2026 - spot-check that here too since this is the
+    // canonical seeded portal login.
     await expect(page.getByText("Class 5").first()).toBeVisible()
     await expect(page.getByText("Roll 90")).toBeVisible()
   })
